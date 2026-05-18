@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Crecensa Inmobiliaria</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Inter,system-ui,sans-serif;background:#f0f4f8;color:#1f2937;display:flex;height:100vh;overflow:hidden;}
+
+    /* â”€â”€ SIDEBAR â”€â”€ */
+    .sidebar{width:240px;min-width:240px;background:#0d1117;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+    .sidebar-brand{padding:22px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.08);}
+    .sidebar-logo{width:42px;height:42px;border-radius:10px;overflow:hidden;background:#fff;flex-shrink:0;}
+    .sidebar-logo img{width:100%;height:100%;object-fit:contain;}
+    .brand-name{font-size:.93rem;font-weight:700;color:#fff;line-height:1.2;}
+    .brand-sub{font-size:.72rem;color:rgba(255,255,255,.4);margin-top:2px;}
+    .sidebar-nav{padding:14px 10px;flex:1;}
+    .nav-label{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.28);padding:8px 8px 5px;margin-top:10px;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.5);font-size:.88rem;font-weight:500;transition:all .15s;margin-bottom:2px;user-select:none;}
+    .nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);}
+    .nav-item.active{background:rgba(37,99,235,.28);color:#60a5fa;}
+    .nav-icon{width:17px;height:17px;flex-shrink:0;opacity:.7;}
+    .nav-item.active .nav-icon{opacity:1;}
+    .sidebar-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.35);font-size:.78rem;}
+
+    /* â”€â”€ MAIN â”€â”€ */
+    .main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+    .topbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:15px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+    .topbar-title{font-size:1.05rem;font-weight:700;color:#111827;}
+    .topbar-sub{font-size:.8rem;color:#6b7280;margin-top:1px;}
+    .avatar{width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;font-size:.82rem;display:grid;place-items:center;}
+    .content{padding:24px 28px;flex:1;}
+
+    /* â”€â”€ PAGES â”€â”€ */
+    .page{display:none;}.page.active{display:block;}
+
+    /* â”€â”€ STATS â”€â”€ */
+    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+    .stat-card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);}
+    .stat-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;margin-bottom:6px;}
+    .stat-value{font-size:1.75rem;font-weight:700;color:#111827;line-height:1;}
+    .stat-note{font-size:.75rem;color:#d1d5db;margin-top:5px;}
+    .c-blue{color:#2563eb;}.c-green{color:#16a34a;}.c-red{color:#dc2626;}.c-amber{color:#d97706;}
+
+    /* â”€â”€ PANELS â”€â”€ */
+    .panel{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.04);margin-bottom:18px;}
+    .panel-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+    .panel-title{font-size:.95rem;font-weight:700;color:#111827;}
+    .panel-sub{font-size:.78rem;color:#9ca3af;margin-top:2px;}
+    .two-col{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px;}
+
+    /* â”€â”€ TABLE â”€â”€ */
+    table{width:100%;border-collapse:collapse;}
+    th{text-align:left;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;padding:9px 10px;border-bottom:1px solid #f3f4f6;}
+    td{padding:11px 10px;border-bottom:1px solid #f9fafb;font-size:.85rem;color:#374151;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#fafafa;}
+
+    /* â”€â”€ PILLS â”€â”€ */
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:.73rem;font-weight:700;}
+    .pdot{width:5px;height:5px;border-radius:50%;}
+    .p-dis{background:#dcfce7;color:#166534;}.p-dis .pdot{background:#22c55e;}
+    .p-res{background:#fef3c7;color:#92400e;}.p-res .pdot{background:#f59e0b;}
+    .p-ven{background:#fee2e2;color:#991b1b;}.p-ven .pdot{background:#ef4444;}
+
+    /* â”€â”€ BUTTONS â”€â”€ */
+    .btn{border:none;cursor:pointer;font-weight:700;font-size:.83rem;border-radius:9px;padding:8px 14px;transition:all .15s;font-family:inherit;}
+    .btn-primary{background:#2563eb;color:#fff;}.btn-primary:hover{background:#1d4ed8;}
+    .btn-secondary{background:#f3f4f6;color:#374151;}.btn-secondary:hover{background:#e5e7eb;}
+    .btn-ghost{background:transparent;color:#6b7280;border:1px solid #e5e7eb;}.btn-ghost:hover{background:#f9fafb;}
+    .btn-sm{padding:5px 11px;font-size:.76rem;}
+    .btn-danger{background:#fee2e2;color:#991b1b;}.btn-danger:hover{background:#fecaca;}
+
+    /* â”€â”€ FORMS â”€â”€ */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .form-grid-3{grid-template-columns:1fr 1fr 1fr;}
+    .form-full{grid-column:1/-1;}
+    .form-group{display:flex;flex-direction:column;gap:4px;}
+    .form-label{font-size:.76rem;font-weight:600;color:#374151;}
+    .form-input{border:1px solid #e5e7eb;border-radius:8px;padding:8px 11px;font-size:.85rem;color:#111827;background:#fafafa;outline:none;transition:border .15s;font-family:inherit;}
+    .form-input:focus{border-color:#2563eb;background:#fff;}
+    select.form-input{cursor:pointer;}
+    .form-actions{display:flex;gap:8px;margin-top:14px;}
+
+    /* â”€â”€ SEARCH â”€â”€ */
+    .search-bar{display:flex;gap:10px;margin-bottom:14px;}
+    .search-input{flex:1;border:1px solid #e5e7eb;border-radius:9px;padding:8px 13px;font-size:.85rem;outline:none;background:#fafafa;font-family:inherit;}
+    .search-input:focus{border-color:#2563eb;background:#fff;}
+
+    /* â”€â”€ SECTION HEADER â”€â”€ */
+    .sec-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+    .sec-title{font-size:1.25rem;font-weight:700;color:#111827;}
+    .sec-sub{font-size:.82rem;color:#6b7280;margin-top:3px;}
+
+    /* â”€â”€ CLIENT CELL â”€â”€ */
+    .client-init{width:30px;height:30px;border-radius:7px;background:#dbeafe;color:#1d4ed8;font-weight:700;font-size:.72rem;display:grid;place-items:center;flex-shrink:0;}
+    .client-cell{display:flex;align-items:center;gap:9px;}
+    .client-n{font-weight:600;font-size:.85rem;color:#111827;}
+    .client-s{font-size:.73rem;color:#9ca3af;}
+
+    /* â”€â”€ ALERT ROWS â”€â”€ */
+    .alert-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #f3f4f6;}
+    .alert-row:last-child{border-bottom:none;}
+    .alert-name{font-size:.85rem;font-weight:600;color:#111827;}
+    .alert-lot{font-size:.73rem;color:#9ca3af;margin-top:1px;}
+    .alert-amt{font-size:.88rem;font-weight:700;color:#dc2626;}
+
+    /* â”€â”€ FILTER TABS â”€â”€ */
+    .filter-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+    .filter-btn{border:1px solid #e5e7eb;background:#fff;color:#6b7280;border-radius:8px;padding:5px 12px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;}
+    .filter-btn:hover{border-color:#93c5fd;color:#2563eb;}
+    .filter-btn.active-f{background:#2563eb;border-color:#2563eb;color:#fff;}
+
+    /* â”€â”€ FORM PANEL BORDER â”€â”€ */
+    .form-panel{border:2px solid #dbeafe;}
+
+    /* â”€â”€ LINK BTN â”€â”€ */
+    .link-btn{background:none;border:none;color:#2563eb;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;}
+
+    /* â”€â”€ TOAST â”€â”€ */
+    .toast{position:fixed;bottom:22px;right:22px;background:#111827;color:#fff;padding:11px 16px;border-radius:10px;font-size:.85rem;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:9999;opacity:0;transition:opacity .25s;pointer-events:none;}
+    .toast.show{opacity:1;}
+    .toast.ok{background:#166534;}.toast.err{background:#991b1b;}
+
+    /* â”€â”€ EMPTY â”€â”€ */
+    .empty{text-align:center;padding:36px 20px;color:#9ca3af;font-size:.88rem;}
+
+    /* â”€â”€ SUBMENU â”€â”€ */
+    .nav-sub{overflow:hidden;max-height:0;transition:max-height .25s ease;}
+    .nav-sub.open{max-height:200px;}
+    .nav-sub-item{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 36px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.42);font-size:.82rem;font-weight:500;transition:all .15s;margin-bottom:1px;}
+    .nav-sub-item:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.75);}
+    .nav-sub-item.active{color:#93c5fd;background:rgba(37,99,235,.18);}
+    .nav-sub-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+    .nav-chevron{margin-left:auto;transition:transform .25s;opacity:.5;flex-shrink:0;}
+    .nav-chevron.open{transform:rotate(90deg);}
+
+    /* â”€â”€ DATE TABS â”€â”€ */
+    .date-tab{background:none;border:none;padding:6px 13px;font-size:.78rem;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;transition:all .15s;}
+    .date-tab:hover{color:#111827;}
+    .date-tab.active-tab{background:#2563eb;color:#fff;}
+
+    /* â”€â”€ AUTOCOMPLETE â”€â”€ */
+    .ac-wrap{position:relative;flex:1;}
+    .ac-drop{display:none;position:absolute;top:calc(100% + 2px);left:0;right:0;background:#fff;border:1px solid #d1d5db;border-radius:10px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 8px 28px rgba(0,0,0,.13);}
+    .ac-item{padding:10px 13px;font-size:.85rem;cursor:pointer;color:#111827;display:flex;align-items:center;gap:9px;transition:background .1s;}
+    .ac-item:hover,.ac-item.ac-active{background:#eff6ff;}
+    .ac-item .ac-init{width:28px;height:28px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-weight:700;font-size:.7rem;display:grid;place-items:center;flex-shrink:0;}
+    .ac-item .ac-phone{font-size:.73rem;color:#9ca3af;}
+    .ac-empty{padding:12px 13px;font-size:.82rem;color:#9ca3af;text-align:center;}
+    .ac-selected{border-color:#2563eb !important;background:#eff6ff !important;color:#111827 !important;}
+
+    /* -- ACTION BUTTONS -- */
+    .act-btns{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;}
+    .btn-edit{background:none;color:#2563eb;border:none;padding:4px 0;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;white-space:nowrap;}
+    .btn-edit:hover{opacity:.7;}
+    .btn-del{background:none;color:#dc2626;border:none;padding:4px 0;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;white-space:nowrap;margin-left:32px;}
+    .btn-del:hover{opacity:.7;}
+
+    /* -- DISTRIB -- */
+    .distrib-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:visible;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+    .distrib-lote{flex:1;min-width:0;overflow:visible;}
+    .distrib-lote-label{flex:1;padding:7px 11px;font-size:.85rem;color:#374151;font-weight:500;background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .distrib-monto{width:130px;flex-shrink:0;text-align:right;}
+    .distrib-remove{background:none;border:none;cursor:pointer;color:#d1d5db;font-size:1.2rem;line-height:1;padding:0 4px;flex-shrink:0;}
+    .distrib-remove:hover{color:#dc2626;}
+    #distrib-summary.ok{color:#16a34a;}
+    #distrib-summary.over{color:#dc2626;}
+    #distrib-summary.partial{color:#d97706;}
+
+    /* -- DARK MODE -- */
+    body[data-theme="dark"]{background:#111827;color:#f9fafb;}
+    body[data-theme="dark"] .main{background:#111827;}
+    body[data-theme="dark"] .topbar{background:#1f2937;border-color:#374151;}
+    body[data-theme="dark"] .topbar-title{color:#f9fafb;}
+    body[data-theme="dark"] .topbar-sub{color:#9ca3af;}
+    body[data-theme="dark"] .panel{background:#1f2937;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+    body[data-theme="dark"] .stat-card{background:#1f2937;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+    body[data-theme="dark"] .stat-label{color:#6b7280;}
+    body[data-theme="dark"] .stat-value{color:#f9fafb;}
+    body[data-theme="dark"] .stat-note{color:#4b5563;}
+    body[data-theme="dark"] .panel-title{color:#f9fafb;}
+    body[data-theme="dark"] .panel-sub{color:#6b7280;}
+    body[data-theme="dark"] .sec-title{color:#f9fafb;}
+    body[data-theme="dark"] .sec-sub{color:#6b7280;}
+    body[data-theme="dark"] th{color:#6b7280;border-color:#374151;}
+    body[data-theme="dark"] td{color:#d1d5db;border-color:#253044;}
+    body[data-theme="dark"] tr:hover td{background:#253044;}
+    body[data-theme="dark"] .form-input{background:#111827;border-color:#374151;color:#f9fafb;}
+    body[data-theme="dark"] .form-input:focus{background:#1f2937;border-color:#3b82f6;}
+    body[data-theme="dark"] .form-label{color:#d1d5db;}
+    body[data-theme="dark"] .search-input{background:#111827;border-color:#374151;color:#f9fafb;}
+    body[data-theme="dark"] .btn-secondary{background:#374151;color:#d1d5db;}
+    body[data-theme="dark"] .btn-secondary:hover{background:#4b5563;}
+    body[data-theme="dark"] .btn-ghost{background:transparent;color:#9ca3af;border-color:#374151;}
+    body[data-theme="dark"] .btn-ghost:hover{background:#374151;}
+    body[data-theme="dark"] .filter-btn{background:#1f2937;border-color:#374151;color:#9ca3af;}
+    body[data-theme="dark"] .filter-btn.active-f{background:#2563eb;border-color:#2563eb;color:#fff;}
+    body[data-theme="dark"] .date-tab{color:#9ca3af;}
+    body[data-theme="dark"] .date-tab.active-tab{background:#2563eb;color:#fff;}
+    body[data-theme="dark"] .client-n{color:#f9fafb;}
+    body[data-theme="dark"] .client-s{color:#6b7280;}
+    body[data-theme="dark"] .client-init{background:#1e3a5f;color:#60a5fa;}
+    body[data-theme="dark"] .alert-name{color:#f9fafb;}
+    body[data-theme="dark"] .alert-lot{color:#6b7280;}
+    body[data-theme="dark"] .alert-amt{color:#f87171;}
+    body[data-theme="dark"] .empty{color:#4b5563;}
+    body[data-theme="dark"] .distrib-row{background:#1f2937;border-color:#374151;}
+    body[data-theme="dark"] .distrib-lote-label{background:#111827;border-color:#374151;color:#d1d5db;}
+    body[data-theme="dark"] .ac-drop{background:#1f2937;border-color:#374151;}
+    body[data-theme="dark"] .ac-item{color:#f9fafb;}
+    body[data-theme="dark"] .ac-item:hover{background:#374151;}
+    body[data-theme="dark"] .form-panel{border-color:#374151;}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+
+<!-- â•â•â•â•â•â•â• SIDEBAR â•â•â•â•â•â•â• -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo"><img src="./Logo.jpg" alt="Logo" /></div>
+    <div>
+      <div class="brand-name">Crecensa</div>
+      <div class="brand-sub">Inmobiliaria</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="go('dashboard',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+
+    <div class="nav-label">Gestión</div>
+    <div class="nav-item" onclick="go('clientes',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Clientes
+    </div>
+    <div class="nav-item" id="nav-terrenos" onclick="toggleSubMenu()">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+      Terrenos
+      <svg class="nav-chevron" id="nav-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-sub" id="nav-sub">
+      <div class="nav-sub-item" id="sub-todos" onclick="goProyecto('todos',this)"><span class="nav-sub-dot"></span>Todos</div>
+      <div class="nav-sub-item" id="sub-llanos" onclick="goProyecto('llanos',this)"><span class="nav-sub-dot"></span>Proyecto Llanos</div>
+      <div class="nav-sub-item" id="sub-nichos" onclick="goProyecto('nichos',this)"><span class="nav-sub-dot"></span>Proyecto Nichos</div>
+    </div>
+    <div class="nav-label" style="margin-top:4px">Registros</div>
+    <div class="nav-item" onclick="go('recibos',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Recibos
+    </div>
+
+    <div class="nav-label" style="margin-top:12px">Sistema</div>
+    <div class="nav-item" onclick="go('importar',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Importar
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">Admin Â· Crecensa</div>
+</aside>
+
+<!-- â•â•â•â•â•â•â• MAIN â•â•â•â•â•â•â• -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="tb-title">Dashboard</div>
+      <div class="topbar-sub" id="tb-sub">Vista general de terrenos, cuotas y ventas</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn btn-secondary btn-sm" id="theme-btn" onclick="toggleTheme()" title="Cambiar tema" style="display:flex;align-items:center;padding:7px 9px"><svg id="ico-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg id="ico-sun"  width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg></button>
+      <button class="btn btn-secondary btn-sm" onclick="location.reload()" title="Recargar página" style="display:flex;align-items:center;padding:7px 9px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+      <div class="avatar">A</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- Filtro proyecto -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;color:#111827">Resumen general</div>
+          <div style="font-size:.8rem;color:#6b7280;margin-top:2px" id="d-proj-sub">Todos los proyectos</div>
+        </div>
+        <div style="display:flex;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#fff">
+          <button class="date-tab active-tab" id="dp-todos"  onclick="setDashProj('todos')">Todos</button>
+          <button class="date-tab"            id="dp-llanos" onclick="setDashProj('llanos')">Proyecto Llanos</button>
+          <button class="date-tab"            id="dp-nichos" onclick="setDashProj('nichos')">Proyecto Nichos</button>
+        </div>
+      </div>
+
+      <!-- Fila 1: contadores de terrenos -->
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+        <div class="stat-card">
+          <div class="stat-label">Total terrenos</div>
+          <div class="stat-value" id="s-tot">-</div>
+          <div class="stat-note">En el proyecto</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Disponibles</div>
+          <div class="stat-value c-green" id="s-dis">-</div>
+          <div class="stat-note">Libres para venta</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Apartados</div>
+          <div class="stat-value c-amber" id="s-res">-</div>
+          <div class="stat-note">Reservados / en proceso</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Vendidos</div>
+          <div class="stat-value c-blue" id="s-ven">-</div>
+          <div class="stat-note">Con contrato firmado</div>
+        </div>
+      </div>
+
+      <!-- Fila 2: financiero -->
+      <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+        <div class="stat-card">
+          <div class="stat-label">Precio vendido</div>
+          <div class="stat-value c-blue" id="s-ven-monto">-</div>
+          <div class="stat-note">Valor total de lotes vendidos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total cobrado</div>
+          <div class="stat-value c-green" id="s-cob">-</div>
+          <div class="stat-note">Pagos recibidos en terrenos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Por cobrar</div>
+          <div class="stat-value c-red" id="s-deu">-</div>
+          <div class="stat-note">Saldo pendiente del proyecto</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Clientes</div>
+          <div class="stat-value" id="s-cli">-</div>
+          <div class="stat-note">Registrados en sistema</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-hdr">
+            <div><div class="panel-title">Terrenos recientes</div><div class="panel-sub" id="d-ter-sub">Ultimos lotes con actividad</div></div>
+            <button class="btn btn-primary btn-sm" onclick="go('terrenos',null)">Ver todos</button>
+          </div>
+          <table><thead><tr><th>Sector/Lote</th><th>Cliente</th><th>Saldo</th><th>Estado</th></tr></thead>
+          <tbody id="d-terrenos"></tbody></table>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr"><div><div class="panel-title">Alertas de pago</div><div class="panel-sub">Saldos pendientes urgentes</div></div></div>
+          <div id="d-alertas"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Recibos recientes</div><div class="panel-sub">Ultimos pagos registrados</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="go('recibos',null)">Ver todos</button>
+        </div>
+        <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Terreno</th><th>Monto</th><th>Forma pago</th><th>Vendedor</th></tr></thead>
+        <tbody id="d-recibos"></tbody></table>
+      </div>
+    </div>
+
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• CLIENTES â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="page" id="page-clientes">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Clientes</div><div class="sec-sub">Registro y gestión de clientes</div></div>
+        <button class="btn btn-primary" onclick="toggleForm('cf')">+ Nuevo cliente</button>
+      </div>
+
+      <div class="panel form-panel" id="cf" style="display:none">
+        <div class="panel-hdr"><div class="panel-title">Registrar cliente</div><button class="btn btn-ghost btn-sm" onclick="toggleForm('cf')">Cancelar</button></div>
+        <div class="form-grid">
+          <div class="form-group form-full"><label class="form-label">Nombre completo *</label><input class="form-input" id="c-nom" placeholder="Juan Carlos Pérez López" /></div>
+          <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="c-tel" placeholder="5555-1234" /></div>
+          <div class="form-group"><label class="form-label">DPI</label><input class="form-input" id="c-dpi" placeholder="Número de DPI" /></div>
+          <div class="form-group"><label class="form-label">Vendedor</label>
+            <select class="form-input" id="c-vend"><option value="">Seleccionar...</option><option>CRECENSA</option><option>PROYECTOS</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Estado</label>
+            <select class="form-input" id="c-est"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select>
+          </div>
+          <div class="form-group form-full"><label class="form-label">Dirección / Nota</label><input class="form-input" id="c-not" placeholder="Dirección u observaciones" /></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveCliente()">Guardar cliente</button>
+          <button class="btn btn-secondary" onclick="toggleForm('cf')">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="search-bar"><input class="search-input" placeholder="Buscar por nombre, teléfono o DPI..." oninput="renderClientes(this.value)" /></div>
+        <table><thead><tr><th>Cliente</th><th>Teléfono</th><th>DPI</th><th>Vendedor</th><th>Terrenos</th><th>Acciones</th></tr></thead>
+        <tbody id="t-clientes"></tbody></table>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• TERRENOS â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="page" id="page-terrenos">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Terrenos</div><div class="sec-sub">Todos los lotes: disponibles, reservados y vendidos</div></div>
+        <button class="btn btn-primary" onclick="toggleForm('tf')">+ Nuevo terreno</button>
+      </div>
+
+      <div class="filter-row">
+        <button class="filter-btn active-f" id="fb-todos" onclick="setFilter('todos')">Todos</button>
+        <button class="filter-btn" id="fb-disponible" onclick="setFilter('disponible')">Disponibles</button>
+        <button class="filter-btn" id="fb-reservado" onclick="setFilter('reservado')">Reservados</button>
+        <button class="filter-btn" id="fb-vendida" onclick="setFilter('vendida')">Vendidos</button>
+      </div>
+
+      <div class="panel form-panel" id="tf" style="display:none">
+        <div class="panel-hdr"><div class="panel-title">Registrar terreno</div><button class="btn btn-ghost btn-sm" onclick="toggleForm('tf')">Cancelar</button></div>
+        <div class="form-grid form-grid-3">
+          <div class="form-group"><label class="form-label">Sector *</label><input class="form-input" id="t-sec" placeholder="A" /></div>
+          <div class="form-group"><label class="form-label">Lote *</label><input class="form-input" id="t-lot" placeholder="1" /></div>
+          <div class="form-group"><label class="form-label">Area (m²)</label><input type="number" class="form-input" id="t-are" placeholder="0" /></div>
+          <div class="form-group"><label class="form-label">Precio (Q)</label><input type="number" class="form-input" id="t-pre" placeholder="0.00" /></div>
+          <div class="form-group"><label class="form-label">Saldo (Q)</label><input type="number" class="form-input" id="t-sal" placeholder="0.00" /></div>
+          <div class="form-group"><label class="form-label">Estado</label>
+            <select class="form-input" id="t-est"><option value="disponible">Disponible</option><option value="reservado">Reservado</option><option value="vendida">Vendida</option></select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1"><label class="form-label">Cliente</label>
+            <div style="display:flex;gap:8px;align-items:flex-start">
+              <div class="ac-wrap" style="flex:1">
+                <input class="form-input" id="t-cli-input" placeholder="Escribe el nombre del cliente..." autocomplete="off"
+                  oninput="acCliTerInput()" onfocus="acCliTerInput()" onkeydown="acCliTerKey(event)" style="width:100%" />
+                <input type="hidden" id="t-cli-id" />
+                <div class="ac-drop" id="t-cli-drop"></div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-sm" style="white-space:nowrap;margin-top:1px" onclick="irCrearClienteFromTer()">+ Crear cliente</button>
+            </div>
+          </div>
+          <div class="form-group"><label class="form-label">Vendedor</label>
+            <select class="form-input" id="t-vend"><option value="">Seleccionar...</option><option>CRECENSA</option><option>PROYECTOS</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Proyecto</label>
+            <select class="form-input" id="t-proj"><option value="">Sin proyecto</option><option value="llanos">Proyecto Llanos</option><option value="nichos">Proyecto Nichos</option></select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveTerreno()">Guardar terreno</button>
+          <button class="btn btn-secondary" onclick="toggleForm('tf')">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="search-bar" style="display:flex;gap:10px">
+          <input class="search-input" id="t-search-sec" placeholder="Sector..." oninput="renderTerrenos()" style="max-width:110px" />
+          <input class="search-input" id="t-search-lot" placeholder="Lote..." oninput="renderTerrenos()" style="max-width:100px" />
+          <div class="ac-wrap" style="flex:1;position:relative">
+            <input class="search-input" id="t-search-cli" placeholder="Buscar por cliente..."
+              autocomplete="off" oninput="acTerSrcInput()" onfocus="acTerSrcInput()" onkeydown="acTerSrcKey(event)"
+              style="width:100%" />
+            <div class="ac-drop" id="t-search-cli-drop" style="top:100%;left:0;right:0"></div>
+          </div>
+        </div>
+        <table><thead><tr><th>Sector</th><th>Lote</th><th>Cliente</th><th>Area m²</th><th>Precio</th><th>Saldo</th><th>Estado</th><th>Vendedor</th><th>Proyecto</th><th>Acciones</th></tr></thead>
+        <tbody id="t-terrenos"></tbody></table>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• RECIBOS â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="page" id="page-recibos">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Recibos</div><div class="sec-sub">Registro de pagos y recibos de caja</div></div>
+        <button class="btn btn-primary" onclick="toggleForm('rf')">+ Nuevo recibo</button>
+      </div>
+
+      <div class="panel form-panel" id="rf" style="display:none">
+        <div class="panel-hdr"><div class="panel-title">Registrar recibo</div><button class="btn btn-ghost btn-sm" onclick="toggleForm('rf')">Cancelar</button></div>
+
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Cliente *</label>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <div class="ac-wrap">
+              <input class="form-input" id="r-cli-input" placeholder="Escribe el nombre del cliente..." autocomplete="off"
+                oninput="acInput()" onfocus="acInput()" onkeydown="acKey(event)" style="width:100%" />
+              <input type="hidden" id="r-cli-id" />
+              <div class="ac-drop" id="r-cli-drop"></div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="white-space:nowrap;margin-top:1px" onclick="irCrearCliente()">+ Crear cliente</button>
+          </div>
+          <div id="r-warn" style="display:none;margin-top:5px;font-size:.76rem;color:#d97706">
+            âš  No hay clientes registrados. <button class="link-btn" onclick="irCrearCliente()">Crear uno aquí â†’</button>
+          </div>
+        </div>
+
+        <div class="form-grid form-grid-3">
+          <div class="form-group"><label class="form-label">Fecha de recibo *</label><input type="date" class="form-input" id="r-fec" /></div>
+          <div class="form-group"><label class="form-label">Fecha reportada</label><input type="date" class="form-input" id="r-fec2" /></div>
+          <div class="form-group"><label class="form-label">Monto total (Q) *</label><input type="number" class="form-input" id="r-mon" placeholder="0.00" oninput="updateDistribSummary()" /></div>
+          <div class="form-group"><label class="form-label">No. Recibo / Boleta</label><input class="form-input" id="r-num" placeholder="00123" /></div>
+          <div class="form-group"><label class="form-label">Forma de pago</label>
+            <select class="form-input" id="r-bol"><option>Efectivo</option><option>Industrial</option><option>Banrural</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Vendedor</label>
+            <select class="form-input" id="r-vend"><option value="">Seleccionar...</option><option>CRECENSA</option><option>PROYECTOS</option></select>
+          </div>
+          <div class="form-group form-full"><label class="form-label">Nota / Observaciones</label><input class="form-input" id="r-not" placeholder="Descripción adicional..." /></div>
+        </div>
+
+        <!-- Distribución por lotes -->
+        <div style="margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:visible">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;border-radius:10px 10px 0 0">
+            <div>
+              <span style="font-size:.82rem;font-weight:700;color:#374151">Distribucion por lote</span>
+              <span style="font-size:.76rem;color:#9ca3af;margin-left:8px">Opcional: asigna cuanto va a cada lote</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span id="distrib-summary" style="font-size:.78rem;font-weight:700"></span>
+              <button class="btn btn-primary btn-sm" onclick="addDistribRow()">+ Agregar lote</button>
+            </div>
+          </div>
+          <div id="distrib-list" style="padding:10px 14px;display:flex;flex-direction:column;gap:8px;min-height:42px;overflow:visible">
+            <div style="font-size:.8rem;color:#9ca3af;padding:6px 0;text-align:center" id="distrib-empty">Sin lotes asignados</div>
+          </div>
+          <div id="distrib-footer" style="display:none;padding:10px 16px;border-top:1px solid #e5e7eb;background:#f8fafc;border-radius:0 0 10px 10px;align-items:center;justify-content:flex-end;gap:20px">
+            <span style="font-size:.8rem;color:#6b7280">Distribuido: <strong id="df-dist" style="color:#111827">Q 0.00</strong></span>
+            <span style="font-size:.8rem;color:#6b7280">Total recibo: <strong id="df-total" style="color:#111827">Q 0.00</strong></span>
+            <span id="df-status" style="font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px"></span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveRecibo()">Guardar recibo</button>
+          <button class="btn btn-secondary" onclick="toggleForm('rf')">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- Filtros recibos (una sola linea) -->
+      <div class="panel" style="padding:11px 16px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow:visible">
+          <div style="display:flex;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;flex-shrink:0">
+            <button class="date-tab active-tab" id="tab-fec" onclick="setDateTab('fec')">Fecha recibo</button>
+            <button class="date-tab" id="tab-fec2" onclick="setDateTab('fec2')">Fecha reportada</button>
+          </div>
+          <input type="date" class="form-input" id="f-desde" style="width:140px;padding:6px 10px" onchange="renderRecibos()" />
+          <span style="font-size:.78rem;color:#9ca3af;flex-shrink:0">hasta</span>
+          <input type="date" class="form-input" id="f-hasta" style="width:140px;padding:6px 10px" onchange="renderRecibos()" />
+          <div style="width:1px;height:22px;background:#e5e7eb;flex-shrink:0;margin:0 2px"></div>
+          <!-- Autocomplete cliente filtro -->
+          <div class="ac-wrap" style="width:200px;flex-shrink:0">
+            <input class="form-input" id="f-cli-input" placeholder="Buscar cliente..." autocomplete="off"
+              oninput="acFiltroInput()" onfocus="acFiltroFocus()" onkeydown="acFiltroKey(event)"
+              style="width:100%;padding:6px 30px 6px 10px" />
+            <input type="hidden" id="f-cli-id" />
+            <button id="f-cli-clear" onclick="clearFiltroCliente()" style="display:none;position:absolute;right:7px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;font-size:1.1rem;line-height:1;padding:0">&times;</button>
+            <div class="ac-drop" id="f-cli-drop"></div>
+          </div>
+          <select class="form-input" id="f-pago" style="width:145px;padding:6px 10px" onchange="renderRecibos()">
+            <option value="">Todas las formas</option>
+            <option>Efectivo</option>
+            <option>Industrial</option>
+            <option>Banrural</option>
+          </select>
+          <select class="form-input" id="f-vend" style="min-width:130px;padding:6px 10px;background:#f8fafc;border-color:#e5e7eb;border-radius:8px;font-size:.83rem;font-weight:600;color:#374151;cursor:pointer" onchange="renderRecibos()">
+            <option value="">Vendedor</option>
+            <option>CRECENSA</option>
+            <option>PROYECTOS</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="clearTodosFiltros()" style="flex-shrink:0">Limpiar</button>
+          <span id="r-total-badge" style="margin-left:auto;font-size:.78rem;font-weight:700;color:#2563eb;white-space:nowrap;flex-shrink:0"></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="search-bar"><input class="search-input" id="r-search" placeholder="Buscar por cliente, terreno o forma de pago..." oninput="renderRecibos()" /></div>
+        <table><thead><tr><th>Fecha recibo</th><th>Fecha reportada</th><th>No.</th><th>Cliente</th><th>Terreno</th><th>Monto</th><th>Forma pago</th><th>Vendedor</th><th>Nota</th><th>Acciones</th></tr></thead>
+        <tbody id="t-recibos"></tbody></table>
+      </div>
+    </div>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• IMPORTAR â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="page" id="page-importar">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Importar datos</div><div class="sec-sub">Carga los datos migrados desde los archivos Excel</div></div>
+      </div>
+
+      <!-- Paso 1 -->
+      <div class="panel" style="margin-bottom:16px">
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;display:grid;place-items:center;flex-shrink:0;font-size:.9rem">1</div>
+          <div style="flex:1">
+            <div class="panel-title" style="margin-bottom:4px">Ejecuta el script de migración</div>
+            <div class="panel-sub" style="margin-bottom:12px">Abre PowerShell en la carpeta CRECENZA y ejecuta este comando:</div>
+            <div style="background:#0d1117;color:#86efac;font-family:monospace;font-size:.85rem;padding:14px 18px;border-radius:10px;user-select:all">
+              .\migrar.ps1
+            </div>
+            <div class="panel-sub" style="margin-top:8px">Esto genera el archivo <strong>datos-migrados.json</strong> en la misma carpeta.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="panel" style="margin-bottom:16px">
+        <div style="display:flex;gap:16px;align-items:flex-start">
+          <div style="width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;display:grid;place-items:center;flex-shrink:0;font-size:.9rem">2</div>
+          <div style="flex:1">
+            <div class="panel-title" style="margin-bottom:4px">Sube el archivo generado</div>
+            <div class="panel-sub" style="margin-bottom:14px">Selecciona el archivo <strong>datos-migrados.json</strong> que se creó en el paso anterior.</div>
+            <label style="display:inline-flex;align-items:center;gap:10px;cursor:pointer;background:#f3f4f6;border:2px dashed #d1d5db;border-radius:12px;padding:18px 24px;transition:all .15s" id="drop-zone">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span style="font-size:.88rem;color:#6b7280">Haz clic para seleccionar <strong>datos-migrados.json</strong></span>
+              <input type="file" id="json-file" accept=".json" style="display:none" onchange="previewImport(this)" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="panel" id="import-preview" style="display:none">
+        <div class="panel-title" style="margin-bottom:14px">Vista previa de los datos a importar</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">
+          <div class="stat-card"><div class="stat-label">Clientes</div><div class="stat-value c-blue" id="imp-cli">â€”</div></div>
+          <div class="stat-card"><div class="stat-label">Terrenos</div><div class="stat-value c-green" id="imp-ter">â€”</div><div class="stat-note" id="imp-ter-det"></div></div>
+          <div class="stat-card"><div class="stat-label">Recibos</div><div class="stat-value" id="imp-rec">â€”</div></div>
+        </div>
+
+        <div id="import-warn" style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;font-size:.83rem;color:#92400e;margin-bottom:16px;display:none">
+          âš  Ya existen datos en el sistema. La importación <strong>reemplazará</strong> todos los datos actuales.
+        </div>
+
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" id="btn-confirmar" onclick="confirmarImport()">Importar datos</button>
+          <button class="btn btn-secondary" onclick="cancelarImport()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// â•â•â• DATA â•â•â•
+// ═══ SUPABASE ═══
+const _sb = window.supabase.createClient(
+  'https://ppmqvelqaqqamuypbogu.supabase.co',
+  'sb_publishable_zufUHTqPkGHQ2JP-DvzfpA_w7sli1lk'
+);
+const _TBL = { cli: 'clientes', ter: 'terrenos', rec: 'recibos' };
+function _toRow(tbl, o) {
+  if (tbl==='clientes') return {id:o.id, nom:o.nom||'', tel:o.tel||'', dpi:o.dpi||'', vend:o.vend||'', est:o.est||'activo', nota:o.not||''};
+  if (tbl==='terrenos') return {id:o.id, sec:o.sec||'', lot:o.lot||'', pre:o.pre||0, sal:o.sal||0, est:o.est||'disponible', cli_id:o.cliId||null, vend:o.vend||'', are:o.are||'', proj:o.proj||'', nota:o.not||''};
+  if (tbl==='recibos')  return {id:o.id, fec:o.fec||'', fec2:o.fec2||'', num:o.num||'', cli_id:o.cliId||null, ter_id:o.terId||null, mon:o.mon||0, bol:o.bol||'', vend:o.vend||'', nota:o.not||''};
+}
+function _fromRow(tbl, r) {
+  if (tbl==='clientes') return {id:Number(r.id), nom:r.nom||'', tel:r.tel||'', dpi:r.dpi||'', vend:r.vend||'', est:r.est||'activo', not:r.nota||''};
+  if (tbl==='terrenos') return {id:Number(r.id), sec:r.sec||'', lot:r.lot||'', pre:Number(r.pre)||0, sal:Number(r.sal)||0, est:r.est||'disponible', cliId:r.cli_id?Number(r.cli_id):null, vend:r.vend||'', are:r.are||'', proj:r.proj||'', not:r.nota||''};
+  if (tbl==='recibos')  return {id:Number(r.id), fec:r.fec||'', fec2:r.fec2||'', num:r.num||'', cliId:r.cli_id?Number(r.cli_id):null, terId:r.ter_id?Number(r.ter_id):null, mon:Number(r.mon)||0, bol:r.bol||'', vend:r.vend||'', not:r.nota||''};
+}
+async function _syncTbl(key, arr) {
+  const tbl = _TBL[key]; if (!tbl) return;
+  try {
+    if (arr.length > 0) await _sb.from(tbl).upsert(arr.map(o=>_toRow(tbl,o)), {onConflict:'id'});
+    const {data:ex} = await _sb.from(tbl).select('id');
+    const cur = new Set(arr.map(o=>Number(o.id)));
+    const toDel = (ex||[]).map(r=>Number(r.id)).filter(id=>!cur.has(id));
+    if (toDel.length) await _sb.from(tbl).delete().in('id', toDel);
+  } catch(e) { console.warn('Supabase sync ['+tbl+']:', e.message); }
+}
+
+const LS = k => { try { return JSON.parse(localStorage.getItem('cr_'+k)) } catch { return null } };
+const SS = (k, v) => { localStorage.setItem('cr_'+k, JSON.stringify(v)); _syncTbl(k, v); };
+
+let clientes = LS('cli') || [];
+let terrenos = LS('ter') || [];
+let recibos  = LS('rec') || [];
+
+let terFilter = 'todos';
+let terProj = 'todos';
+let dashProj = 'todos';
+let dateTab = 'fec';
+let editingCli = null;
+let editingTer = null;
+let editingRec = null;
+
+// â•â•â• HELPERS â•â•â•
+const gc = id => clientes.find(c => c.id == id);
+const gt = id => terrenos.find(t => t.id == id);
+const fmt = n => { const v=Number(n||0).toFixed(2); const [i,d]=v.split('.'); return 'Q '+i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+'.'+d; };
+const inits = s => (s||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const pill = e => {
+  const m = {disponible:['p-dis','Disponible'],reservado:['p-res','Reservado'],vendida:['p-ven','Vendida']};
+  const [cls,lbl] = m[e]||['p-dis',e];
+  return `<span class="pill ${cls}"><span class="pdot"></span>${lbl}</span>`;
+};
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// â•â•â• NAVIGATION â•â•â•
+const pages = {
+  dashboard: ['Dashboard','Vista general de terrenos, cuotas y ventas'],
+  clientes:  ['Clientes','Registro y gestión de clientes'],
+  terrenos:  ['Terrenos','Todos los lotes: disponibles, reservados y vendidos'],
+  recibos:   ['Recibos','Registro de pagos y recibos de caja'],
+  importar:  ['Importar datos','Carga los datos migrados desde los archivos Excel'],
+};
+function go(name, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  else document.querySelectorAll('.nav-item').forEach(n=>{
+    if((n.getAttribute('onclick')||'').includes("'"+name+"'")) n.classList.add('active');
+  });
+  const [t,s]=pages[name]||['',''];
+  document.getElementById('tb-title').textContent=t;
+  document.getElementById('tb-sub').textContent=s;
+  localStorage.setItem('cr_page', name);
+  // abrir submenú si vamos a terrenos
+  if(name==='terrenos') openSubMenu();
+  if(name==='dashboard') renderDashboard();
+  if(name==='clientes') renderClientes('');
+  if(name==='terrenos'){renderTerrenos();}
+  if(name==='recibos'){renderRecibos();fillReciboSelects();fillFiltroClientes();}
+}
+
+// â•â•â• SUBMENU TERRENOS â•â•â•
+const PROJ_LABELS = {todos:'Todos los terrenos', llanos:'Proyecto Llanos', nichos:'Proyecto Nichos'};
+function openSubMenu() {
+  document.getElementById('nav-sub').classList.add('open');
+  document.getElementById('nav-chevron').classList.add('open');
+  document.getElementById('nav-terrenos').classList.add('active');
+}
+function toggleSubMenu() {
+  const sub=document.getElementById('nav-sub');
+  const chev=document.getElementById('nav-chevron');
+  const navT=document.getElementById('nav-terrenos');
+  const isOpen=sub.classList.contains('open');
+  if(isOpen){
+    sub.classList.remove('open'); chev.classList.remove('open');
+  } else {
+    go('terrenos', null);
+  }
+}
+function goProyecto(proj, el) {
+  terProj = proj;
+  localStorage.setItem('cr_proj', proj);
+  document.querySelectorAll('.nav-sub-item').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  // actualizar subtítulo
+  document.getElementById('tb-sub').textContent = PROJ_LABELS[proj] || 'Todos los terrenos';
+  go('terrenos', null);
+  // mantener el nav-terrenos marcado como active
+  document.getElementById('nav-terrenos').classList.add('active');
+}
+
+// â•â•â• TOGGLE FORMS â•â•â•
+function toggleForm(id) {
+  const el=document.getElementById(id);
+  const show=el.style.display==='none';
+  el.style.display=show?'block':'none';
+  if(!show) {
+    // reset al cerrar
+    if(id==='cf'){el.querySelector('.panel-title').textContent='Registrar cliente';editingCli=null;}
+    if(id==='tf'){el.querySelector('.panel-title').textContent='Registrar terreno';editingTer=null;}
+    if(id==='rf'){el.querySelector('.panel-title').textContent='Registrar recibo';editingRec=null;}
+  }
+  if(id==='rf'&&show) {
+    document.getElementById('r-fec').value=new Date().toISOString().split('T')[0];
+    document.getElementById('r-fec2').value='';
+    fillReciboSelects();
+  }
+  if(id==='rf'&&!show) {
+    const inp=document.getElementById('r-cli-input');
+    if(inp){inp.value='';inp.classList.remove('ac-selected');}
+    const hid=document.getElementById('r-cli-id');
+    if(hid) hid.value='';
+    acClose();
+    clearDistrib();
+  }
+  if(id==='tf'&&show) {
+    const _inp=document.getElementById('t-cli-input');
+    const _hid=document.getElementById('t-cli-id');
+    if(_inp&&!editingTer){_inp.value='';_inp.classList.remove('ac-selected');}
+    if(_hid&&!editingTer) _hid.value='';
+    acCliTerClose();
+  }
+}
+
+// â•â•â• FILL SELECTS â•â•â•
+function fillCliSel(selId) {
+  const s=document.getElementById(selId);
+  if(!s) return;
+  s.innerHTML='<option value="">Sin cliente</option>'+clientes.map(c=>`<option value="${c.id}">${c.nom}</option>`).join('');
+}
+function fillReciboSelects() {
+  // reset autocomplete
+  const inp=document.getElementById('r-cli-input');
+  const hid=document.getElementById('r-cli-id');
+  if(inp){inp.value='';inp.classList.remove('ac-selected');}
+  if(hid) hid.value='';
+  acClose();
+  clearDistrib();
+  const vEl=document.getElementById('r-vend'); if(vEl){vEl.disabled=false;vEl.value='';}
+  checkRCliente();
+}
+function checkRCliente() {
+  const w=document.getElementById('r-warn');
+  if(w) w.style.display=clientes.length===0?'block':'none';
+}
+function irCrearCliente() {
+  toggleForm('rf');
+  go('clientes',null);
+  setTimeout(()=>{ document.getElementById('cf').style.display='block'; },80);
+}
+
+// â•â•â• AUTOCOMPLETE CLIENTE â•â•â•
+let acIdx = -1;
+function acInput() {
+  const inp=document.getElementById('r-cli-input');
+  const drop=document.getElementById('r-cli-drop');
+  const hid=document.getElementById('r-cli-id');
+  // clear selection if user changes text
+  if(hid.value) { clearDistrib(); const v=document.getElementById('r-vend'); if(v){v.disabled=false;v.value='';} }
+  hid.value=''; inp.classList.remove('ac-selected');
+  acIdx=-1;
+  const q=(inp.value||'').toLowerCase().trim();
+  const matches = q
+    ? clientes.filter(c=>c.nom.toLowerCase().includes(q)||(c.tel||'').includes(q))
+    : clientes.slice(0,8);
+  if(matches.length===0){
+    drop.innerHTML='<div class="ac-empty">Sin resultados &mdash; <button class="link-btn" onclick="irCrearCliente()">crear cliente &rarr;</button></div>';
+  } else {
+    drop.innerHTML='';
+    matches.forEach(c=>{
+      const div=document.createElement('div');
+      div.className='ac-item';
+      div.dataset.id=c.id;
+      div.dataset.nom=c.nom;
+      div.innerHTML=`<div class="ac-init">${inits(c.nom)}</div><div><div>${c.nom}</div>${c.tel?`<div class="ac-phone">${c.tel}</div>`:''}</div>`;
+      div.addEventListener('mousedown',()=>acSelect(c.id,c.nom));
+      drop.appendChild(div);
+    });
+  }
+  drop.style.display='block';
+}
+function acSelect(id, nom) {
+  document.getElementById('r-cli-id').value=id;
+  document.getElementById('r-cli-input').value=nom;
+  document.getElementById('r-cli-input').classList.add('ac-selected');
+  acClose();
+  const cli = gc(id);
+  const vend = (cli && cli.vend) || terrenos.filter(t => t.cliId == id).map(t => t.vend).find(v => v) || '';
+  const vendEl = document.getElementById('r-vend');
+  if (vend) { vendEl.value = vend; vendEl.disabled = true; }
+  cargarLotesCliente(id);
+}
+function cargarLotesCliente(cliId) {
+  clearDistrib();
+  const lotes = terrenos.filter(t => t.cliId == cliId);
+  if (!lotes.length) return;
+  lotes.forEach(t => addDistribRow(t.id, null, true));
+}
+function acClose() {
+  const d=document.getElementById('r-cli-drop');
+  if(d){d.style.display='none';d.innerHTML='';}
+  acIdx=-1;
+}
+function acKey(e) {
+  const drop=document.getElementById('r-cli-drop');
+  const items=[...drop.querySelectorAll('.ac-item')];
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){e.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();acIdx=Math.max(acIdx-1,0);}
+  else if(e.key==='Enter'&&acIdx>=0){e.preventDefault();const it=items[acIdx];acSelect(Number(it.dataset.id),it.dataset.nom);}
+  else if(e.key==='Escape'){acClose();return;}
+  items.forEach((el,i)=>el.classList.toggle('ac-active',i===acIdx));
+  if(acIdx>=0) items[acIdx].scrollIntoView({block:'nearest'});
+}
+// close dropdown when clicking outside
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.ac-wrap')){
+    acClose(); acFiltroClose(); acCliTerClose(); acTerSrcClose();
+    document.querySelectorAll('[id^="drow-ter-drop-"]').forEach(d=>{d.style.display='none';d.innerHTML='';});
+  }
+});
+
+// â•â•â• DASHBOARD â•â•â•
+function setDashProj(proj) {
+  dashProj = proj;
+  ['todos','llanos','nichos'].forEach(p => {
+    const btn = document.getElementById('dp-' + p);
+    if (btn) btn.className = 'date-tab' + (p === proj ? ' active-tab' : '');
+  });
+  const labels = {todos:'Todos los proyectos', llanos:'Proyecto Llanos', nichos:'Proyecto Nichos'};
+  const sub = document.getElementById('d-proj-sub');
+  if (sub) sub.textContent = labels[proj] || 'Todos los proyectos';
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const ter = dashProj === 'todos' ? terrenos : terrenos.filter(t => t.proj === dashProj);
+
+  // contadores de terrenos
+  document.getElementById('s-tot').textContent = ter.length;
+  document.getElementById('s-dis').textContent = ter.filter(t => t.est === 'disponible').length;
+  document.getElementById('s-res').textContent = ter.filter(t => t.est === 'reservado').length;
+  document.getElementById('s-ven').textContent = ter.filter(t => t.est === 'vendida').length;
+  const venMonto = ter.filter(t=>t.est==='vendida').reduce((s,t)=>s+Number(t.pre||0),0);
+  const cobrado  = ter.filter(t=>t.cliId).reduce((s,t)=>s+Math.max(0,Number(t.pre||0)-Number(t.sal||0)),0);
+  const porCobrar= ter.reduce((s,t)=>s+Number(t.sal||0),0);
+  document.getElementById('s-ven-monto').textContent = fmt(venMonto);
+  document.getElementById('s-cob').textContent       = fmt(cobrado);
+  document.getElementById('s-deu').textContent       = fmt(porCobrar);
+  document.getElementById('s-cli').textContent = clientes.length;
+
+  // terrenos recientes del proyecto
+  const dt = document.getElementById('d-terrenos');
+  const rt = [...ter].slice(-6).reverse();
+  dt.innerHTML = rt.length ? rt.map(t => {
+    const c = gc(t.cliId);
+    return '<tr><td><strong>' + t.sec + '</strong> / ' + t.lot + '</td><td>' + (c ? c.nom : '-') + '</td><td>' + fmt(t.sal) + '</td><td>' + pill(t.est) + '</td></tr>';
+  }).join('') : '<tr><td colspan="4" class="empty">Sin datos</td></tr>';
+
+  // alertas del proyecto
+  const al = ter.filter(t => Number(t.sal) > 0).sort((a,b) => b.sal - a.sal).slice(0, 5);
+  document.getElementById('d-alertas').innerHTML = al.length ? al.map(t => {
+    const c = gc(t.cliId);
+    return '<div class="alert-row"><div><div class="alert-name">' + (c ? c.nom : '-') + '</div><div class="alert-lot">Sector ' + t.sec + ' / Lote ' + t.lot + '</div></div><div class="alert-amt">' + fmt(t.sal) + '</div></div>';
+  }).join('') : '<div class="empty">Sin alertas pendientes</div>';
+
+  // recibos recientes
+  const dr = document.getElementById('d-recibos');
+  const rr = [...recibos].sort((a,b) => b.fec.localeCompare(a.fec)).slice(0, 5);
+  dr.innerHTML = rr.length ? rr.map(r => {
+    const c = gc(r.cliId);
+    const t = r.terId ? gt(r.terId) : null;
+    return '<tr><td>' + r.fec + '</td><td>' + (c ? c.nom : '-') + '</td><td>' + (t ? t.sec+'/'+t.lot : (r.not||'-')) + '</td><td><strong>' + fmt(r.mon) + '</strong></td><td>' + r.bol + '</td><td>' + (r.vend||'-') + '</td></tr>';
+  }).join('') : '<tr><td colspan="6" class="empty">Sin recibos</td></tr>';
+}
+
+// â•â•â• CLIENTES â•â•â•
+function saveCliente() {
+  const nom=document.getElementById('c-nom').value.trim();
+  if(!nom){toast('El nombre es requerido','err');return;}
+  const data={nom:nom.toUpperCase(),tel:document.getElementById('c-tel').value.trim(),dpi:document.getElementById('c-dpi').value.trim(),vend:document.getElementById('c-vend').value,est:document.getElementById('c-est').value,not:document.getElementById('c-not').value.trim()};
+  if(editingCli){
+    const idx=clientes.findIndex(c=>c.id===editingCli);
+    if(idx>=0) clientes[idx]={...clientes[idx],...data};
+    toast('Cliente actualizado');
+  } else {
+    clientes.push({id:Date.now(),...data});
+    toast('Cliente registrado');
+  }
+  SS('cli',clientes);
+  toggleForm('cf');
+  ['c-nom','c-tel','c-dpi','c-not'].forEach(i=>document.getElementById(i).value='');
+  renderClientes('');
+}
+function renderClientes(q) {
+  if(q===undefined) q='';
+  const s=q.toLowerCase();
+  const f=s?clientes.filter(c=>c.nom.toLowerCase().includes(s)||(c.tel||'').includes(s)||(c.dpi||'').includes(s)):clientes;
+  const tb=document.getElementById('t-clientes');
+  tb.innerHTML=f.length?f.map(c=>{
+    const lts=terrenos.filter(t=>t.cliId==c.id);
+    return`<tr>
+      <td><div class="client-cell"><div class="client-init">${inits(c.nom)}</div><div><div class="client-n">${c.nom}</div><div class="client-s">${c.not||''}</div></div></div></td>
+      <td>${c.tel||'â€"'}</td><td>${c.dpi||'â€"'}</td><td>${c.vend||'â€"'}</td>
+      <td>${lts.length?lts.map(l=>l.sec+'/'+l.lot).join(', '):'-'}</td>
+      <td nowrap><button class="btn-edit" onclick="editCliente(${c.id})">Editar</button><button class="btn-del" onclick="delCliente(${c.id})">Eliminar</button></td>
+    </tr>`;}).join(''):'<tr><td colspan="6" class="empty">Sin clientes encontrados</td></tr>';
+}
+function editCliente(id){
+  const c=clientes.find(x=>x.id===id);if(!c)return;
+  editingCli=id;
+  document.getElementById('c-nom').value=c.nom||'';
+  document.getElementById('c-tel').value=c.tel||'';
+  document.getElementById('c-dpi').value=c.dpi||'';
+  document.getElementById('c-vend').value=c.vend||'';
+  document.getElementById('c-est').value=c.est||'activo';
+  document.getElementById('c-not').value=c.not||'';
+  const panel=document.getElementById('cf');
+  panel.querySelector('.panel-title').textContent='Editar cliente';
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function delCliente(id){
+  if(!confirm('Eliminar este cliente?'))return;
+  clientes=clientes.filter(c=>c.id!==id); SS('cli',clientes); renderClientes(''); toast('Cliente eliminado');
+}
+
+// â•â•â• TERRENOS â•â•â•
+function delTerreno(id){
+  if(!confirm('Eliminar este terreno?'))return;
+  terrenos=terrenos.filter(t=>t.id!==id); SS('ter',terrenos); renderTerrenos(); toast('Terreno eliminado');
+}
+function editTerreno(id){
+  const t=terrenos.find(x=>x.id===id);if(!t)return;
+  editingTer=id;
+  document.getElementById('t-sec').value=t.sec||'';
+  document.getElementById('t-lot').value=t.lot||'';
+  document.getElementById('t-are').value=t.are||'';
+  document.getElementById('t-pre').value=t.pre||'';
+  document.getElementById('t-sal').value=t.sal||'';
+  document.getElementById('t-est').value=t.est||'disponible';
+  const _tc=gc(t.cliId);
+  const _tci=document.getElementById('t-cli-id');
+  const _tcn=document.getElementById('t-cli-input');
+  if(_tci) _tci.value=t.cliId||'';
+  if(_tcn){_tcn.value=_tc?_tc.nom:'';_tc?_tcn.classList.add('ac-selected'):_tcn.classList.remove('ac-selected');}
+  document.getElementById('t-vend').value=t.vend||'';
+  document.getElementById('t-proj').value=t.proj||'';
+  const panel=document.getElementById('tf');
+  panel.querySelector('.panel-title').textContent='Editar terreno';
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function setFilter(f) {
+  terFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active-f'));
+  document.getElementById('fb-'+f).classList.add('active-f');
+  renderTerrenos();
+}
+function saveTerreno() {
+  const sec=document.getElementById('t-sec').value.trim();
+  const lot=document.getElementById('t-lot').value.trim();
+  if(!sec||!lot){toast('Sector y lote son requeridos','err');return;}
+  const data={sec:sec.toUpperCase(),lot:lot.toUpperCase(),pre:Number(document.getElementById('t-pre').value)||0,sal:Number(document.getElementById('t-sal').value)||0,est:document.getElementById('t-est').value,cliId:Number(document.getElementById('t-cli-id').value)||null,vend:document.getElementById('t-vend').value,are:document.getElementById('t-are').value,proj:document.getElementById('t-proj').value||''};
+  if(editingTer){
+    const idx=terrenos.findIndex(t=>t.id===editingTer);
+    if(idx>=0) terrenos[idx]={...terrenos[idx],...data};
+    toast('Terreno actualizado');
+  } else {
+    terrenos.push({id:Date.now(),...data});
+    toast('Terreno registrado');
+  }
+  SS('ter',terrenos); toggleForm('tf'); renderTerrenos();
+}
+function renderTerrenos() {
+  const sSec=(document.getElementById('t-search-sec')?.value||'').toLowerCase().trim();
+  const sLot=(document.getElementById('t-search-lot')?.value||'').toLowerCase().trim();
+  const sCli=(document.getElementById('t-search-cli')?.value||'').toLowerCase().trim();
+  let f=terFilter==='todos'?terrenos:terrenos.filter(t=>t.est===terFilter);
+  if(terProj!=='todos') f=f.filter(t=>t.proj===terProj);
+  if(sSec) f=f.filter(t=>t.sec.toLowerCase().includes(sSec));
+  if(sLot) f=f.filter(t=>t.lot.toLowerCase().includes(sLot));
+  if(sCli) f=f.filter(t=>{const c=gc(t.cliId);return c&&c.nom.toLowerCase().includes(sCli);});
+  const tb=document.getElementById('t-terrenos');
+  tb.innerHTML=f.length?f.map(t=>{const c=gc(t.cliId);const pl=PROJ_LABELS[t.proj]||'-';return`<tr><td><strong>${t.sec}</strong></td><td>${t.lot}</td><td>${c?c.nom:'-'}</td><td>${t.are||'-'}</td><td>${fmt(t.pre)}</td><td>${fmt(t.sal)}</td><td>${pill(t.est)}</td><td>${t.vend||'-'}</td><td>${pl}</td><td nowrap><button class="btn-edit" onclick="editTerreno(${t.id})">Editar</button><button class="btn-del" onclick="delTerreno(${t.id})">Eliminar</button></td></tr>`;}).join('')
+    :'<tr><td colspan="10" class="empty">Sin terrenos</td></tr>';
+}
+
+// â•â•â• FILTRO FECHAS RECIBOS â•â•â•
+function setDateTab(tab) {
+  dateTab = tab;
+  document.querySelectorAll('.date-tab').forEach(b=>b.classList.remove('active-tab'));
+  document.getElementById('tab-'+tab).classList.add('active-tab');
+  renderRecibos();
+}
+function clearTodosFiltros() {
+  ['f-desde','f-hasta'].forEach(id=>document.getElementById(id).value='');
+  ['f-pago','f-vend'].forEach(id=>document.getElementById(id).value='');
+  clearFiltroCliente();
+}
+function fillFiltroClientes() { /* autocomplete lee de clientes[] directo */ }
+
+// ─── Autocomplete filtro cliente ───
+let fcliIdx = -1;
+function acFiltroFocus() {
+  // Solo muestra el dropdown sin borrar la seleccion actual
+  const inp=document.getElementById('f-cli-input');
+  const drop=document.getElementById('f-cli-drop');
+  fcliIdx=-1;
+  const q=(inp.value||'').toLowerCase().trim();
+  const matches=q?clientes.filter(c=>c.nom.toLowerCase().includes(q)).slice(0,12):clientes.slice(0,12);
+  if(!matches.length){
+    drop.innerHTML='<div class="ac-empty">Sin resultados</div>';
+  } else {
+    drop.innerHTML='';
+    matches.forEach(c=>{
+      const div=document.createElement('div');
+      div.className='ac-item';
+      div.dataset.id=c.id; div.dataset.nom=c.nom;
+      div.innerHTML='<div class="ac-init">'+inits(c.nom)+'</div><div>'+c.nom+'</div>';
+      div.addEventListener('mousedown',()=>acFiltroSelect(c.id,c.nom));
+      drop.appendChild(div);
+    });
+  }
+  drop.style.display='block';
+}
+function acFiltroInput() {
+  const inp=document.getElementById('f-cli-input');
+  const drop=document.getElementById('f-cli-drop');
+  const hid=document.getElementById('f-cli-id');
+  hid.value=''; inp.classList.remove('ac-selected');
+  document.getElementById('f-cli-clear').style.display='none';
+  fcliIdx=-1;
+  const q=(inp.value||'').toLowerCase().trim();
+  const matches=q?clientes.filter(c=>c.nom.toLowerCase().includes(q)).slice(0,12):clientes.slice(0,12);
+  if(!matches.length){
+    drop.innerHTML='<div class="ac-empty">Sin resultados</div>';
+  } else {
+    drop.innerHTML='';
+    matches.forEach(c=>{
+      const div=document.createElement('div');
+      div.className='ac-item';
+      div.dataset.id=c.id;
+      div.dataset.nom=c.nom;
+      div.innerHTML=`<div class="ac-init">${inits(c.nom)}</div><div>${c.nom}</div>`;
+      div.addEventListener('mousedown',()=>acFiltroSelect(c.id,c.nom));
+      drop.appendChild(div);
+    });
+  }
+  drop.style.display='block';
+  renderRecibos();
+}
+function acFiltroSelect(id,nom) {
+  document.getElementById('f-cli-id').value=id;
+  document.getElementById('f-cli-input').value=nom;
+  document.getElementById('f-cli-input').classList.add('ac-selected');
+  document.getElementById('f-cli-clear').style.display='block';
+  acFiltroClose(); renderRecibos();
+}
+function acFiltroClose() {
+  const d=document.getElementById('f-cli-drop');
+  if(d){d.style.display='none';d.innerHTML='';}
+  fcliIdx=-1;
+}
+function acFiltroKey(e) {
+  const drop=document.getElementById('f-cli-drop');
+  const items=[...drop.querySelectorAll('.ac-item')];
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){e.preventDefault();fcliIdx=Math.min(fcliIdx+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();fcliIdx=Math.max(fcliIdx-1,0);}
+  else if(e.key==='Enter'&&fcliIdx>=0){e.preventDefault();const it=items[fcliIdx];acFiltroSelect(Number(it.dataset.id),it.dataset.nom);}
+  else if(e.key==='Escape'){acFiltroClose();return;}
+  items.forEach((el,i)=>el.classList.toggle('ac-active',i===fcliIdx));
+  if(fcliIdx>=0) items[fcliIdx].scrollIntoView({block:'nearest'});
+}
+function clearFiltroCliente() {
+  document.getElementById('f-cli-id').value='';
+  const inp=document.getElementById('f-cli-input');
+  if(inp){inp.value='';inp.classList.remove('ac-selected');}
+  const clr=document.getElementById('f-cli-clear');
+  if(clr) clr.style.display='none';
+  acFiltroClose(); renderRecibos();
+}
+
+// â•â•â• RECIBOS â•â•â•
+function delRecibo(id){
+  if(!confirm('Eliminar este recibo?'))return;
+  recibos=recibos.filter(r=>r.id!==id); SS('rec',recibos); renderRecibos(); toast('Recibo eliminado');
+}
+function editRecibo(id){
+  const r=recibos.find(x=>x.id===id);if(!r)return;
+  editingRec=id;
+  const panel=document.getElementById('rf');
+  panel.style.display='block';
+  fillReciboSelects();
+  document.getElementById('r-fec').value=r.fec||'';
+  document.getElementById('r-fec2').value=r.fec2||'';
+  document.getElementById('r-mon').value=r.mon||'';
+  document.getElementById('r-num').value=r.num||'';
+  document.getElementById('r-bol').value=r.bol||'Efectivo';
+  document.getElementById('r-vend').value=r.vend||'';
+  document.getElementById('r-not').value=r.not||'';
+  const c=gc(r.cliId);
+  if(c){
+    document.getElementById('r-cli-id').value=c.id;
+    document.getElementById('r-cli-input').value=c.nom;
+    document.getElementById('r-cli-input').classList.add('ac-selected');
+  }
+  clearDistrib();
+  if(r.distrib&&r.distrib.length) r.distrib.forEach(d=>addDistribRow(d.terId,d.monto));
+  panel.querySelector('.panel-title').textContent='Editar recibo';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+  updateDistribSummary();
+}
+
+// ═══ DISTRIBUCION POR LOTES ═══
+let distribCount = 0;
+
+function addDistribRow(presetTerId, presetMonto, readonly) {
+  document.getElementById('distrib-empty').style.display = 'none';
+  const n = distribCount++;
+  const row = document.createElement('div');
+  row.className = 'distrib-row';
+  row.id = 'drow-' + n;
+
+  let loteHtml = '';
+  if (readonly && presetTerId) {
+    const t = gt(presetTerId);
+    const c = t ? gc(t.cliId) : null;
+    const lbl = t ? `Sec ${t.sec} / Lote ${t.lot}${c ? '  —  ' + c.nom.substring(0,24) : ''}` : '?';
+    loteHtml = `<div class="distrib-lote-label" title="${lbl}">${lbl}</div><input type="hidden" id="drow-ter-id-${n}" value="${presetTerId}" />`;
+  } else {
+    loteHtml = `<div class="ac-wrap distrib-lote" style="position:relative"><input class="form-input" id="drow-ter-input-${n}" placeholder="Buscar lote..." autocomplete="off" oninput="acTerInput(${n})" onfocus="acTerInput(${n})" onkeydown="acTerKey(event,${n})" style="width:100%" /><input type="hidden" id="drow-ter-id-${n}" /><div class="ac-drop" id="drow-ter-drop-${n}"></div></div>`;
+  }
+
+  const removeBtn = readonly ? '' : `<button class="distrib-remove" onclick="removeDistribRow('drow-${n}')" title="Quitar">&times;</button>`;
+  row.innerHTML = `${loteHtml}<input type="number" class="form-input distrib-monto" id="drow-mon-${n}" placeholder="0.00" min="0" oninput="updateDistribSummary()" />${removeBtn}`;
+  document.getElementById('distrib-list').appendChild(row);
+  if (presetMonto) document.getElementById('drow-mon-' + n).value = presetMonto;
+  updateDistribSummary();
+}
+
+function removeDistribRow(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+  const rows = document.querySelectorAll('.distrib-row');
+  document.getElementById('distrib-empty').style.display = rows.length === 0 ? 'block' : 'none';
+  updateDistribSummary();
+}
+
+function updateDistribSummary() {
+  const total = Number(document.getElementById('r-mon')?.value) || 0;
+  let dist = 0;
+  document.querySelectorAll('.distrib-monto').forEach(inp => dist += Number(inp.value) || 0);
+  const rows = document.querySelectorAll('.distrib-row').length;
+
+  // header badge
+  const el = document.getElementById('distrib-summary');
+  if (el) {
+    if (dist === 0) { el.textContent = ''; el.className = ''; }
+    else {
+      const r = total - dist;
+      if (Math.abs(r) < 0.01) { el.textContent = 'Completo'; el.className = 'ok'; }
+      else if (r < 0) { el.textContent = 'Excede Q' + Math.abs(r).toFixed(2); el.className = 'over'; }
+      else { el.textContent = 'Falta Q' + r.toFixed(2); el.className = 'partial'; }
+    }
+  }
+
+  // footer bar
+  const footer = document.getElementById('distrib-footer');
+  if (!footer) return;
+  if (rows === 0) { footer.style.display = 'none'; return; }
+  footer.style.display = 'flex';
+  const ddist = document.getElementById('df-dist');
+  const dtotal = document.getElementById('df-total');
+  const dstatus = document.getElementById('df-status');
+  if (ddist) ddist.textContent = fmt(dist);
+  if (dtotal) dtotal.textContent = fmt(total);
+  if (dstatus) {
+    const r = total - dist;
+    if (Math.abs(r) < 0.01) {
+      dstatus.textContent = 'Cuadra'; dstatus.style.background='#dcfce7'; dstatus.style.color='#166534';
+    } else if (r < 0) {
+      dstatus.textContent = 'Excede Q'+Math.abs(r).toFixed(2); dstatus.style.background='#fee2e2'; dstatus.style.color='#991b1b';
+    } else {
+      dstatus.textContent = 'Falta Q'+r.toFixed(2); dstatus.style.background='#fef3c7'; dstatus.style.color='#92400e';
+    }
+  }
+}
+
+function clearDistrib() {
+  document.querySelectorAll('.distrib-row').forEach(r => r.remove());
+  const empty = document.getElementById('distrib-empty');
+  if (empty) empty.style.display = 'block';
+  const el = document.getElementById('distrib-summary');
+  if (el) { el.textContent = ''; el.className = ''; }
+  const footer = document.getElementById('distrib-footer');
+  if (footer) footer.style.display = 'none';
+  distribCount = 0;
+}
+
+function getDistribData() {
+  const rows = [];
+  document.querySelectorAll('.distrib-row').forEach(row => {
+    const n = row.id.replace('drow-', '');
+    const terId = Number(document.getElementById('drow-ter-id-' + n)?.value) || null;
+    const monto = Number(document.getElementById('drow-mon-' + n)?.value) || 0;
+    if (monto > 0) rows.push({ terId, monto });
+  });
+  return rows;
+}
+function acTerInput(n) {
+  const inp=document.getElementById('drow-ter-input-'+n);
+  const drop=document.getElementById('drow-ter-drop-'+n);
+  const hid=document.getElementById('drow-ter-id-'+n);
+  if(!inp||!drop)return;
+  const q=inp.value.toLowerCase();
+  if(hid){hid.value='';inp.classList.remove('ac-selected');}
+  const matches=q.length<1
+    ?terrenos.slice(0,50)
+    :terrenos.filter(t=>{const c=gc(t.cliId);return(t.sec+t.lot).toLowerCase().includes(q)||t.sec.toLowerCase().includes(q)||t.lot.toLowerCase().includes(q)||(c&&c.nom.toLowerCase().includes(q));}).slice(0,50);
+  drop.innerHTML=matches.length
+    ?matches.map(t=>{const c=gc(t.cliId);const lbl=`Sec ${t.sec} / Lote ${t.lot}${c?' - '+c.nom.substring(0,22):''}`;return`<div class="ac-item" onmousedown="acTerSelect(${n},${t.id},'${lbl.replace(/'/g,"\\'")}')"><div style="font-size:.83rem;font-weight:600">Sec ${t.sec} / Lote ${t.lot}</div><div style="font-size:.72rem;color:#9ca3af">${c?c.nom.substring(0,28):'Sin cliente'}</div></div>`;}).join('')
+    :'<div class="ac-empty">Sin resultados</div>';
+  drop.style.display='block';
+}
+function acTerSelect(n,id,lbl){
+  const hid=document.getElementById('drow-ter-id-'+n);
+  const inp=document.getElementById('drow-ter-input-'+n);
+  if(hid) hid.value=id;
+  if(inp){inp.value=lbl;inp.classList.add('ac-selected');}
+  const drop=document.getElementById('drow-ter-drop-'+n);
+  if(drop){drop.style.display='none';drop.innerHTML='';}
+  updateDistribSummary();
+}
+function acTerKey(e,n){
+  if(e.key==='Escape'){const d=document.getElementById('drow-ter-drop-'+n);if(d){d.style.display='none';d.innerHTML='';}}
+}
+
+function saveRecibo() {
+  const cliId=Number(document.getElementById('r-cli-id').value);
+  const mon=Number(document.getElementById('r-mon').value);
+  const fec=document.getElementById('r-fec').value;
+  if(!cliId){toast('Selecciona un cliente','err');return;}
+  if(!mon||mon<=0){toast('Ingresa un monto válido','err');return;}
+  if(!fec){toast('Ingresa la fecha','err');return;}
+  const distrib=getDistribData();
+  const rdata={fec,fec2:document.getElementById('r-fec2').value||'',num:document.getElementById('r-num').value.trim(),cliId,distrib,mon,bol:document.getElementById('r-bol').value,vend:document.getElementById('r-vend').value,not:document.getElementById('r-not').value.trim()};
+  if(editingRec){
+    const idx=recibos.findIndex(r=>r.id===editingRec);
+    if(idx>=0) recibos[idx]={...recibos[idx],...rdata};
+    toast('Recibo actualizado');
+  } else {
+    recibos.push({id:Date.now(),...rdata});
+    toast('Recibo registrado');
+  }
+  SS('rec',recibos); toggleForm('rf'); renderRecibos();
+}
+function renderRecibos() {
+  const s=(document.getElementById('r-search')?.value||'').toLowerCase();
+  const desde=document.getElementById('f-desde')?.value||'';
+  const hasta=document.getElementById('f-hasta')?.value||'';
+  const fCli=document.getElementById('f-cli-id')?.value||'';
+  const fPago=document.getElementById('f-pago')?.value||'';
+  const fVend=document.getElementById('f-vend')?.value||'';
+  let f=[...recibos].sort((a,b)=>b.fec.localeCompare(a.fec));
+
+  // filtro rango de fechas
+  if(desde||hasta) f=f.filter(r=>{
+    const val=dateTab==='fec2'?(r.fec2||''):r.fec;
+    if(!val) return false;
+    if(desde&&val<desde) return false;
+    if(hasta&&val>hasta) return false;
+    return true;
+  });
+
+  // filtro cliente
+  if(fCli) f=f.filter(r=>r.cliId==fCli);
+
+  // filtro forma de pago
+  if(fPago) f=f.filter(r=>r.bol===fPago);
+
+  // filtro vendedor
+  if(fVend) f=f.filter(r=>r.vend===fVend);
+
+  // filtro texto libre
+  if(s) f=f.filter(r=>{
+    const c=gc(r.cliId);
+    const lotes=(r.distrib||[]).map(d=>gt(d.terId)).filter(Boolean).map(t=>t.sec+' '+t.lot).join(' ');
+    const legTer=r.terId?gt(r.terId):null;
+    const terStr=lotes||(legTer?legTer.sec+' '+legTer.lot:'');
+    return(c&&c.nom.toLowerCase().includes(s))||(r.bol||'').toLowerCase().includes(s)||terStr.toLowerCase().includes(s)||(r.not||'').toLowerCase().includes(s);
+  });
+
+  // badge con total filtrado
+  const badge=document.getElementById('r-total-badge');
+  if(badge){
+    if(f.length){
+      const total=f.reduce((s,r)=>s+Number(r.mon||0),0);
+      badge.textContent=`${f.length} recibo${f.length!==1?'s':''} | Total: ${fmt(total)}`;
+    } else { badge.textContent=''; }
+  }
+
+  const tb=document.getElementById('t-recibos');
+  tb.innerHTML=f.length?f.map(r=>{
+    const c=gc(r.cliId);
+    let lotesStr='';
+    if(r.distrib&&r.distrib.length){
+      lotesStr=r.distrib.map(d=>{const t=gt(d.terId);return t?`${t.sec}/${t.lot} (${fmt(d.monto)})`:'?';}).join(', ');
+    } else if(r.terId){const t=gt(r.terId);if(t)lotesStr=t.sec+'/'+t.lot;}
+    return`<tr><td>${r.fec}</td><td>${r.fec2||'-'}</td><td>${r.num||'-'}</td><td>${c?c.nom:'-'}</td><td style="font-size:.78rem">${lotesStr||'-'}</td><td><strong>${fmt(r.mon)}</strong></td><td>${r.bol}</td><td>${r.vend||'-'}</td><td>${r.not||'-'}</td><td nowrap><button class="btn-edit" onclick="editRecibo(${r.id})">Editar</button><button class="btn-del" onclick="delRecibo(${r.id})">Eliminar</button></td></tr>`;
+  }).join('')
+    :'<tr><td colspan="10" class="empty">Sin recibos en el rango seleccionado</td></tr>';
+}
+
+// â•â•â• IMPORTAR â•â•â•
+let importData = null;
+
+function previewImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      importData = JSON.parse(e.target.result);
+      // validar estructura mínima
+      if (!importData.clientes || !importData.terrenos || !importData.recibos)
+        throw new Error('Formato inválido');
+
+      document.getElementById('imp-cli').textContent = importData.clientes.length;
+      document.getElementById('imp-ter').textContent = importData.terrenos.length;
+      const ll = importData.terrenos.filter(t=>t.proj==='llanos').length;
+      const ni = importData.terrenos.filter(t=>t.proj==='nichos').length;
+      document.getElementById('imp-ter-det').textContent =
+        `Llanos: ${ll}  Â·  Nichos: ${ni}`;
+      document.getElementById('imp-rec').textContent = importData.recibos.length;
+
+      const hayDatos = localStorage.getItem('cr_cli') !== null || localStorage.getItem('cr_ter') !== null || localStorage.getItem('cr_rec') !== null;
+      document.getElementById('import-warn').style.display = hayDatos ? 'block' : 'none';
+      document.getElementById('import-preview').style.display = 'block';
+    } catch(err) {
+      toast('Error al leer el archivo: ' + err.message, 'err');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function confirmarImport() {
+  if (!importData) return;
+  clientes = importData.clientes;
+  terrenos = importData.terrenos;
+  recibos  = importData.recibos;
+  SS('cli', clientes);
+  SS('ter', terrenos);
+  SS('rec', recibos);
+  importData = null;
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('json-file').value = '';
+  toast(`âœ" Importados: ${clientes.length} clientes, ${terrenos.length} terrenos, ${recibos.length} recibos`);
+  setTimeout(() => go('dashboard', null), 1200);
+}
+
+function cancelarImport() {
+  importData = null;
+  document.getElementById('import-preview').style.display = 'none';
+  document.getElementById('json-file').value = '';
+}
+
+// click en zona de drop
+document.getElementById('drop-zone')?.addEventListener('click', () =>
+  document.getElementById('json-file').click()
+);
+
+// â•â•â• INIT â•â•â•
+
+// -- TEMA --
+function toggleTheme() {
+  applyTheme(document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+}
+function applyTheme(theme) {
+  const moon = document.getElementById('ico-moon');
+  const sun  = document.getElementById('ico-sun');
+  if (theme === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+    if (moon) moon.style.display = 'none';
+    if (sun)  sun.style.display  = 'block';
+  } else {
+    document.body.removeAttribute('data-theme');
+    if (moon) moon.style.display = 'block';
+    if (sun)  sun.style.display  = 'none';
+  }
+  localStorage.setItem('cr_theme', theme);
+}
+
+terProj = localStorage.getItem('cr_proj') || 'todos';
+const savedProj = terProj;
+applyTheme(localStorage.getItem('cr_theme') || 'light');
+
+(async () => {
+  try {
+    const [{data:cli},{data:ter},{data:rec}] = await Promise.all([
+      _sb.from('clientes').select('*').order('id'),
+      _sb.from('terrenos').select('*').order('id'),
+      _sb.from('recibos').select('*').order('id'),
+    ]);
+    if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); }
+    if (ter?.length) { terrenos = ter.map(r=>_fromRow('terrenos',r)); localStorage.setItem('cr_ter', JSON.stringify(terrenos)); }
+    if (rec?.length) { recibos  = rec.map(r=>_fromRow('recibos', r)); localStorage.setItem('cr_rec', JSON.stringify(recibos)); }
+  } catch(e) { console.warn('Supabase: usando datos locales.', e.message); }
+  go(localStorage.getItem('cr_page') || 'dashboard', null);
+  if (savedProj !== 'todos') {
+    const subEl = document.getElementById('sub-'+savedProj);
+    if (subEl) subEl.classList.add('active');
+  } else {
+    const subEl = document.getElementById('sub-todos');
+    if (subEl) subEl.classList.add('active');
+  }
+})();
+
+// ─── Autocomplete cliente en formulario terreno ───
+let acCliTerIdx = -1;
+function acCliTerInput() {
+  const inp=document.getElementById('t-cli-input');
+  const drop=document.getElementById('t-cli-drop');
+  const hid=document.getElementById('t-cli-id');
+  hid.value=''; inp.classList.remove('ac-selected');
+  acCliTerIdx=-1;
+  const q=(inp.value||'').toLowerCase().trim();
+  const matches = q ? clientes.filter(c=>c.nom.toLowerCase().includes(q)||(c.tel||'').includes(q)) : clientes.slice(0,8);
+  if(matches.length===0){
+    drop.innerHTML='<div class="ac-empty">Sin resultados &mdash; <button class="link-btn" onclick="irCrearClienteFromTer()">crear cliente &rarr;</button></div>';
+  } else {
+    drop.innerHTML='';
+    matches.forEach(c=>{
+      const div=document.createElement('div');
+      div.className='ac-item';
+      div.dataset.id=c.id;
+      div.dataset.nom=c.nom;
+      div.innerHTML='<div class="ac-init">'+inits(c.nom)+'</div><div><div>'+c.nom+'</div>'+(c.tel?'<div class="ac-phone">'+c.tel+'</div>':'')+'</div>';
+      div.addEventListener('mousedown',()=>acCliTerSelect(c.id,c.nom));
+      drop.appendChild(div);
+    });
+  }
+  drop.style.display='block';
+}
+function acCliTerSelect(id, nom) {
+  document.getElementById('t-cli-id').value=id;
+  document.getElementById('t-cli-input').value=nom;
+  document.getElementById('t-cli-input').classList.add('ac-selected');
+  acTerClose();
+}
+function acCliTerClose() {
+  const d=document.getElementById('t-cli-drop');
+  if(d){d.style.display='none';d.innerHTML='';}
+  acCliTerIdx=-1;
+}
+function acCliTerKey(e) {
+  const drop=document.getElementById('t-cli-drop');
+  const items=[...drop.querySelectorAll('.ac-item')];
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){e.preventDefault();acCliTerIdx=Math.min(acCliTerIdx+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();acCliTerIdx=Math.max(acCliTerIdx-1,0);}
+  else if(e.key==='Enter'&&acCliTerIdx>=0){e.preventDefault();const it=items[acCliTerIdx];acCliTerSelect(Number(it.dataset.id),it.dataset.nom);}
+  else if(e.key==='Escape'){acCliTerClose();return;}
+  items.forEach((el,i)=>el.classList.toggle('ac-active',i===acCliTerIdx));
+  if(acCliTerIdx>=0) items[acCliTerIdx].scrollIntoView({block:'nearest'});
+}
+function irCrearClienteFromTer() {
+  toggleForm('tf');
+  go('clientes',null);
+  setTimeout(()=>{ document.getElementById('cf').style.display='block'; },80);
+}
+
+// ─── Autocomplete búsqueda cliente en Terrenos ───
+let acTerSrcIdx = -1;
+function acTerSrcInput() {
+  const inp = document.getElementById('t-search-cli');
+  const drop = document.getElementById('t-search-cli-drop');
+  acTerSrcIdx = -1;
+  const q = (inp.value || '').toLowerCase().trim();
+  // Construir set de clientes que tienen al menos 1 terreno
+  const cliConTer = new Set(terrenos.map(t => t.cliId).filter(Boolean));
+  const pool = clientes.filter(c => cliConTer.has(c.id));
+  const matches = q
+    ? pool.filter(c => c.nom.toLowerCase().includes(q) || (c.tel||'').includes(q))
+    : pool.slice(0, 8);
+  if (matches.length === 0) {
+    drop.innerHTML = '<div class="ac-empty">Sin resultados</div>';
+  } else {
+    drop.innerHTML = '';
+    matches.forEach(cli => {
+      const div = document.createElement('div');
+      div.className = 'ac-item';
+      div.dataset.nom = cli.nom;
+      const count = terrenos.filter(t => t.cliId === cli.id).length;
+      div.innerHTML = '<div class="ac-init">' + inits(cli.nom) + '</div><div><div>' + cli.nom + '</div><div class="ac-phone">' + count + ' terreno' + (count !== 1 ? 's' : '') + '</div></div>';
+      div.addEventListener('mousedown', () => acTerSrcSelect(cli.nom));
+      drop.appendChild(div);
+    });
+  }
+  drop.style.display = 'block';
+  renderTerrenos();
+}
+function acTerSrcSelect(nom) {
+  const inp = document.getElementById('t-search-cli');
+  if (inp) { inp.value = nom; inp.classList.add('ac-selected'); }
+  acTerSrcClose();
+  renderTerrenos();
+}
+function acTerSrcClose() {
+  const d = document.getElementById('t-search-cli-drop');
+  if (d) { d.style.display = 'none'; d.innerHTML = ''; }
+  acTerSrcIdx = -1;
+}
+function acTerSrcKey(e) {
+  const drop = document.getElementById('t-search-cli-drop');
+  const items = [...drop.querySelectorAll('.ac-item')];
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); acTerSrcIdx = Math.min(acTerSrcIdx + 1, items.length - 1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); acTerSrcIdx = Math.max(acTerSrcIdx - 1, 0); }
+  else if (e.key === 'Enter' && acTerSrcIdx >= 0) { e.preventDefault(); acTerSrcSelect(items[acTerSrcIdx].dataset.nom); }
+  else if (e.key === 'Escape') { acTerSrcClose(); const inp=document.getElementById('t-search-cli');if(inp){inp.value='';inp.classList.remove('ac-selected');}renderTerrenos(); return; }
+  items.forEach((el, i) => el.classList.toggle('ac-active', i === acTerSrcIdx));
+  if (acTerSrcIdx >= 0) items[acTerSrcIdx].scrollIntoView({ block: 'nearest' });
+}
+</script>
+</body>
+</html>
+
