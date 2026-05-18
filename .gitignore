@@ -1,0 +1,15 @@
+# Datos sensibles y archivos grandes
+datos-migrados.json
+*.xlsx
+*.xls
+*.pdf
+*.mp4
+*.zip
+
+# PowerShell temporales
+csv-export/
+
+# Sistema
+desktop.ini
+Thumbs.db
+.DS_Store
