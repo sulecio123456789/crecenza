@@ -1184,6 +1184,7 @@ function editRecibo(id){
   }
   clearDistrib();
   if(r.distrib&&r.distrib.length) r.distrib.forEach(d=>addDistribRow(d.terId,d.monto));
+  else if(r.cliId) cargarLotesCliente(r.cliId);
   panel.querySelector('.panel-title').textContent='Editar recibo';
   panel.scrollIntoView({behavior:'smooth',block:'start'});
   updateDistribSummary();
