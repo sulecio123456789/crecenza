@@ -686,7 +686,26 @@
           <div class="ficha-sub" id="fc-sub"></div>
         </div>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="cerrarFicha()" style="flex-shrink:0">&times; Cerrar</button>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn btn-primary btn-sm" onclick="abrirPagoRapido()">+ Pago</button>
+        <button class="btn btn-ghost btn-sm" onclick="cerrarFicha()">&times; Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Pago rápido -->
+    <div id="fc-pago-form" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px">
+      <div id="fp-title" style="font-weight:700;font-size:.9rem;margin-bottom:12px;color:#166534">Registrar pago</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="form-group"><label class="form-label">Fecha *</label><input id="fp-fec" type="date" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Monto (Q) *</label><input id="fp-mon" type="number" min="0" step="0.01" placeholder="0.00" class="form-input"></div>
+        <div class="form-group"><label class="form-label">No. Recibo</label><input id="fp-num" type="text" placeholder="Opcional" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Forma de pago</label><select id="fp-bol" class="form-input"><option value="Efectivo">Efectivo</option><option value="Deposito">Depósito</option><option value="Transferencia">Transferencia</option><option value="Cheque">Cheque</option></select></div>
+        <div class="form-group" style="grid-column:span 2"><label class="form-label">Nota</label><input id="fp-not" type="text" placeholder="Opcional" class="form-input"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="guardarPagoRapido()">Guardar pago</button>
+        <button class="btn btn-secondary btn-sm" onclick="cerrarPagoRapido()">Cancelar</button>
+      </div>
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px">
@@ -965,7 +984,9 @@ document.addEventListener('click',e=>{
 const PLACEHOLDER = /^(RESERVADO|PENDIENTE|SIN NOMBRE|PROPIETARIO|ANULADO)/i;
 function isPlaceholder(nom) { return !nom || PLACEHOLDER.test(nom.trim()); }
 
+let _fichaCliId = null;
 function verFicha(cliId) {
+  _fichaCliId = cliId;
   const c = gc(cliId); if (!c) return;
   document.getElementById('fc-init').textContent = inits(c.nom);
   document.getElementById('fc-nom').textContent  = c.nom;
@@ -1008,6 +1029,51 @@ function verFicha(cliId) {
 function cerrarFicha() {
   document.getElementById('ficha-overlay').style.display = 'none';
   document.body.style.overflow = '';
+  cerrarPagoRapido();
+}
+function abrirPagoRapido() {
+  const form = document.getElementById('fc-pago-form');
+  const dark = document.body.getAttribute('data-theme') === 'dark';
+  form.style.background  = dark ? '#052e16' : '#f0fdf4';
+  form.style.borderColor = dark ? '#166534' : '#bbf7d0';
+  document.getElementById('fp-title').style.color = dark ? '#86efac' : '#166534';
+  document.getElementById('fp-fec').value = new Date().toISOString().slice(0,10);
+  document.getElementById('fp-mon').value = '';
+  document.getElementById('fp-num').value = '';
+  document.getElementById('fp-bol').value = 'Efectivo';
+  document.getElementById('fp-not').value = '';
+  form.style.display = 'block';
+  setTimeout(() => document.getElementById('fp-mon').focus(), 50);
+}
+function cerrarPagoRapido() {
+  document.getElementById('fc-pago-form').style.display = 'none';
+}
+function guardarPagoRapido() {
+  const mon = Number(document.getElementById('fp-mon').value);
+  const fec = document.getElementById('fp-fec').value;
+  if (!mon || mon <= 0) { toast('Ingresa un monto válido', 'err'); return; }
+  if (!fec) { toast('Ingresa la fecha', 'err'); return; }
+  const rec = {
+    id: Date.now(),
+    fec,
+    fec2: '',
+    num: document.getElementById('fp-num').value.trim(),
+    cliId: _fichaCliId,
+    terId: null,
+    mon,
+    bol: document.getElementById('fp-bol').value,
+    vend: '',
+    not: document.getElementById('fp-not').value.trim()
+  };
+  recibos.push(rec);
+  SS('rec', recibos);
+  cerrarPagoRapido();
+  const recs = recibos.filter(r => r.cliId == _fichaCliId).sort((a,b) => b.fec.localeCompare(a.fec));
+  document.getElementById('fc-pagos-title').textContent = 'Historial de pagos (' + recs.length + ')';
+  document.getElementById('fc-recibos').innerHTML = recs.length ? recs.map(r =>
+    '<tr><td>'+r.fec+'</td><td>'+(r.num||'-')+'</td><td><strong>'+fmt(r.mon)+'</strong></td><td>'+r.bol+'</td><td style="font-size:.78rem">'+(r.not||'-')+'</td></tr>'
+  ).join('') : '<tr><td colspan="5" class="empty">Sin pagos registrados</td></tr>';
+  toast('Pago registrado');
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarFicha(); });
 
