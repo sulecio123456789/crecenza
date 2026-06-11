@@ -256,6 +256,15 @@
     body[data-theme="dark"] .mapa-lote.dis{background:#14532d;border-color:#16a34a;color:#86efac;}
     body[data-theme="dark"] .mapa-lote.res{background:#451a03;border-color:#d97706;color:#fcd34d;}
     body[data-theme="dark"] .mapa-lote.ven{background:#450a0a;border-color:#dc2626;color:#fca5a5;}
+    /* ── GLOBAL SEARCH ── */
+    .g-item{padding:8px 14px;cursor:pointer;font-size:.84rem;transition:background .1s;}
+    .g-item:hover{background:#f3f4f6;}
+    .g-sec{font-size:.68rem;font-weight:700;color:#9ca3af;padding:8px 14px 4px;text-transform:uppercase;letter-spacing:.05em;}
+    .g-div{height:1px;background:#e5e7eb;margin:4px 0;}
+    body[data-theme="dark"] #g-drop{background:#1f2937!important;border-color:#374151!important;}
+    body[data-theme="dark"] .g-item:hover{background:#374151;}
+    body[data-theme="dark"] .g-sec{color:#4b5563;}
+    body[data-theme="dark"] .g-div{background:#374151;}
     /* ── PRINT ── */
     #print-area{display:none;}
     @media print{
@@ -343,6 +352,11 @@
     <div>
       <div class="topbar-title" id="tb-title">Dashboard</div>
       <div class="topbar-sub" id="tb-sub">Vista general de terrenos, cuotas y ventas</div>
+    </div>
+    <div style="flex:1;max-width:400px;margin:0 24px;position:relative">
+      <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.4" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="g-search" placeholder="Buscar cliente, lote, recibo..." oninput="gSearch(this.value)" onfocus="gSearch(this.value)" autocomplete="off" style="width:100%;padding-left:34px;box-sizing:border-box">
+      <div id="g-drop" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;max-height:380px;overflow-y:auto;"></div>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <button class="btn btn-secondary btn-sm" id="theme-btn" onclick="toggleTheme()" title="Cambiar tema" style="display:flex;align-items:center;padding:7px 9px"><svg id="ico-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg id="ico-sun"  width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg></button>
@@ -1205,7 +1219,41 @@ function guardarPagoRapido() {
   ).join('') : '<tr><td colspan="5" class="empty">Sin pagos registrados</td></tr>';
   toast('Pago registrado');
 }
-document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarFicha(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ cerrarFicha(); document.getElementById('g-drop').style.display='none'; }});
+document.addEventListener('click', e => { if(!e.target.closest('#g-search')&&!e.target.closest('#g-drop')) document.getElementById('g-drop').style.display='none'; });
+function cerrarGSearch(){ document.getElementById('g-drop').style.display='none'; document.getElementById('g-search').value=''; }
+function gSearch(q){
+  const drop=document.getElementById('g-drop');
+  q=(q||'').trim();
+  if(q.length<2){drop.style.display='none';return;}
+  const s=q.toLowerCase();
+  const parts=[];
+  const clis=clientes.filter(c=>!isPlaceholder(c.nom)&&(c.nom.toLowerCase().includes(s)||(c.tel||'').includes(s)||(c.dpi||'').includes(s))).slice(0,5);
+  if(clis.length){
+    parts.push('<div class="g-sec">Clientes</div>');
+    parts.push(clis.map(c=>`<div class="g-item" onclick="verFicha(${c.id});cerrarGSearch()"><div style="font-weight:600">${c.nom}</div><div style="font-size:.75rem;color:#6b7280">${c.tel||'Sin teléfono'}${c.vend?' · '+c.vend:''}</div></div>`).join(''));
+  }
+  const ters=terrenos.filter(t=>{const c=gc(t.cliId);return(t.sec+'').toLowerCase().includes(s)||(t.lot+'').toLowerCase().includes(s)||(t.sec+'/'+t.lot).toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
+  if(ters.length){
+    if(parts.length) parts.push('<div class="g-div"></div>');
+    parts.push('<div class="g-sec">Terrenos</div>');
+    parts.push(ters.map(t=>{
+      const c=gc(t.cliId);
+      const col=t.est==='disponible'?'#16a34a':t.est==='reservado'?'#d97706':'#dc2626';
+      const action=t.cliId?`verFicha(${t.cliId})`:`go('terrenos',null)`;
+      return`<div class="g-item" onclick="${action};cerrarGSearch()"><div style="font-weight:600"><span style="color:${col}">●</span> Sector ${t.sec} / Lote ${t.lot}</div><div style="font-size:.75rem;color:#6b7280">${c?c.nom:'Disponible'} · ${fmt(t.sal)} saldo</div></div>`;
+    }).join(''));
+  }
+  const recs=[...recibos].sort((a,b)=>b.fec.localeCompare(a.fec)).filter(r=>{const c=gc(r.cliId);return(r.num||'').toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
+  if(recs.length){
+    if(parts.length) parts.push('<div class="g-div"></div>');
+    parts.push('<div class="g-sec">Recibos</div>');
+    parts.push(recs.map(r=>{const c=gc(r.cliId);return`<div class="g-item" onclick="verFicha(${r.cliId});cerrarGSearch()"><div style="font-weight:600">Recibo ${r.num||'s/n'} · ${fmt(r.mon)}</div><div style="font-size:.75rem;color:#6b7280">${c?c.nom:'—'} · ${r.fec}</div></div>`;}).join(''));
+  }
+  if(!parts.length) parts.push('<div style="padding:14px;text-align:center;font-size:.83rem;color:#9ca3af">Sin resultados para "'+q+'"</div>');
+  drop.innerHTML='<div style="padding:4px 0">'+parts.join('')+'</div>';
+  drop.style.display='block';
+}
 
 // ── MORA ──
 let _moraFiltro=30;
