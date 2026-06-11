@@ -992,7 +992,17 @@ function verFicha(cliId) {
   tr2.innerHTML = recs.length ? recs.map(r=>
     '<tr><td>'+r.fec+'</td><td>'+(r.num||'-')+'</td><td><strong>'+fmt(r.mon)+'</strong></td><td>'+r.bol+'</td><td style="font-size:.78rem">'+(r.not||'-')+'</td></tr>'
   ).join('') : '<tr><td colspan="5" class="empty">Sin pagos registrados</td></tr>';
-  document.getElementById('ficha-overlay').style.display = 'block';
+  const overlay = document.getElementById('ficha-overlay');
+  const box = overlay.querySelector('.ficha-box');
+  const dark = document.body.getAttribute('data-theme') === 'dark';
+  box.style.background   = dark ? '#111827' : '#ffffff';
+  box.style.border       = dark ? '1px solid #374151' : 'none';
+  box.style.color        = dark ? '#f9fafb' : '#1f2937';
+  document.getElementById('fc-nom').style.color        = dark ? '#f9fafb' : '#111827';
+  document.getElementById('fc-sub').style.color        = dark ? '#9ca3af' : '#6b7280';
+  document.getElementById('fc-lotes-title').style.color = dark ? '#f9fafb' : '#111827';
+  document.getElementById('fc-pagos-title').style.color = dark ? '#f9fafb' : '#111827';
+  overlay.style.display = 'block';
   document.body.style.overflow = 'hidden';
 }
 function cerrarFicha() {
