@@ -256,6 +256,25 @@
     body[data-theme="dark"] .mapa-lote.dis{background:#14532d;border-color:#16a34a;color:#86efac;}
     body[data-theme="dark"] .mapa-lote.res{background:#451a03;border-color:#d97706;color:#fcd34d;}
     body[data-theme="dark"] .mapa-lote.ven{background:#450a0a;border-color:#dc2626;color:#fca5a5;}
+    /* ── PRINT ── */
+    #print-area{display:none;}
+    @media print{
+      body>*:not(#print-area){display:none!important;}
+      #print-area{display:block!important;font-family:Arial,sans-serif;color:#000;padding:24px;}
+      .pa-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;border-bottom:2px solid #000;padding-bottom:14px;}
+      .pa-logo{width:60px;height:60px;object-fit:contain;}
+      .pa-empresa{font-size:18px;font-weight:700;}
+      .pa-titulo{font-size:13px;font-weight:600;color:#374151;margin-top:2px;}
+      .pa-fecha{font-size:11px;color:#6b7280;margin-top:3px;}
+      .pa-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #d1d5db;padding-bottom:4px;margin:18px 0 8px;}
+      .pa-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+      .pa-table th,.pa-table td{border:1px solid #e5e7eb;padding:5px 8px;text-align:left;}
+      .pa-table th{background:#f3f4f6;font-weight:700;}
+      .pa-resumen{margin-top:20px;border:1px solid #e5e7eb;}
+      .pa-res-item{display:flex;justify-content:space-between;padding:7px 14px;border-bottom:1px solid #e5e7eb;font-size:12px;}
+      .pa-res-total{background:#f9fafb;}
+      .pa-footer{margin-top:28px;font-size:10px;color:#9ca3af;text-align:center;border-top:1px solid #e5e7eb;padding-top:10px;}
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -298,6 +317,10 @@
     <div class="nav-item" onclick="go('recibos',this)">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Recibos
+    </div>
+    <div class="nav-item" onclick="go('mora',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Cartera / Mora
     </div>
 
     <div class="nav-item" onclick="go('mapa',this)">
@@ -722,9 +745,33 @@
       </div>
     </div>
 
+    <!-- ══ MORA ══ -->
+    <div class="page" id="page-mora">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Cartera / Mora</div><div class="sec-sub">Clientes con saldo pendiente y sin pagos recientes</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+        <div class="stat-card"><div class="stat-label">Clientes en mora</div><div class="stat-value c-red" id="mora-ncli" style="font-size:2rem">—</div></div>
+        <div class="stat-card"><div class="stat-label">Saldo total en mora</div><div class="stat-value c-red" id="mora-total" style="font-size:1.3rem">—</div></div>
+      </div>
+      <div class="panel">
+        <div class="filter-row" style="margin-bottom:16px">
+          <button class="filter-btn active-f" id="mf-30" onclick="setMoraFiltro(30)">+30 días</button>
+          <button class="filter-btn" id="mf-60" onclick="setMoraFiltro(60)">+60 días</button>
+          <button class="filter-btn" id="mf-90" onclick="setMoraFiltro(90)">+90 días</button>
+          <button class="filter-btn" id="mf-0" onclick="setMoraFiltro(0)">Todos con saldo</button>
+        </div>
+        <table>
+          <thead><tr><th>Cliente</th><th>Teléfono</th><th>Último pago</th><th>Días sin pagar</th><th>Saldo pendiente</th></tr></thead>
+          <tbody id="t-mora"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /main -->
 
+<div id="print-area"></div>
 <div class="toast" id="toast"></div>
 <div class="mapa-tt" id="mapa-tt"></div>
 
@@ -741,6 +788,7 @@
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0">
         <button class="btn btn-primary btn-sm" onclick="abrirPagoRapido()">+ Pago</button>
+        <button class="btn btn-secondary btn-sm" onclick="imprimirEstadoCuenta()">&#9113; Imprimir</button>
         <button class="btn btn-ghost btn-sm" onclick="cerrarFicha()">&times; Cerrar</button>
       </div>
     </div>
@@ -850,6 +898,7 @@ const pages = {
   recibos:   ['Recibos','Registro de pagos y recibos de caja'],
   importar:  ['Importar datos','Carga los datos migrados desde los archivos Excel'],
   mapa:      ['Mapa de lotes','Vista visual interactiva por sector y estado'],
+  mora:      ['Cartera / Mora','Clientes con saldo pendiente y sin pagos recientes'],
 };
 function go(name, el) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -870,6 +919,7 @@ function go(name, el) {
   if(name==='terrenos'){renderTerrenos();}
   if(name==='recibos'){renderRecibos();fillReciboSelects();fillFiltroClientes();}
   if(name==='mapa') renderMapa();
+  if(name==='mora') renderMora();
 }
 
 // â•â•â• SUBMENU TERRENOS â•â•â•
@@ -1157,6 +1207,80 @@ function guardarPagoRapido() {
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarFicha(); });
 
+// ── MORA ──
+let _moraFiltro=30;
+function setMoraFiltro(dias){
+  _moraFiltro=dias;
+  ['0','30','60','90'].forEach(d=>document.getElementById('mf-'+d)?.classList.remove('active-f'));
+  document.getElementById('mf-'+dias)?.classList.add('active-f');
+  renderMora();
+}
+function renderMora(){
+  const hoy=new Date();
+  const rows=clientes.map(c=>{
+    if(isPlaceholder(c.nom)) return null;
+    const lotes=terrenos.filter(t=>t.cliId==c.id);
+    const totalSal=lotes.reduce((s,t)=>s+Number(t.sal||0),0);
+    if(totalSal<=0) return null;
+    const pagos=recibos.filter(r=>r.cliId==c.id&&r.fec).sort((a,b)=>b.fec.localeCompare(a.fec));
+    const ultimoPago=pagos[0]?.fec||null;
+    const dias=ultimoPago?Math.floor((hoy-new Date(ultimoPago))/86400000):9999;
+    return {c,totalSal,ultimoPago,dias};
+  }).filter(r=>r&&r.dias>=_moraFiltro).sort((a,b)=>b.dias-a.dias);
+  document.getElementById('mora-ncli').textContent=rows.length;
+  document.getElementById('mora-total').textContent=fmt(rows.reduce((s,r)=>s+r.totalSal,0));
+  const tb=document.getElementById('t-mora');
+  tb.innerHTML=rows.length?rows.map(({c,totalSal,ultimoPago,dias})=>{
+    const dcolor=dias>=9000?'#6b7280':dias>=90?'#dc2626':dias>=60?'#ea580c':dias>=30?'#d97706':'#16a34a';
+    const diasStr=dias>=9000?'Sin pagos':dias+' días';
+    return`<tr>
+      <td><button class="cli-link" onclick="verFicha(${c.id})"><div class="client-cell"><div class="client-init">${inits(c.nom)}</div><div class="client-n">${c.nom}</div></div></button></td>
+      <td>${c.tel||'—'}</td>
+      <td>${ultimoPago||'—'}</td>
+      <td><strong style="color:${dcolor}">${diasStr}</strong></td>
+      <td><strong class="c-red">${fmt(totalSal)}</strong></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="5" class="empty">Sin clientes en mora para este período</td></tr>';
+}
+// ── ESTADO DE CUENTA ──
+function imprimirEstadoCuenta(){
+  const c=gc(_fichaCliId); if(!c) return;
+  const lotes=terrenos.filter(t=>t.cliId==_fichaCliId);
+  const totalPre=lotes.reduce((s,t)=>s+Number(t.pre||0),0);
+  const totalSal=lotes.reduce((s,t)=>s+Number(t.sal||0),0);
+  const totalPag=totalPre-totalSal;
+  const recs=recibos.filter(r=>r.cliId==_fichaCliId).sort((a,b)=>b.fec.localeCompare(a.fec));
+  const fecha=new Date().toLocaleDateString('es-GT',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('print-area').innerHTML=`
+    <div class="pa-header">
+      <img src="./Logo.jpg" class="pa-logo" onerror="this.style.display='none'">
+      <div><div class="pa-empresa">CRECENSA INMOBILIARIA</div><div class="pa-titulo">ESTADO DE CUENTA</div><div class="pa-fecha">Fecha: ${fecha}</div></div>
+    </div>
+    <div class="pa-section-title">Datos del cliente</div>
+    <table class="pa-table">
+      <tr><td width="100"><strong>Nombre</strong></td><td colspan="3">${c.nom}</td></tr>
+      <tr><td><strong>Teléfono</strong></td><td>${c.tel||'—'}</td><td width="100"><strong>DPI</strong></td><td>${c.dpi||'—'}</td></tr>
+      <tr><td><strong>Vendedor</strong></td><td colspan="3">${c.vend||'—'}</td></tr>
+    </table>
+    <div class="pa-section-title">Lotes asignados (${lotes.length})</div>
+    <table class="pa-table">
+      <thead><tr><th>Sector</th><th>Lote</th><th>Precio</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr></thead>
+      <tbody>${lotes.map(t=>`<tr><td>${t.sec}</td><td>${t.lot}</td><td>${fmt(t.pre)}</td><td>${fmt(Number(t.pre)-Number(t.sal))}</td><td><strong>${fmt(t.sal)}</strong></td><td>${t.est}</td></tr>`).join('')||'<tr><td colspan="6">Sin lotes</td></tr>'}</tbody>
+    </table>
+    <div class="pa-section-title">Historial de pagos (${recs.length})</div>
+    <table class="pa-table">
+      <thead><tr><th>Fecha</th><th>No. Recibo</th><th>Monto</th><th>Forma de pago</th><th>Nota</th></tr></thead>
+      <tbody>${recs.length?recs.map(r=>`<tr><td>${r.fec}</td><td>${r.num||'—'}</td><td><strong>${fmt(r.mon)}</strong></td><td>${r.bol}</td><td>${r.not||'—'}</td></tr>`).join(''):'<tr><td colspan="5">Sin pagos registrados</td></tr>'}</tbody>
+    </table>
+    <div class="pa-section-title">Resumen</div>
+    <div class="pa-resumen">
+      <div class="pa-res-item"><span>Precio total</span><strong>${fmt(totalPre)}</strong></div>
+      <div class="pa-res-item"><span>Total pagado</span><strong style="color:#16a34a">${fmt(totalPag)}</strong></div>
+      <div class="pa-res-item pa-res-total"><span>Saldo pendiente</span><strong style="color:#dc2626">${fmt(totalSal)}</strong></div>
+    </div>
+    <div class="pa-footer">Documento generado el ${fecha} · Crecensa Inmobiliaria</div>`;
+  window.print();
+}
 let _mapaFiltro='todos';
 function setMapaFiltro(sec){_mapaFiltro=sec;renderMapa();}
 function renderMapa() {
