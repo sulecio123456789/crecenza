@@ -160,9 +160,14 @@
     .nav-chevron.open{transform:rotate(90deg);}
 
     /* â”€â”€ DATE TABS â”€â”€ */
-    .date-tab{background:none;border:none;padding:6px 13px;font-size:.78rem;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;transition:all .15s;}
-    .date-tab:hover{color:#111827;}
-    .date-tab.active-tab{background:#2563eb;color:#fff;}
+    .seg-ctrl{display:flex;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:3px;gap:2px;}
+    .date-tab{background:none;border:none;padding:6px 14px;font-size:.78rem;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;transition:all .18s;border-radius:7px;white-space:nowrap;}
+    .date-tab:hover{color:#374151;background:rgba(0,0,0,.04);}
+    .date-tab.active-tab{background:#2563eb;color:#fff;box-shadow:0 1px 6px rgba(37,99,235,.35);}
+    body[data-theme=”dark”] .seg-ctrl{background:#111827;border-color:#374151;}
+    body[data-theme=”dark”] .date-tab{color:#6b7280;}
+    body[data-theme=”dark”] .date-tab:hover{color:#d1d5db;background:rgba(255,255,255,.05);}
+    body[data-theme=”dark”] .date-tab.active-tab{background:#2563eb;color:#fff;}
 
     /* â”€â”€ AUTOCOMPLETE â”€â”€ */
     .ac-wrap{position:relative;flex:1;}
@@ -390,7 +395,7 @@
           <div style="font-size:1.1rem;font-weight:700;color:#111827">Resumen general</div>
           <div style="font-size:.8rem;color:#6b7280;margin-top:2px" id="d-proj-sub">Todos los proyectos</div>
         </div>
-        <div style="display:flex;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#fff">
+        <div class="seg-ctrl">
           <button class="date-tab active-tab" id="dp-todos"  onclick="setDashProj('todos')">Todos</button>
           <button class="date-tab"            id="dp-llanos" onclick="setDashProj('llanos')">Proyecto Llanos</button>
           <button class="date-tab"            id="dp-nichos" onclick="setDashProj('nichos')">Proyecto Nichos</button>
