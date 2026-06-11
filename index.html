@@ -1233,7 +1233,7 @@ function gSearch(q){
     parts.push('<div class="g-sec">Clientes</div>');
     parts.push(clis.map(c=>`<div class="g-item" onclick="verFicha(${c.id});cerrarGSearch()"><div style="font-weight:600">${c.nom}</div><div style="font-size:.75rem;color:#6b7280">${c.tel||'Sin teléfono'}${c.vend?' · '+c.vend:''}</div></div>`).join(''));
   }
-  const ters=terrenos.filter(t=>{const c=gc(t.cliId);return(t.sec+'').toLowerCase().includes(s)||(t.lot+'').toLowerCase().includes(s)||(t.sec+'/'+t.lot).toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
+  const ters=terrenos.filter(t=>{const c=gc(t.cliId);return(t.sec+'').toLowerCase().includes(s)||(t.lot+'').toLowerCase().includes(s)||(t.sec+'/'+t.lot).toLowerCase().includes(s)||('sector '+t.sec).toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
   if(ters.length){
     if(parts.length) parts.push('<div class="g-div"></div>');
     parts.push('<div class="g-sec">Terrenos</div>');
@@ -1244,7 +1244,7 @@ function gSearch(q){
       return`<div class="g-item" onclick="${action};cerrarGSearch()"><div style="font-weight:600"><span style="color:${col}">●</span> Sector ${t.sec} / Lote ${t.lot}</div><div style="font-size:.75rem;color:#6b7280">${c?c.nom:'Disponible'} · ${fmt(t.sal)} saldo</div></div>`;
     }).join(''));
   }
-  const recs=[...recibos].sort((a,b)=>b.fec.localeCompare(a.fec)).filter(r=>{const c=gc(r.cliId);return(r.num||'').toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
+  const recs=[...recibos].sort((a,b)=>b.fec.localeCompare(a.fec)).filter(r=>{const c=gc(r.cliId);return(r.num||'').toLowerCase().includes(s)||('recibo '+(r.num||'')).toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
   if(recs.length){
     if(parts.length) parts.push('<div class="g-div"></div>');
     parts.push('<div class="g-sec">Recibos</div>');
