@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -133,6 +133,18 @@
     @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
     .skel{display:inline-block;border-radius:6px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;color:transparent!important;min-width:80px;}
     body[data-theme=”dark”] .skel{background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#374151 75%);background-size:400px 100%;}
+
+    /* â”€â”€ FICHA CLIENTE â”€â”€ */
+    .ficha-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:800;overflow-y:auto;padding:32px 16px;}
+    .ficha-box{max-width:820px;margin:0 auto;background:#fff;border-radius:18px;padding:28px;box-shadow:0 24px 60px rgba(0,0,0,.22);}
+    body[data-theme=”dark”] .ficha-box{background:#1f2937;}
+    .ficha-avatar{width:56px;height:56px;border-radius:14px;background:#dbeafe;color:#1d4ed8;font-weight:700;font-size:1.15rem;display:grid;place-items:center;flex-shrink:0;}
+    body[data-theme=”dark”] .ficha-avatar{background:#1e3a5f;color:#60a5fa;}
+    .ficha-nom{font-size:1.2rem;font-weight:700;color:#111827;}
+    body[data-theme=”dark”] .ficha-nom{color:#f9fafb;}
+    .ficha-sub{font-size:.82rem;color:#6b7280;margin-top:3px;}
+    .cli-link{background:none;border:none;padding:0;cursor:pointer;text-align:left;font-family:inherit;color:inherit;font-weight:inherit;}
+    .cli-link:hover .client-n{text-decoration:underline;color:#2563eb;}
 
     /* â”€â”€ SUBMENU â”€â”€ */
     .nav-sub{overflow:hidden;max-height:0;transition:max-height .25s ease;}
@@ -660,6 +672,41 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- â•â•â•â•â•â•â• FICHA CLIENTE â•â•â•â•â•â•â• -->
+<div class="ficha-overlay" id="ficha-overlay" onclick="if(event.target===this)cerrarFicha()">
+  <div class="ficha-box">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="ficha-avatar" id="fc-init">?</div>
+        <div>
+          <div class="ficha-nom" id="fc-nom"></div>
+          <div class="ficha-sub" id="fc-sub"></div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarFicha()" style="flex-shrink:0">&times; Cerrar</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px">
+      <div class="stat-card"><div class="stat-label">Lotes</div><div class="stat-value c-blue" id="fc-nlotes" style="font-size:1.5rem">-</div></div>
+      <div class="stat-card"><div class="stat-label">Precio total</div><div class="stat-value" id="fc-pre" style="font-size:1.1rem">-</div></div>
+      <div class="stat-card"><div class="stat-label">Total pagado</div><div class="stat-value c-green" id="fc-pag" style="font-size:1.1rem">-</div></div>
+      <div class="stat-card"><div class="stat-label">Saldo</div><div class="stat-value c-red" id="fc-sal" style="font-size:1.1rem">-</div></div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <div style="font-size:.9rem;font-weight:700;color:#111827;margin-bottom:10px" id="fc-lotes-title">Lotes del cliente</div>
+      <table><thead><tr><th>Sector</th><th>Lote</th><th>Precio</th><th>Saldo</th><th>Estado</th><th>Vendedor</th></tr></thead>
+      <tbody id="fc-terrenos"></tbody></table>
+    </div>
+
+    <div>
+      <div style="font-size:.9rem;font-weight:700;color:#111827;margin-bottom:10px" id="fc-pagos-title">Historial de pagos</div>
+      <table><thead><tr><th>Fecha</th><th>No. Recibo</th><th>Monto</th><th>Forma pago</th><th>Nota</th></tr></thead>
+      <tbody id="fc-recibos"></tbody></table>
+    </div>
+  </div>
+</div>
+
 <script>
 // â•â•â• DATA â•â•â•
 // ═══ SUPABASE ═══
@@ -910,6 +957,47 @@ document.addEventListener('click',e=>{
 });
 
 // â•â•â• DASHBOARD â•â•â•
+
+// FICHA CLIENTE
+const PLACEHOLDER = /^(RESERVADO|PENDIENTE|SIN NOMBRE|PROPIETARIO|ANULADO)/i;
+function isPlaceholder(nom) { return !nom || PLACEHOLDER.test(nom.trim()); }
+
+function verFicha(cliId) {
+  const c = gc(cliId); if (!c) return;
+  document.getElementById('fc-init').textContent = inits(c.nom);
+  document.getElementById('fc-nom').textContent  = c.nom;
+  const parts = [];
+  if (c.tel && c.tel !== 'N/A') parts.push('Tel: ' + c.tel);
+  if (c.dpi) parts.push('DPI: ' + c.dpi);
+  if (c.vend) parts.push('Vendedor: ' + c.vend);
+  document.getElementById('fc-sub').textContent = parts.join('  ·  ') || 'Sin datos adicionales';
+  const lotes = terrenos.filter(t => t.cliId == cliId);
+  const totalPre = lotes.reduce((s,t)=>s+Number(t.pre||0),0);
+  const totalSal = lotes.reduce((s,t)=>s+Number(t.sal||0),0);
+  document.getElementById('fc-nlotes').textContent = lotes.length;
+  document.getElementById('fc-pre').textContent    = fmt(totalPre);
+  document.getElementById('fc-pag').textContent    = fmt(totalPre - totalSal);
+  document.getElementById('fc-sal').textContent    = fmt(totalSal);
+  document.getElementById('fc-lotes-title').textContent = 'Lotes del cliente (' + lotes.length + ')';
+  const tb = document.getElementById('fc-terrenos');
+  tb.innerHTML = lotes.length ? lotes.map(t=>
+    '<tr><td><strong>'+t.sec+'</strong></td><td>'+t.lot+'</td><td>'+fmt(t.pre)+'</td><td><strong class="c-red">'+fmt(t.sal)+'</strong></td><td>'+pill(t.est)+'</td><td>'+(t.vend||'-')+'</td></tr>'
+  ).join('') : '<tr><td colspan="6" class="empty">Sin lotes asignados</td></tr>';
+  const recs = recibos.filter(r=>r.cliId==cliId).sort((a,b)=>b.fec.localeCompare(a.fec));
+  document.getElementById('fc-pagos-title').textContent = 'Historial de pagos (' + recs.length + ')';
+  const tr2 = document.getElementById('fc-recibos');
+  tr2.innerHTML = recs.length ? recs.map(r=>
+    '<tr><td>'+r.fec+'</td><td>'+(r.num||'-')+'</td><td><strong>'+fmt(r.mon)+'</strong></td><td>'+r.bol+'</td><td style="font-size:.78rem">'+(r.not||'-')+'</td></tr>'
+  ).join('') : '<tr><td colspan="5" class="empty">Sin pagos registrados</td></tr>';
+  document.getElementById('ficha-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function cerrarFicha() {
+  document.getElementById('ficha-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarFicha(); });
+
 function setDashProj(proj) {
   dashProj = proj;
   ['todos','llanos','nichos'].forEach(p => {
@@ -952,14 +1040,14 @@ function renderDashboard() {
   dcs.innerHTML = cliSaldoArr.length ? cliSaldoArr.map(cs => {
     const c = gc(cs.id);
     const lbl = cs.lotes.slice(0, 3).join(', ') + (cs.lotes.length > 3 ? ' +' + (cs.lotes.length - 3) : '');
-    return '<tr><td><div class="client-cell"><div class="client-init">' + inits(c ? c.nom : '?') + '</div><div class="client-n">' + (c ? c.nom : '-') + '</div></div></td><td style="font-size:.78rem;color:#6b7280">' + lbl + '</td><td><strong class="c-red">' + fmt(cs.sal) + '</strong></td></tr>';
+    return '<tr><td><button class="cli-link" onclick="verFicha(' + cs.id + ')"><div class="client-cell"><div class="client-init">' + inits(c ? c.nom : '?') + '</div><div class="client-n">' + (c ? c.nom : '-') + '</div></div></button></td><td style="font-size:.78rem;color:#6b7280">' + lbl + '</td><td><strong class="c-red">' + fmt(cs.sal) + '</strong></td></tr>';
   }).join('') : '<tr><td colspan="3" class="empty">Sin saldos pendientes</td></tr>';
 
-  // alertas — solo terrenos con cliente asignado
-  const al = ter.filter(t => Number(t.sal) > 0 && t.cliId).sort((a,b) => b.sal - a.sal).slice(0, 5);
+  // alertas — solo clientes reales (sin placeholders)
+  const al = ter.filter(t => { const c=gc(t.cliId); return Number(t.sal)>0 && t.cliId && c && !isPlaceholder(c.nom); }).sort((a,b)=>b.sal-a.sal).slice(0,5);
   document.getElementById('d-alertas').innerHTML = al.length ? al.map(t => {
     const c = gc(t.cliId);
-    return '<div class="alert-row"><div><div class="alert-name">' + (c ? c.nom : '-') + '</div><div class="alert-lot">Sector ' + t.sec + ' / Lote ' + t.lot + '</div></div><div class="alert-amt">' + fmt(t.sal) + '</div></div>';
+    return '<div class="alert-row" style="cursor:pointer" onclick="verFicha(' + t.cliId + ')"><div><div class="alert-name">' + c.nom + '</div><div class="alert-lot">Sector ' + t.sec + ' / Lote ' + t.lot + '</div></div><div class="alert-amt">' + fmt(t.sal) + '</div></div>';
   }).join('') : '<div class="empty">Sin alertas pendientes</div>';
 
   // top vendedores
@@ -1017,7 +1105,7 @@ function renderClientes(q) {
       <td><div class="client-cell"><div class="client-init">${inits(c.nom)}</div><div><div class="client-n">${c.nom}</div><div class="client-s">${c.not||''}</div></div></div></td>
       <td>${c.tel||'â€"'}</td><td>${c.dpi||'â€"'}</td><td>${c.vend||'â€"'}</td>
       <td>${lts.length?lts.map(l=>l.sec+'/'+l.lot).join(', '):'-'}</td>
-      <td nowrap><button class="btn-edit" onclick="editCliente(${c.id})">Editar</button><button class="btn-del" onclick="delCliente(${c.id})">Eliminar</button></td>
+      <td nowrap><button class="btn-edit" onclick="verFicha(${c.id})">Ver ficha</button><button class="btn-edit" onclick="editCliente(${c.id})" style="margin-left:10px">Editar</button><button class="btn-del" onclick="delCliente(${c.id})">Eliminar</button></td>
     </tr>`;}).join(''):'<tr><td colspan="6" class="empty">Sin clientes encontrados</td></tr>';
 }
 function editCliente(id){
