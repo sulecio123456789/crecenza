@@ -237,6 +237,7 @@
     body[data-theme="dark"] .form-panel{border-color:#374151;}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -408,7 +409,10 @@
     <div class="page" id="page-clientes">
       <div class="sec-hdr">
         <div><div class="sec-title">Clientes</div><div class="sec-sub">Registro y gestión de clientes</div></div>
-        <button class="btn btn-primary" onclick="toggleForm('cf')">+ Nuevo cliente</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="exportExcel('clientes')">&#8595; Excel</button>
+          <button class="btn btn-primary" onclick="toggleForm('cf')">+ Nuevo cliente</button>
+        </div>
       </div>
 
       <div class="panel form-panel" id="cf" style="display:none">
@@ -442,7 +446,10 @@
     <div class="page" id="page-terrenos">
       <div class="sec-hdr">
         <div><div class="sec-title">Terrenos</div><div class="sec-sub">Todos los lotes: disponibles, reservados y vendidos</div></div>
-        <button class="btn btn-primary" onclick="toggleForm('tf')">+ Nuevo terreno</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="exportExcel('terrenos')">&#8595; Excel</button>
+          <button class="btn btn-primary" onclick="toggleForm('tf')">+ Nuevo terreno</button>
+        </div>
       </div>
 
       <div class="filter-row">
@@ -507,7 +514,10 @@
     <div class="page" id="page-recibos">
       <div class="sec-hdr">
         <div><div class="sec-title">Recibos</div><div class="sec-sub">Registro de pagos y recibos de caja</div></div>
-        <button class="btn btn-primary" onclick="toggleForm('rf')">+ Nuevo recibo</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="exportExcel('recibos')">&#8595; Excel</button>
+          <button class="btn btn-primary" onclick="toggleForm('rf')">+ Nuevo recibo</button>
+        </div>
       </div>
 
       <div class="panel form-panel" id="rf" style="display:none">
@@ -984,6 +994,29 @@ document.addEventListener('click',e=>{
 const PLACEHOLDER = /^(RESERVADO|PENDIENTE|SIN NOMBRE|PROPIETARIO|ANULADO)/i;
 function isPlaceholder(nom) { return !nom || PLACEHOLDER.test(nom.trim()); }
 
+function exportExcel(tipo) {
+  let headers, rows, filename;
+  if (tipo === 'clientes') {
+    headers = ['ID','Nombre','Teléfono','DPI','Vendedor','Estado','Nota'];
+    rows = clientes.map(c => [c.id, c.nom, c.tel||'', c.dpi||'', c.vend||'', c.est||'', c.not||'']);
+    filename = 'Clientes_Crecensa.xlsx';
+  } else if (tipo === 'terrenos') {
+    headers = ['ID','Sector','Lote','Precio Q','Saldo Q','Estado','Cliente','Vendedor','Área','Proyecto','Nota'];
+    rows = terrenos.map(t => { const c=gc(t.cliId); return [t.id, t.sec, t.lot, t.pre, t.sal, t.est, c?c.nom:'', t.vend||'', t.are||'', t.proj||'', t.not||'']; });
+    filename = 'Terrenos_Crecensa.xlsx';
+  } else {
+    headers = ['ID','Fecha','No. Recibo','Cliente','Monto Q','Forma pago','Vendedor','Nota'];
+    rows = [...recibos].sort((a,b)=>b.fec.localeCompare(a.fec)).map(r => { const c=gc(r.cliId); return [r.id, r.fec, r.num||'', c?c.nom:'', r.mon, r.bol||'', r.vend||'', r.not||'']; });
+    filename = 'Recibos_Crecensa.xlsx';
+  }
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  // ancho de columnas automático
+  ws['!cols'] = headers.map((_,i) => ({ wch: Math.max(headers[i].length, ...rows.map(r=>String(r[i]||'').length)) + 2 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, tipo.charAt(0).toUpperCase()+tipo.slice(1));
+  XLSX.writeFile(wb, filename);
+  toast('Archivo descargado: ' + filename);
+}
 let _fichaCliId = null;
 function verFicha(cliId) {
   _fichaCliId = cliId;
