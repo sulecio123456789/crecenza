@@ -1505,6 +1505,17 @@ terProj = localStorage.getItem('cr_proj') || 'todos';
 const savedProj = terProj;
 applyTheme(localStorage.getItem('cr_theme') || 'light');
 
+// Render inmediato con datos de localStorage
+go(localStorage.getItem('cr_page') || 'dashboard', null);
+if (savedProj !== 'todos') {
+  const subEl = document.getElementById('sub-'+savedProj);
+  if (subEl) subEl.classList.add('active');
+} else {
+  const subEl = document.getElementById('sub-todos');
+  if (subEl) subEl.classList.add('active');
+}
+
+// Supabase carga en segundo plano y actualiza silenciosamente
 (async () => {
   try {
     const [{data:cli},{data:ter},{data:rec}] = await Promise.all([
@@ -1512,18 +1523,18 @@ applyTheme(localStorage.getItem('cr_theme') || 'light');
       _sb.from('terrenos').select('*').order('id'),
       _sb.from('recibos').select('*').order('id'),
     ]);
-    if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); }
-    if (ter?.length) { terrenos = ter.map(r=>_fromRow('terrenos',r)); localStorage.setItem('cr_ter', JSON.stringify(terrenos)); }
-    if (rec?.length) { recibos  = rec.map(r=>_fromRow('recibos', r)); localStorage.setItem('cr_rec', JSON.stringify(recibos)); }
+    let updated = false;
+    if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); updated = true; }
+    if (ter?.length) { terrenos = ter.map(r=>_fromRow('terrenos',r)); localStorage.setItem('cr_ter', JSON.stringify(terrenos)); updated = true; }
+    if (rec?.length) { recibos  = rec.map(r=>_fromRow('recibos', r)); localStorage.setItem('cr_rec', JSON.stringify(recibos)); updated = true; }
+    if (updated) {
+      const cur = localStorage.getItem('cr_page') || 'dashboard';
+      if (cur === 'dashboard') renderDashboard();
+      else if (cur === 'clientes') renderClientes('');
+      else if (cur === 'terrenos') renderTerrenos();
+      else if (cur === 'recibos') renderRecibos();
+    }
   } catch(e) { console.warn('Supabase: usando datos locales.', e.message); }
-  go(localStorage.getItem('cr_page') || 'dashboard', null);
-  if (savedProj !== 'todos') {
-    const subEl = document.getElementById('sub-'+savedProj);
-    if (subEl) subEl.classList.add('active');
-  } else {
-    const subEl = document.getElementById('sub-todos');
-    if (subEl) subEl.classList.add('active');
-  }
 })();
 
 // ─── Autocomplete cliente en formulario terreno ───
