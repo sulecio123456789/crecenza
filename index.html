@@ -276,8 +276,8 @@
     body[data-theme="dark"] .g-div{background:#374151;}
     /* ── PRINT ── */
     #print-area{display:none;}
+    @page{margin:0;}
     @media print{
-      @page{margin:0;}
       body>*:not(#print-area){display:none!important;}
       #print-area{display:flex!important;justify-content:center;align-items:center;min-height:100vh;padding:1.5cm;box-sizing:border-box;font-family:Arial,sans-serif;color:#000;}
       .pa-inner{width:100%;max-width:700px;}
