@@ -712,6 +712,7 @@
       </div>
       <div class="mapa-resumen" id="mapa-resumen"></div>
       <div class="panel">
+        <div class="filter-row" id="mapa-filtros" style="margin-bottom:16px"></div>
         <div class="mapa-leyenda">
           <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#16a34a"></div>Disponible</div>
           <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#d97706"></div>Reservado</div>
@@ -1156,6 +1157,8 @@ function guardarPagoRapido() {
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarFicha(); });
 
+let _mapaFiltro='todos';
+function setMapaFiltro(sec){_mapaFiltro=sec;renderMapa();}
 function renderMapa() {
   const dis=terrenos.filter(t=>t.est==='disponible').length;
   const res=terrenos.filter(t=>t.est==='reservado').length;
@@ -1164,7 +1167,12 @@ function renderMapa() {
     [['Disponibles',dis,'#16a34a'],['Reservados',res,'#d97706'],['Vendidos',ven,'#dc2626']].map(([lbl,n,col])=>
       `<div class="stat-card"><div class="stat-label">${lbl}</div><div class="stat-value" style="color:${col};font-size:2rem">${n}</div></div>`
     ).join('');
-  const sectors=[...new Set(terrenos.map(t=>t.sec).filter(Boolean))].sort();
+  const allSectors=[...new Set(terrenos.map(t=>t.sec).filter(Boolean))].sort();
+  document.getElementById('mapa-filtros').innerHTML=
+    ['todos',...allSectors].map(sec=>
+      `<button class="filter-btn${_mapaFiltro===sec?' active-f':''}" onclick="setMapaFiltro('${sec}')">${sec==='todos'?'Todos':'Sector '+sec}</button>`
+    ).join('');
+  const sectors=_mapaFiltro==='todos'?allSectors:allSectors.filter(s=>s===_mapaFiltro);
   document.getElementById('mapa-content').innerHTML=sectors.length?sectors.map(sec=>{
     const lotes=terrenos.filter(t=>t.sec===sec).sort((a,b)=>{
       const na=Number(a.lot)||0,nb=Number(b.lot)||0;
