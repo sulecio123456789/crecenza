@@ -129,6 +129,11 @@
     /* â”€â”€ EMPTY â”€â”€ */
     .empty{text-align:center;padding:36px 20px;color:#9ca3af;font-size:.88rem;}
 
+    /* â”€â”€ SKELETON â”€â”€ */
+    @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+    .skel{display:inline-block;border-radius:6px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;color:transparent!important;min-width:80px;}
+    body[data-theme=”dark”] .skel{background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#374151 75%);background-size:400px 100%;}
+
     /* â”€â”€ SUBMENU â”€â”€ */
     .nav-sub{overflow:hidden;max-height:0;transition:max-height .25s ease;}
     .nav-sub.open{max-height:200px;}
@@ -306,22 +311,22 @@
       <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
         <div class="stat-card">
           <div class="stat-label">Total terrenos</div>
-          <div class="stat-value" id="s-tot">-</div>
+          <div class="stat-value" id="s-tot"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">En el proyecto</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Disponibles</div>
-          <div class="stat-value c-green" id="s-dis">-</div>
+          <div class="stat-value c-green" id="s-dis"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Libres para venta</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Apartados</div>
-          <div class="stat-value c-amber" id="s-res">-</div>
+          <div class="stat-value c-amber" id="s-res"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Reservados / en proceso</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Vendidos</div>
-          <div class="stat-value c-blue" id="s-ven">-</div>
+          <div class="stat-value c-blue" id="s-ven"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Con contrato firmado</div>
         </div>
       </div>
@@ -330,22 +335,22 @@
       <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
         <div class="stat-card">
           <div class="stat-label">Precio vendido</div>
-          <div class="stat-value c-blue" id="s-ven-monto">-</div>
+          <div class="stat-value c-blue" id="s-ven-monto"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Valor total de lotes vendidos</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total cobrado</div>
-          <div class="stat-value c-green" id="s-cob">-</div>
+          <div class="stat-value c-green" id="s-cob"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Pagos recibidos en terrenos</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Por cobrar</div>
-          <div class="stat-value c-red" id="s-deu">-</div>
+          <div class="stat-value c-red" id="s-deu"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Solo clientes asignados</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Clientes</div>
-          <div class="stat-value" id="s-cli">-</div>
+          <div class="stat-value" id="s-cli"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Registrados en sistema</div>
         </div>
       </div>
