@@ -1051,13 +1051,15 @@ function cerrarPagoRapido() {
 function guardarPagoRapido() {
   const mon = Number(document.getElementById('fp-mon').value);
   const fec = document.getElementById('fp-fec').value;
-  if (!mon || mon <= 0) { toast('Ingresa un monto válido', 'err'); return; }
+  const num = document.getElementById('fp-num').value.trim();
   if (!fec) { toast('Ingresa la fecha', 'err'); return; }
+  if (!mon || mon <= 0) { toast('Ingresa un monto válido', 'err'); return; }
+  if (!num) { toast('El número de recibo es obligatorio', 'err'); return; }
   const rec = {
     id: Date.now(),
     fec,
     fec2: '',
-    num: document.getElementById('fp-num').value.trim(),
+    num,
     cliId: _fichaCliId,
     terId: null,
     mon,
@@ -1181,10 +1183,10 @@ function renderClientes(q) {
   tb.innerHTML=f.length?f.map(c=>{
     const lts=terrenos.filter(t=>t.cliId==c.id);
     return`<tr>
-      <td><div class="client-cell"><div class="client-init">${inits(c.nom)}</div><div><div class="client-n">${c.nom}</div><div class="client-s">${c.not||''}</div></div></div></td>
+      <td><button class="cli-link" onclick="verFicha(${c.id})"><div class="client-cell"><div class="client-init">${inits(c.nom)}</div><div><div class="client-n">${c.nom}</div><div class="client-s">${c.not||''}</div></div></div></button></td>
       <td>${c.tel||'â€"'}</td><td>${c.dpi||'â€"'}</td><td>${c.vend||'â€"'}</td>
       <td>${lts.length?lts.map(l=>l.sec+'/'+l.lot).join(', '):'-'}</td>
-      <td nowrap><button class="btn-edit" onclick="verFicha(${c.id})">Ver ficha</button><button class="btn-edit" onclick="editCliente(${c.id})" style="margin-left:10px">Editar</button><button class="btn-del" onclick="delCliente(${c.id})">Eliminar</button></td>
+      <td nowrap><button class="btn-edit" onclick="editCliente(${c.id})">Editar</button><button class="btn-del" onclick="delCliente(${c.id})" style="margin-left:10px">Eliminar</button></td>
     </tr>`;}).join(''):'<tr><td colspan="6" class="empty">Sin clientes encontrados</td></tr>';
 }
 function editCliente(id){
