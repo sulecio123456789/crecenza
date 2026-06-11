@@ -279,8 +279,8 @@
     @page{margin:0;}
     @media print{
       body>*:not(#print-area){display:none!important;}
-      #print-area{display:flex!important;justify-content:center;align-items:center;min-height:100vh;padding:1.5cm;box-sizing:border-box;font-family:Arial,sans-serif;color:#000;}
-      .pa-inner{width:100%;max-width:700px;}
+      #print-area{display:flex!important;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:1.5cm;box-sizing:border-box;font-family:Arial,sans-serif;color:#000;}
+      .pa-inner{width:680px;}
       .pa-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;border-bottom:2px solid #000;padding-bottom:14px;}
       .pa-logo{width:60px;height:60px;object-fit:contain;}
       .pa-empresa{font-size:18px;font-weight:700;}
