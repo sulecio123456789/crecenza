@@ -129,6 +129,11 @@
     /* â”€â”€ EMPTY â”€â”€ */
     .empty{text-align:center;padding:36px 20px;color:#9ca3af;font-size:.88rem;}
 
+    /* â”€â”€ SKELETON â”€â”€ */
+    @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+    .skel{display:inline-block;border-radius:6px;background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;color:transparent!important;min-width:80px;}
+    body[data-theme=”dark”] .skel{background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#374151 75%);background-size:400px 100%;}
+
     /* â”€â”€ SUBMENU â”€â”€ */
     .nav-sub{overflow:hidden;max-height:0;transition:max-height .25s ease;}
     .nav-sub.open{max-height:200px;}
@@ -306,22 +311,22 @@
       <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
         <div class="stat-card">
           <div class="stat-label">Total terrenos</div>
-          <div class="stat-value" id="s-tot">-</div>
+          <div class="stat-value" id="s-tot"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">En el proyecto</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Disponibles</div>
-          <div class="stat-value c-green" id="s-dis">-</div>
+          <div class="stat-value c-green" id="s-dis"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Libres para venta</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Apartados</div>
-          <div class="stat-value c-amber" id="s-res">-</div>
+          <div class="stat-value c-amber" id="s-res"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Reservados / en proceso</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Vendidos</div>
-          <div class="stat-value c-blue" id="s-ven">-</div>
+          <div class="stat-value c-blue" id="s-ven"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Con contrato firmado</div>
         </div>
       </div>
@@ -330,22 +335,22 @@
       <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
         <div class="stat-card">
           <div class="stat-label">Precio vendido</div>
-          <div class="stat-value c-blue" id="s-ven-monto">-</div>
+          <div class="stat-value c-blue" id="s-ven-monto"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Valor total de lotes vendidos</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total cobrado</div>
-          <div class="stat-value c-green" id="s-cob">-</div>
+          <div class="stat-value c-green" id="s-cob"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Pagos recibidos en terrenos</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Por cobrar</div>
-          <div class="stat-value c-red" id="s-deu">-</div>
-          <div class="stat-note">Saldo pendiente del proyecto</div>
+          <div class="stat-value c-red" id="s-deu"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+          <div class="stat-note">Solo clientes asignados</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Clientes</div>
-          <div class="stat-value" id="s-cli">-</div>
+          <div class="stat-value" id="s-cli"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Registrados en sistema</div>
         </div>
       </div>
@@ -353,16 +358,24 @@
       <div class="two-col">
         <div class="panel">
           <div class="panel-hdr">
-            <div><div class="panel-title">Terrenos recientes</div><div class="panel-sub" id="d-ter-sub">Ultimos lotes con actividad</div></div>
-            <button class="btn btn-primary btn-sm" onclick="go('terrenos',null)">Ver todos</button>
+            <div><div class="panel-title">Clientes con saldo pendiente</div><div class="panel-sub">Con cuotas activas</div></div>
+            <button class="btn btn-ghost btn-sm" onclick="go('clientes',null)">Ver clientes</button>
           </div>
-          <table><thead><tr><th>Sector/Lote</th><th>Cliente</th><th>Saldo</th><th>Estado</th></tr></thead>
-          <tbody id="d-terrenos"></tbody></table>
+          <table><thead><tr><th>Cliente</th><th>Lotes</th><th>Saldo total</th></tr></thead>
+          <tbody id="d-clientes-saldo"></tbody></table>
         </div>
         <div class="panel">
-          <div class="panel-hdr"><div><div class="panel-title">Alertas de pago</div><div class="panel-sub">Saldos pendientes urgentes</div></div></div>
+          <div class="panel-hdr"><div><div class="panel-title">Alertas de pago</div><div class="panel-sub">Mayores saldos por cobrar</div></div></div>
           <div id="d-alertas"></div>
         </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Top vendedores</div><div class="panel-sub">Recaudación por vendedor</div></div>
+        </div>
+        <table><thead><tr><th>Vendedor</th><th>Recibos</th><th>Total cobrado</th></tr></thead>
+        <tbody id="d-vendedores"></tbody></table>
       </div>
 
       <div class="panel">
@@ -917,28 +930,53 @@ function renderDashboard() {
   document.getElementById('s-dis').textContent = ter.filter(t => t.est === 'disponible').length;
   document.getElementById('s-res').textContent = ter.filter(t => t.est === 'reservado').length;
   document.getElementById('s-ven').textContent = ter.filter(t => t.est === 'vendida').length;
-  const venMonto = ter.filter(t=>t.est==='vendida').reduce((s,t)=>s+Number(t.pre||0),0);
-  const cobrado  = ter.filter(t=>t.cliId).reduce((s,t)=>s+Math.max(0,Number(t.pre||0)-Number(t.sal||0)),0);
-  const porCobrar= ter.reduce((s,t)=>s+Number(t.sal||0),0);
+  const venMonto  = ter.filter(t=>t.est==='vendida').reduce((s,t)=>s+Number(t.pre||0),0);
+  const cobrado   = ter.filter(t=>t.cliId).reduce((s,t)=>s+Math.max(0,Number(t.pre||0)-Number(t.sal||0)),0);
+  const porCobrar = ter.filter(t=>t.cliId).reduce((s,t)=>s+Number(t.sal||0),0);
   document.getElementById('s-ven-monto').textContent = fmt(venMonto);
   document.getElementById('s-cob').textContent       = fmt(cobrado);
   document.getElementById('s-deu').textContent       = fmt(porCobrar);
   document.getElementById('s-cli').textContent = clientes.length;
 
-  // terrenos recientes del proyecto
-  const dt = document.getElementById('d-terrenos');
-  const rt = [...ter].slice(-6).reverse();
-  dt.innerHTML = rt.length ? rt.map(t => {
-    const c = gc(t.cliId);
-    return '<tr><td><strong>' + t.sec + '</strong> / ' + t.lot + '</td><td>' + (c ? c.nom : '-') + '</td><td>' + fmt(t.sal) + '</td><td>' + pill(t.est) + '</td></tr>';
-  }).join('') : '<tr><td colspan="4" class="empty">Sin datos</td></tr>';
+  // clientes con saldo pendiente
+  const dcs = document.getElementById('d-clientes-saldo');
+  const cliSaldo = {};
+  ter.filter(t => t.cliId && Number(t.sal) > 0).forEach(t => {
+    if (!cliSaldo[t.cliId]) cliSaldo[t.cliId] = { lotes: [], sal: 0 };
+    cliSaldo[t.cliId].lotes.push(t.sec + '/' + t.lot);
+    cliSaldo[t.cliId].sal += Number(t.sal);
+  });
+  const cliSaldoArr = Object.entries(cliSaldo)
+    .map(([id, v]) => ({ id: Number(id), ...v }))
+    .sort((a, b) => b.sal - a.sal).slice(0, 7);
+  dcs.innerHTML = cliSaldoArr.length ? cliSaldoArr.map(cs => {
+    const c = gc(cs.id);
+    const lbl = cs.lotes.slice(0, 3).join(', ') + (cs.lotes.length > 3 ? ' +' + (cs.lotes.length - 3) : '');
+    return '<tr><td><div class="client-cell"><div class="client-init">' + inits(c ? c.nom : '?') + '</div><div class="client-n">' + (c ? c.nom : '-') + '</div></div></td><td style="font-size:.78rem;color:#6b7280">' + lbl + '</td><td><strong class="c-red">' + fmt(cs.sal) + '</strong></td></tr>';
+  }).join('') : '<tr><td colspan="3" class="empty">Sin saldos pendientes</td></tr>';
 
-  // alertas del proyecto
-  const al = ter.filter(t => Number(t.sal) > 0).sort((a,b) => b.sal - a.sal).slice(0, 5);
+  // alertas — solo terrenos con cliente asignado
+  const al = ter.filter(t => Number(t.sal) > 0 && t.cliId).sort((a,b) => b.sal - a.sal).slice(0, 5);
   document.getElementById('d-alertas').innerHTML = al.length ? al.map(t => {
     const c = gc(t.cliId);
     return '<div class="alert-row"><div><div class="alert-name">' + (c ? c.nom : '-') + '</div><div class="alert-lot">Sector ' + t.sec + ' / Lote ' + t.lot + '</div></div><div class="alert-amt">' + fmt(t.sal) + '</div></div>';
   }).join('') : '<div class="empty">Sin alertas pendientes</div>';
+
+  // top vendedores
+  const dv = document.getElementById('d-vendedores');
+  if (dv) {
+    const vMap = {};
+    recibos.forEach(r => {
+      const v = r.vend || 'Sin vendedor';
+      if (!vMap[v]) vMap[v] = { count: 0, total: 0 };
+      vMap[v].count++;
+      vMap[v].total += Number(r.mon || 0);
+    });
+    const vArr = Object.entries(vMap).sort((a, b) => b[1].total - a[1].total);
+    dv.innerHTML = vArr.length ? vArr.map(([v, d]) =>
+      '<tr><td><strong>' + v + '</strong></td><td>' + d.count + ' recibos</td><td><strong class="c-green">' + fmt(d.total) + '</strong></td></tr>'
+    ).join('') : '<tr><td colspan="3" class="empty">Sin datos</td></tr>';
+  }
 
   // recibos recientes
   const dr = document.getElementById('d-recibos');
@@ -1184,7 +1222,6 @@ function editRecibo(id){
   }
   clearDistrib();
   if(r.distrib&&r.distrib.length) r.distrib.forEach(d=>addDistribRow(d.terId,d.monto));
-  else if(r.cliId) cargarLotesCliente(r.cliId);
   panel.querySelector('.panel-title').textContent='Editar recibo';
   panel.scrollIntoView({behavior:'smooth',block:'start'});
   updateDistribSummary();
@@ -1473,6 +1510,17 @@ terProj = localStorage.getItem('cr_proj') || 'todos';
 const savedProj = terProj;
 applyTheme(localStorage.getItem('cr_theme') || 'light');
 
+// Render inmediato con datos de localStorage
+go(localStorage.getItem('cr_page') || 'dashboard', null);
+if (savedProj !== 'todos') {
+  const subEl = document.getElementById('sub-'+savedProj);
+  if (subEl) subEl.classList.add('active');
+} else {
+  const subEl = document.getElementById('sub-todos');
+  if (subEl) subEl.classList.add('active');
+}
+
+// Supabase carga en segundo plano y actualiza silenciosamente
 (async () => {
   try {
     const [{data:cli},{data:ter},{data:rec}] = await Promise.all([
@@ -1480,18 +1528,18 @@ applyTheme(localStorage.getItem('cr_theme') || 'light');
       _sb.from('terrenos').select('*').order('id'),
       _sb.from('recibos').select('*').order('id'),
     ]);
-    if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); }
-    if (ter?.length) { terrenos = ter.map(r=>_fromRow('terrenos',r)); localStorage.setItem('cr_ter', JSON.stringify(terrenos)); }
-    if (rec?.length) { recibos  = rec.map(r=>_fromRow('recibos', r)); localStorage.setItem('cr_rec', JSON.stringify(recibos)); }
+    let updated = false;
+    if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); updated = true; }
+    if (ter?.length) { terrenos = ter.map(r=>_fromRow('terrenos',r)); localStorage.setItem('cr_ter', JSON.stringify(terrenos)); updated = true; }
+    if (rec?.length) { recibos  = rec.map(r=>_fromRow('recibos', r)); localStorage.setItem('cr_rec', JSON.stringify(recibos)); updated = true; }
+    if (updated) {
+      const cur = localStorage.getItem('cr_page') || 'dashboard';
+      if (cur === 'dashboard') renderDashboard();
+      else if (cur === 'clientes') renderClientes('');
+      else if (cur === 'terrenos') renderTerrenos();
+      else if (cur === 'recibos') renderRecibos();
+    }
   } catch(e) { console.warn('Supabase: usando datos locales.', e.message); }
-  go(localStorage.getItem('cr_page') || 'dashboard', null);
-  if (savedProj !== 'todos') {
-    const subEl = document.getElementById('sub-'+savedProj);
-    if (subEl) subEl.classList.add('active');
-  } else {
-    const subEl = document.getElementById('sub-todos');
-    if (subEl) subEl.classList.add('active');
-  }
 })();
 
 // ─── Autocomplete cliente en formulario terreno ───
