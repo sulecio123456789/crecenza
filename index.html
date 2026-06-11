@@ -256,6 +256,15 @@
     body[data-theme="dark"] .mapa-lote.dis{background:#14532d;border-color:#16a34a;color:#86efac;}
     body[data-theme="dark"] .mapa-lote.res{background:#451a03;border-color:#d97706;color:#fcd34d;}
     body[data-theme="dark"] .mapa-lote.ven{background:#450a0a;border-color:#dc2626;color:#fca5a5;}
+    /* ── CHART ── */
+    .chart-bar{border-radius:4px 4px 0 0;transition:opacity .15s;background:#bfdbfe;cursor:default;}
+    .chart-bar:hover{opacity:.7;}
+    .chart-bar.cur{background:#3b82f6;}
+    .chart-lbl{font-size:.6rem;color:#9ca3af;white-space:nowrap;overflow:hidden;max-width:100%;text-align:center;}
+    body[data-theme="dark"] .chart-bar{background:#1e3a5f;}
+    body[data-theme="dark"] .chart-bar.cur{background:#3b82f6;}
+    body[data-theme="dark"] .chart-lbl{color:#4b5563;}
+    body[data-theme="dark"] #chart-total{color:#f9fafb;}
     /* ── GLOBAL SEARCH ── */
     .g-item{padding:8px 14px;cursor:pointer;font-size:.84rem;transition:background .1s;}
     .g-item:hover{background:#f3f4f6;}
@@ -431,6 +440,17 @@
           <div class="stat-value" id="s-cli"><span class="skel">&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
           <div class="stat-note">Registrados en sistema</div>
         </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-hdr">
+          <div><div class="panel-title">Ingresos mensuales</div><div class="panel-sub">Recibos cobrados · últimos 12 meses</div></div>
+          <div style="display:flex;gap:24px">
+            <div style="text-align:right"><div style="font-size:.72rem;color:#9ca3af;margin-bottom:2px">Este mes</div><div style="font-size:1rem;font-weight:700;color:#3b82f6" id="chart-mes">—</div></div>
+            <div style="text-align:right"><div style="font-size:.72rem;color:#9ca3af;margin-bottom:2px">Últimos 12 meses</div><div style="font-size:1rem;font-weight:700;color:#111827" id="chart-total">—</div></div>
+          </div>
+        </div>
+        <div id="chart-bars" style="display:flex;gap:3px;padding:0 2px"></div>
       </div>
 
       <div class="two-col">
@@ -1255,6 +1275,45 @@ function gSearch(q){
   drop.style.display='block';
 }
 
+// ── CHART INGRESOS ──
+function renderChartIngresos() {
+  const now=new Date();
+  const thisKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const months=Array.from({length:12},(_,i)=>{
+    const d=new Date(now.getFullYear(),now.getMonth()-11+i,1);
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    const lbl=d.toLocaleDateString('es-GT',{month:'short'}).replace('.','');
+    return{key,lbl,total:0};
+  });
+  recibos.forEach(r=>{
+    if(!r.fec) return;
+    const m=months.find(m=>m.key===r.fec.slice(0,7));
+    if(m) m.total+=Number(r.mon||0);
+  });
+  const maxTotal=Math.max(...months.map(m=>m.total),1);
+  const totalAnio=months.reduce((s,m)=>s+m.total,0);
+  const thisMes=months.find(m=>m.key===thisKey);
+  document.getElementById('chart-mes').textContent=fmt(thisMes?.total||0);
+  document.getElementById('chart-total').textContent=fmt(totalAnio);
+  const BAR_H=110;
+  document.getElementById('chart-bars').innerHTML=months.map(m=>{
+    const h=Math.max(Math.round((m.total/maxTotal)*BAR_H),3);
+    const isCur=m.key===thisKey;
+    return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0">
+      <div style="width:100%;height:${BAR_H}px;display:flex;align-items:flex-end;justify-content:center">
+        <div class="chart-bar${isCur?' cur':''}" style="width:72%;height:${h}px"
+          onmouseenter="showBarTip(event,'${m.lbl} ${m.key.slice(0,4)}',${m.total})" onmouseleave="hideMapaTT()"></div>
+      </div>
+      <div class="chart-lbl">${m.lbl}</div>
+    </div>`;
+  }).join('');
+}
+function showBarTip(e,label,total){
+  const tt=document.getElementById('mapa-tt');
+  tt.innerHTML='<strong>'+label+'</strong><br>'+fmt(total);
+  tt.style.display='block';
+  posMapaTT(e);
+}
 // ── MORA ──
 let _moraFiltro=30;
 function setMoraFiltro(dias){
@@ -1455,6 +1514,8 @@ function renderDashboard() {
       '<tr><td><strong>' + v + '</strong></td><td>' + d.count + ' recibos</td><td><strong class="c-green">' + fmt(d.total) + '</strong></td></tr>'
     ).join('') : '<tr><td colspan="3" class="empty">Sin datos</td></tr>';
   }
+
+  renderChartIngresos();
 
   // recibos recientes
   const dr = document.getElementById('d-recibos');
