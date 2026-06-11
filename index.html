@@ -277,8 +277,10 @@
     /* ── PRINT ── */
     #print-area{display:none;}
     @media print{
+      @page{margin:0;}
       body>*:not(#print-area){display:none!important;}
-      #print-area{display:block!important;font-family:Arial,sans-serif;color:#000;padding:24px;max-width:720px;margin:0 auto;}
+      #print-area{display:flex!important;justify-content:center;align-items:center;min-height:100vh;padding:1.5cm;box-sizing:border-box;font-family:Arial,sans-serif;color:#000;}
+      .pa-inner{width:100%;max-width:700px;}
       .pa-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;border-bottom:2px solid #000;padding-bottom:14px;}
       .pa-logo{width:60px;height:60px;object-fit:contain;}
       .pa-empresa{font-size:18px;font-weight:700;}
@@ -1358,7 +1360,7 @@ function imprimirEstadoCuenta(){
   const totalPag=totalPre-totalSal;
   const recs=recibos.filter(r=>r.cliId==_fichaCliId).sort((a,b)=>b.fec.localeCompare(a.fec));
   const fecha=new Date().toLocaleDateString('es-GT',{day:'2-digit',month:'2-digit',year:'numeric'});
-  document.getElementById('print-area').innerHTML=`
+  document.getElementById('print-area').innerHTML=`<div class="pa-inner">
     <div class="pa-header">
       <img src="./Logo.jpg" class="pa-logo" onerror="this.style.display='none'">
       <div><div class="pa-empresa">CRECENSA INMOBILIARIA</div><div class="pa-titulo">ESTADO DE CUENTA</div><div class="pa-fecha">Fecha: ${fecha}</div></div>
@@ -1385,7 +1387,8 @@ function imprimirEstadoCuenta(){
       <div class="pa-res-item"><span>Total pagado</span><strong style="color:#16a34a">${fmt(totalPag)}</strong></div>
       <div class="pa-res-item pa-res-total"><span>Saldo pendiente</span><strong style="color:#dc2626">${fmt(totalSal)}</strong></div>
     </div>
-    <div class="pa-footer">Documento generado el ${fecha} · Crecensa Inmobiliaria</div>`;
+    <div class="pa-footer">Documento generado el ${fecha} · Crecensa Inmobiliaria</div>
+  </div>`;
   window.print();
 }
 let _mapaFiltro='todos';
