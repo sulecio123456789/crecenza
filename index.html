@@ -2042,14 +2042,17 @@ function toggleTheme() {
 function applyTheme(theme) {
   const moon = document.getElementById('ico-moon');
   const sun  = document.getElementById('ico-sun');
+  const seg  = document.querySelector('.seg-ctrl');
   if (theme === 'dark') {
     document.body.setAttribute('data-theme', 'dark');
     if (moon) moon.style.display = 'none';
     if (sun)  sun.style.display  = 'block';
+    if (seg)  { seg.style.background = '#1f2937'; seg.style.borderColor = '#374151'; }
   } else {
     document.body.removeAttribute('data-theme');
     if (moon) moon.style.display = 'block';
     if (sun)  sun.style.display  = 'none';
+    if (seg)  { seg.style.background = '#f1f5f9'; seg.style.borderColor = '#e2e8f0'; }
   }
   localStorage.setItem('cr_theme', theme);
 }
