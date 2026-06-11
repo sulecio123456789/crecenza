@@ -235,6 +235,27 @@
     body[data-theme="dark"] .ac-item{color:#f9fafb;}
     body[data-theme="dark"] .ac-item:hover{background:#374151;}
     body[data-theme="dark"] .form-panel{border-color:#374151;}
+    /* ── MAPA DE LOTES ── */
+    .mapa-leyenda{display:flex;gap:20px;margin-bottom:18px;flex-wrap:wrap;}
+    .mapa-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+    .mapa-leyenda-item{display:flex;align-items:center;gap:7px;font-size:.82rem;color:#374151;font-weight:500;}
+    .mapa-resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+    .mapa-sector{margin-bottom:28px;}
+    .mapa-sector-hdr{font-size:.88rem;font-weight:700;color:#111827;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;}
+    .mapa-sector-sub{font-size:.75rem;font-weight:400;color:#6b7280;}
+    .mapa-grid{display:flex;flex-wrap:wrap;gap:7px;}
+    .mapa-lote{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;position:relative;transition:transform .12s,box-shadow .12s;border:2px solid transparent;user-select:none;}
+    .mapa-lote.clickable{cursor:pointer;}.mapa-lote.clickable:hover{transform:scale(1.12);box-shadow:0 4px 18px rgba(0,0,0,.2);z-index:2;}
+    .mapa-lote .lot-num{font-size:.8rem;font-weight:700;}
+    .mapa-lote.dis{background:#dcfce7;border-color:#86efac;color:#166534;}
+    .mapa-lote.res{background:#fef3c7;border-color:#fcd34d;color:#92400e;}
+    .mapa-lote.ven{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
+    .mapa-tt{position:fixed;background:#111827;color:#f9fafb;font-size:.78rem;padding:10px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none;z-index:9999;display:none;max-width:220px;line-height:1.6;}
+    body[data-theme="dark"] .mapa-sector-hdr{color:#f9fafb;border-color:#374151;}
+    body[data-theme="dark"] .mapa-leyenda-item{color:#d1d5db;}
+    body[data-theme="dark"] .mapa-lote.dis{background:#14532d;border-color:#16a34a;color:#86efac;}
+    body[data-theme="dark"] .mapa-lote.res{background:#451a03;border-color:#d97706;color:#fcd34d;}
+    body[data-theme="dark"] .mapa-lote.ven{background:#450a0a;border-color:#dc2626;color:#fca5a5;}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -279,6 +300,10 @@
       Recibos
     </div>
 
+    <div class="nav-item" onclick="go('mapa',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="10" y="3" width="5" height="5" rx="1"/><rect x="17" y="3" width="4" height="5" rx="1"/><rect x="3" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/><rect x="17" y="10" width="4" height="5" rx="1"/><rect x="3" y="17" width="5" height="4" rx="1"/><rect x="10" y="17" width="5" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/></svg>
+      Mapa de lotes
+    </div>
     <div class="nav-label" style="margin-top:12px">Sistema</div>
     <div class="nav-item" onclick="go('importar',this)">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -680,10 +705,27 @@
       </div>
     </div>
 
+    <!-- ══ MAPA DE LOTES ══ -->
+    <div class="page" id="page-mapa">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Mapa de lotes</div><div class="sec-sub">Vista visual interactiva por sector y estado</div></div>
+      </div>
+      <div class="mapa-resumen" id="mapa-resumen"></div>
+      <div class="panel">
+        <div class="mapa-leyenda">
+          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#16a34a"></div>Disponible</div>
+          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#d97706"></div>Reservado</div>
+          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#dc2626"></div>Vendido</div>
+        </div>
+        <div id="mapa-content"></div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /main -->
 
 <div class="toast" id="toast"></div>
+<div class="mapa-tt" id="mapa-tt"></div>
 
 <!-- â•â•â•â•â•â•â• FICHA CLIENTE â•â•â•â•â•â•â• -->
 <div class="ficha-overlay" id="ficha-overlay" onclick="if(event.target===this)cerrarFicha()">
@@ -806,6 +848,7 @@ const pages = {
   terrenos:  ['Terrenos','Todos los lotes: disponibles, reservados y vendidos'],
   recibos:   ['Recibos','Registro de pagos y recibos de caja'],
   importar:  ['Importar datos','Carga los datos migrados desde los archivos Excel'],
+  mapa:      ['Mapa de lotes','Vista visual interactiva por sector y estado'],
 };
 function go(name, el) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -825,6 +868,7 @@ function go(name, el) {
   if(name==='clientes') renderClientes('');
   if(name==='terrenos'){renderTerrenos();}
   if(name==='recibos'){renderRecibos();fillReciboSelects();fillFiltroClientes();}
+  if(name==='mapa') renderMapa();
 }
 
 // â•â•â• SUBMENU TERRENOS â•â•â•
@@ -1111,6 +1155,58 @@ function guardarPagoRapido() {
   toast('Pago registrado');
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarFicha(); });
+
+function renderMapa() {
+  const dis=terrenos.filter(t=>t.est==='disponible').length;
+  const res=terrenos.filter(t=>t.est==='reservado').length;
+  const ven=terrenos.filter(t=>t.est==='vendida').length;
+  document.getElementById('mapa-resumen').innerHTML=
+    [['Disponibles',dis,'#16a34a'],['Reservados',res,'#d97706'],['Vendidos',ven,'#dc2626']].map(([lbl,n,col])=>
+      `<div class="stat-card"><div class="stat-label">${lbl}</div><div class="stat-value" style="color:${col};font-size:2rem">${n}</div></div>`
+    ).join('');
+  const sectors=[...new Set(terrenos.map(t=>t.sec).filter(Boolean))].sort();
+  document.getElementById('mapa-content').innerHTML=sectors.length?sectors.map(sec=>{
+    const lotes=terrenos.filter(t=>t.sec===sec).sort((a,b)=>{
+      const na=Number(a.lot)||0,nb=Number(b.lot)||0;
+      return na!==nb?na-nb:(a.lot||'').localeCompare(b.lot||'');
+    });
+    const nd=lotes.filter(t=>t.est==='disponible').length;
+    const nr=lotes.filter(t=>t.est==='reservado').length;
+    const nv=lotes.filter(t=>t.est==='vendida').length;
+    const sub=[nd?nd+' disp.':'',nr?nr+' res.':'',nv?nv+' vend.':''].filter(Boolean).join(' · ');
+    return `<div class="mapa-sector">
+      <div class="mapa-sector-hdr">Sector <strong>${sec}</strong>&nbsp;&nbsp;<span class="mapa-sector-sub">${lotes.length} lotes · ${sub}</span></div>
+      <div class="mapa-grid">${lotes.map(t=>{
+        const c=gc(t.cliId);
+        const cls=t.est==='disponible'?'dis':t.est==='reservado'?'res':'ven';
+        const nom=(c?c.nom:'Sin propietario').replace(/"/g,'&quot;');
+        return `<div class="mapa-lote ${cls}${t.cliId?' clickable':''}"
+          ${t.cliId?'onclick="verFicha('+t.cliId+')"':''}
+          data-lote="${sec}/${t.lot}" data-est="${t.est}" data-nom="${nom}" data-pre="${t.pre}" data-sal="${t.sal}"
+          onmouseenter="showMapaTT(event,this)" onmouseleave="hideMapaTT()">
+          <div class="lot-num">${t.lot}</div></div>`;
+      }).join('')}</div></div>`;
+  }).join(''):'<div class="empty">Sin lotes registrados</div>';
+}
+function showMapaTT(e, el) {
+  const tt=document.getElementById('mapa-tt');
+  const est=el.dataset.est;
+  const lbl=est==='disponible'?'Disponible':est==='reservado'?'Reservado':'Vendido';
+  tt.innerHTML='<strong>'+el.dataset.lote+'</strong><br>'+lbl+'<br>'+el.dataset.nom+'<br>Precio: '+fmt(el.dataset.pre)+'<br>Saldo: '+fmt(el.dataset.sal);
+  tt.style.display='block';
+  posMapaTT(e);
+}
+function posMapaTT(e) {
+  const tt=document.getElementById('mapa-tt');
+  let x=e.clientX+14, y=e.clientY-10;
+  if(x+230>window.innerWidth) x=e.clientX-230;
+  if(y+110>window.innerHeight) y=e.clientY-120;
+  tt.style.left=x+'px'; tt.style.top=y+'px';
+}
+function hideMapaTT() { document.getElementById('mapa-tt').style.display='none'; }
+document.addEventListener('mousemove', e=>{
+  if(document.getElementById('mapa-tt').style.display!=='none') posMapaTT(e);
+});
 
 function setDashProj(proj) {
   dashProj = proj;
