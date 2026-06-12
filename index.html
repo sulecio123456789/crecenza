@@ -2178,13 +2178,25 @@ if (savedProj !== 'todos') {
   if (subEl) subEl.classList.add('active');
 }
 
+// Carga todas las filas de una tabla paginando de 1000 en 1000
+async function _sbAll(tbl) {
+  const PAGE = 1000, all = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await _sb.from(tbl).select('*').order('id').range(from, from + PAGE - 1);
+    if (error || !data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return all;
+}
+
 // Supabase carga en segundo plano y actualiza silenciosamente
 (async () => {
   try {
-    const [{data:cli},{data:ter},{data:rec}] = await Promise.all([
-      _sb.from('clientes').select('*').order('id').limit(5000),
-      _sb.from('terrenos').select('*').order('id').limit(5000),
-      _sb.from('recibos').select('*').order('id').limit(5000),
+    const [cli, ter, rec] = await Promise.all([
+      _sbAll('clientes'),
+      _sbAll('terrenos'),
+      _sbAll('recibos'),
     ]);
     let updated = false;
     if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); updated = true; }
