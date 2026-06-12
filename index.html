@@ -2182,9 +2182,9 @@ if (savedProj !== 'todos') {
 (async () => {
   try {
     const [{data:cli},{data:ter},{data:rec}] = await Promise.all([
-      _sb.from('clientes').select('*').order('id'),
-      _sb.from('terrenos').select('*').order('id'),
-      _sb.from('recibos').select('*').order('id'),
+      _sb.from('clientes').select('*').order('id').limit(5000),
+      _sb.from('terrenos').select('*').order('id').limit(5000),
+      _sb.from('recibos').select('*').order('id').limit(5000),
     ]);
     let updated = false;
     if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); updated = true; }
