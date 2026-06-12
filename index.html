@@ -1584,7 +1584,7 @@ function renderDashboard() {
   document.getElementById('s-res').textContent = ter.filter(t => t.est === 'reservado').length;
   document.getElementById('s-ven').textContent = ter.filter(t => t.est === 'vendida').length;
   const venMonto  = ter.filter(t=>t.est==='vendida').reduce((s,t)=>s+Number(t.pre||0),0);
-  const cobrado   = ter.filter(t=>t.cliId).reduce((s,t)=>s+Math.max(0,Number(t.pre||0)-Number(t.sal||0)),0);
+  const cobrado   = ter.reduce((s,t)=>s+Math.max(0,Number(t.pre||0)-Number(t.sal||0)),0);
   const porCobrar = ter.filter(t=>t.cliId).reduce((s,t)=>s+Number(t.sal||0),0);
   document.getElementById('s-ven-monto').textContent = fmt(venMonto);
   document.getElementById('s-cob').textContent       = fmt(cobrado);
