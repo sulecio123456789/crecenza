@@ -2025,7 +2025,7 @@ function editRecibo(id){
     document.getElementById('r-cli-input').classList.add('ac-selected');
   }
   clearDistrib();
-  if(r.distrib&&r.distrib.length) r.distrib.forEach(d=>addDistribRow(d.terId,d.monto));
+  if(r.distrib&&r.distrib.length) r.distrib.forEach(d=>addDistribRow(d.terId,d.monto,true));
   panel.querySelector('.panel-title').textContent='Editar recibo';
   panel.scrollIntoView({behavior:'smooth',block:'start'});
   updateDistribSummary();
@@ -2134,12 +2134,14 @@ function acTerInput(n) {
   if(!inp||!drop)return;
   const q=inp.value.toLowerCase();
   if(hid){hid.value='';inp.classList.remove('ac-selected');}
+  const cliId=Number(document.getElementById('r-cli-id')?.value)||null;
+  const pool=cliId?terrenos.filter(t=>t.cliId===cliId):terrenos;
   const matches=q.length<1
-    ?terrenos.slice(0,50)
-    :terrenos.filter(t=>{const c=gc(t.cliId);return(t.sec+t.lot).toLowerCase().includes(q)||t.sec.toLowerCase().includes(q)||t.lot.toLowerCase().includes(q)||(c&&c.nom.toLowerCase().includes(q));}).slice(0,50);
+    ?pool.slice(0,50)
+    :pool.filter(t=>{const c=gc(t.cliId);return(t.sec+t.lot).toLowerCase().includes(q)||t.sec.toLowerCase().includes(q)||t.lot.toLowerCase().includes(q)||(c&&c.nom.toLowerCase().includes(q));}).slice(0,50);
   drop.innerHTML=matches.length
     ?matches.map(t=>{const c=gc(t.cliId);const lbl=`Sec ${t.sec} / Lote ${t.lot}${c?' - '+c.nom.substring(0,22):''}`;return`<div class="ac-item" onmousedown="acTerSelect(${n},${t.id},'${lbl.replace(/'/g,"\\'")}')"><div style="font-size:.83rem;font-weight:600">Sec ${t.sec} / Lote ${t.lot}</div><div style="font-size:.72rem;color:#9ca3af">${c?c.nom.substring(0,28):'Sin cliente'}</div></div>`;}).join('')
-    :'<div class="ac-empty">Sin resultados</div>';
+    :(cliId?'<div class="ac-empty">El cliente no tiene lotes asignados</div>':'<div class="ac-empty">Sin resultados</div>');
   drop.style.display='block';
 }
 function acTerSelect(n,id,lbl){
