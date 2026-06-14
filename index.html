@@ -1836,7 +1836,8 @@ function _filteredRecibos() {
   let f = [...recibos];
   if (recProj !== 'todos') f = f.filter(r => {
     const ids = r.distrib?.length ? r.distrib.map(d => d.terId) : (r.terId ? [r.terId] : []);
-    return ids.some(id => { const t = gt(id); return t && t.proj === recProj; });
+    if (!ids.length) return recProj === 'nichos';
+    return ids.some(id => { const t = gt(id); const p = t?.proj || 'nichos'; return p === recProj; });
   });
   if (desde || hasta) f = f.filter(r => {
     const val = dateTab === 'fec2' ? (r.fec2 || '') : r.fec;
