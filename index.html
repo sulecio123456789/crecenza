@@ -537,7 +537,7 @@
               <input class="form-input" id="cf-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
                 oninput="cliLotSearch('cf')" onfocus="cliLotSearch('cf')"
                 onblur="setTimeout(()=>{const d=document.getElementById('cf-lot-drop');if(d)d.style.display='none';},180)" />
-              <div class="ac-drop" id="cf-lot-drop" style="max-height:180px"></div>
+              <div class="ac-drop" id="cf-lot-drop" style="max-height:300px"></div>
             </div>
             <div id="cf-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
           </div>
@@ -918,7 +918,7 @@
           <input class="form-input" id="qc-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
             oninput="cliLotSearch('qc')" onfocus="cliLotSearch('qc')"
             onblur="setTimeout(()=>{const d=document.getElementById('qc-lot-drop');if(d)d.style.display='none';},180)" />
-          <div class="ac-drop" id="qc-lot-drop" style="max-height:180px"></div>
+          <div class="ac-drop" id="qc-lot-drop" style="max-height:300px"></div>
         </div>
         <div id="qc-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
       </div>
@@ -1322,17 +1322,19 @@ function cliLotSearch(pfx) {
   if (!proj) return;
   const drop = document.getElementById(pfx+'-lot-drop');
   const sel = _cliLots[pfx];
-  const matches = terrenos.filter(t =>
+  const all = terrenos.filter(t =>
     t.proj === proj &&
     t.est === 'disponible' &&
     !sel.includes(t.id) &&
     (!q || (t.sec+'/'+t.lot).toLowerCase().includes(q) || t.sec.toLowerCase().includes(q) || t.lot.toLowerCase().includes(q))
-  ).slice(0, 14);
+  );
+  const matches = q ? all : all.slice(0, 80);
+  const extra = !q && all.length > 80 ? `<div class="ac-empty" style="font-size:.72rem">Mostrando 80 de ${all.length} — escribe para filtrar</div>` : '';
   drop.innerHTML = matches.length
     ? matches.map(t => `<div class="ac-item" onmousedown="cliLotAdd('${pfx}',${t.id})">
         <div style="font-size:.83rem;font-weight:600">Sec ${t.sec} / Lote ${t.lot}</div>
         <div style="font-size:.72rem;color:#9ca3af">${fmt(t.pre)}</div>
-      </div>`).join('')
+      </div>`).join('') + extra
     : '<div class="ac-empty">Sin lotes disponibles</div>';
   drop.style.display = 'block';
 }
