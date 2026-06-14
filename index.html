@@ -597,7 +597,7 @@
             <div class="ac-drop" id="t-search-cli-drop" style="top:100%;left:0;right:0"></div>
           </div>
         </div>
-        <table><thead><tr><th>Sector</th><th>Lote</th><th>Cliente</th><th>Area m²</th><th>Precio</th><th>Saldo</th><th>Estado</th><th>Vendedor</th><th>Proyecto</th><th>Acciones</th></tr></thead>
+        <table><thead><tr><th>Sector</th><th>Lote</th><th>Cliente</th><th>Area m²</th><th>Precio</th><th>Abonado</th><th>Saldo</th><th>Estado</th><th>Vendedor</th><th>Proyecto</th><th>Acciones</th></tr></thead>
         <tbody id="t-terrenos"></tbody></table>
       </div>
     </div>
@@ -873,12 +873,12 @@ const _sb = window.supabase.createClient(
 const _TBL = { cli: 'clientes', ter: 'terrenos', rec: 'recibos' };
 function _toRow(tbl, o) {
   if (tbl==='clientes') return {id:o.id, nom:o.nom||'', tel:o.tel||'', dpi:o.dpi||'', vend:o.vend||'', est:o.est||'activo', nota:o.not||''};
-  if (tbl==='terrenos') return {id:o.id, sec:o.sec||'', lot:o.lot||'', pre:o.pre||0, sal:o.sal||0, est:o.est||'disponible', cli_id:o.cliId||null, vend:o.vend||'', are:o.are||'', proj:o.proj||'', nota:o.not||''};
+  if (tbl==='terrenos') return {id:o.id, sec:o.sec||'', lot:o.lot||'', pre:o.pre||0, reserva:o.reserva||0, sal:o.sal||0, est:o.est||'disponible', cli_id:o.cliId||null, vend:o.vend||'', are:o.are||'', proj:o.proj||'', nota:o.not||''};
   if (tbl==='recibos')  return {id:o.id, fec:o.fec||'', fec2:o.fec2||'', num:o.num||'', cli_id:o.cliId||null, ter_id:o.terId||null, mon:o.mon||0, bol:o.bol||'', vend:o.vend||'', nota:o.not||''};
 }
 function _fromRow(tbl, r) {
   if (tbl==='clientes') return {id:Number(r.id), nom:r.nom||'', tel:r.tel||'', dpi:r.dpi||'', vend:r.vend||'', est:r.est||'activo', not:r.nota||''};
-  if (tbl==='terrenos') return {id:Number(r.id), sec:r.sec||'', lot:r.lot||'', pre:Number(r.pre)||0, sal:Number(r.sal)||0, est:r.est||'disponible', cliId:r.cli_id?Number(r.cli_id):null, vend:r.vend||'', are:r.are||'', proj:r.proj||'', not:r.nota||''};
+  if (tbl==='terrenos') return {id:Number(r.id), sec:r.sec||'', lot:r.lot||'', pre:Number(r.pre)||0, reserva:Number(r.reserva)||0, sal:Number(r.sal)||0, est:r.est||'disponible', cliId:r.cli_id?Number(r.cli_id):null, vend:r.vend||'', are:r.are||'', proj:r.proj||'', not:r.nota||''};
   if (tbl==='recibos')  return {id:Number(r.id), fec:r.fec||'', fec2:r.fec2||'', num:r.num||'', cliId:r.cli_id?Number(r.cli_id):null, terId:r.ter_id?Number(r.ter_id):null, mon:Number(r.mon)||0, bol:r.bol||'', vend:r.vend||'', not:r.nota||''};
 }
 async function _syncTbl(key, arr) {
@@ -1689,7 +1689,7 @@ function renderTerrenos() {
   if(sLot) f=f.filter(t=>t.lot.toLowerCase().includes(sLot));
   if(sCli) f=f.filter(t=>{const c=gc(t.cliId);return c&&c.nom.toLowerCase().includes(sCli);});
   const tb=document.getElementById('t-terrenos');
-  tb.innerHTML=f.length?f.map(t=>{const c=gc(t.cliId);const pl=PROJ_LABELS[t.proj]||'-';return`<tr><td><strong>${t.sec}</strong></td><td>${t.lot}</td><td>${c?c.nom:'-'}</td><td>${t.are||'-'}</td><td>${fmt(t.pre)}</td><td>${fmt(t.sal)}</td><td>${pill(t.est)}</td><td>${t.vend||'-'}</td><td>${pl}</td><td nowrap><button class="btn-edit" onclick="editTerreno(${t.id})">Editar</button><button class="btn-del" onclick="delTerreno(${t.id})">Eliminar</button></td></tr>`;}).join('')
+  tb.innerHTML=f.length?f.map(t=>{const c=gc(t.cliId);const pl=PROJ_LABELS[t.proj]||'-';return`<tr><td><strong>${t.sec}</strong></td><td>${t.lot}</td><td>${c?c.nom:'-'}</td><td>${t.are||'-'}</td><td>${fmt(t.pre)}</td><td>${fmt(t.reserva||0)}</td><td>${fmt(t.sal)}</td><td>${pill(t.est)}</td><td>${t.vend||'-'}</td><td>${pl}</td><td nowrap><button class="btn-edit" onclick="editTerreno(${t.id})">Editar</button><button class="btn-del" onclick="delTerreno(${t.id})">Eliminar</button></td></tr>`;}).join('')
     :'<tr><td colspan="10" class="empty">Sin terrenos</td></tr>';
 }
 
