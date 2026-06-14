@@ -533,14 +533,20 @@
             <button class="filter-btn" id="cf-p-l" onclick="cliProjSel('cf','llanos')">Proyecto Llanos</button>
           </div>
           <div id="cf-lot-area" style="display:none">
-            <div style="position:relative;margin-bottom:8px;width:100%">
-              <input class="form-input" id="cf-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
-                oninput="cliLotSearch('cf')" onfocus="cliLotSearch('cf')"
-                onblur="setTimeout(()=>{const d=document.getElementById('cf-lot-drop');if(d)d.style.display='none';},180)"
-                style="width:100%" />
+            <div style="position:relative">
+              <div style="display:flex;gap:8px;margin-bottom:8px">
+                <input class="form-input" id="cf-lot-sec" placeholder="Sector (A, B, G...)" autocomplete="off"
+                  oninput="cliLotSearch('cf')" onfocus="cliLotSearch('cf')"
+                  onblur="setTimeout(()=>{const d=document.getElementById('cf-lot-drop');if(d)d.style.display='none';},200)"
+                  style="width:140px;flex-shrink:0" />
+                <input class="form-input" id="cf-lot-num" placeholder="No. de lote..." autocomplete="off"
+                  oninput="cliLotSearch('cf')" onfocus="cliLotSearch('cf')"
+                  onblur="setTimeout(()=>{const d=document.getElementById('cf-lot-drop');if(d)d.style.display='none';},200)"
+                  style="flex:1" />
+              </div>
               <div class="ac-drop" id="cf-lot-drop" style="max-height:300px"></div>
             </div>
-            <div id="cf-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
+            <div id="cf-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px;margin-top:6px"></div>
           </div>
         </div>
         <div class="form-actions">
@@ -915,14 +921,20 @@
         <button class="filter-btn" id="qc-p-l" onclick="cliProjSel('qc','llanos')">Proyecto Llanos</button>
       </div>
       <div id="qc-lot-area" style="display:none">
-        <div style="position:relative;margin-bottom:8px;width:100%">
-          <input class="form-input" id="qc-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
-            oninput="cliLotSearch('qc')" onfocus="cliLotSearch('qc')"
-            onblur="setTimeout(()=>{const d=document.getElementById('qc-lot-drop');if(d)d.style.display='none';},180)"
-            style="width:100%" />
+        <div style="position:relative">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input class="form-input" id="qc-lot-sec" placeholder="Sector (A, B, G...)" autocomplete="off"
+              oninput="cliLotSearch('qc')" onfocus="cliLotSearch('qc')"
+              onblur="setTimeout(()=>{const d=document.getElementById('qc-lot-drop');if(d)d.style.display='none';},200)"
+              style="width:140px;flex-shrink:0" />
+            <input class="form-input" id="qc-lot-num" placeholder="No. de lote..." autocomplete="off"
+              oninput="cliLotSearch('qc')" onfocus="cliLotSearch('qc')"
+              onblur="setTimeout(()=>{const d=document.getElementById('qc-lot-drop');if(d)d.style.display='none';},200)"
+              style="flex:1" />
+          </div>
           <div class="ac-drop" id="qc-lot-drop" style="max-height:300px"></div>
         </div>
-        <div id="qc-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
+        <div id="qc-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px;margin-top:6px"></div>
       </div>
     </div>
     <div class="form-actions">
@@ -1313,13 +1325,13 @@ function cliProjSel(pfx, proj) {
   const area = document.getElementById(pfx+'-lot-area');
   if (area) area.style.display = proj ? 'block' : 'none';
   _cliLots[pfx] = [];
-  const q = document.getElementById(pfx+'-lot-q');
-  if (q) q.value = '';
+  ['lot-sec','lot-num'].forEach(k=>{const el=document.getElementById(pfx+'-'+k);if(el)el.value='';});
   renderCliLotSel(pfx);
 }
 
 function cliLotSearch(pfx) {
-  const q = (document.getElementById(pfx+'-lot-q').value || '').toLowerCase().trim();
+  const secQ = (document.getElementById(pfx+'-lot-sec')?.value || '').toUpperCase().trim();
+  const numQ = (document.getElementById(pfx+'-lot-num')?.value || '').trim();
   const proj = _cliProj[pfx];
   if (!proj) return;
   const drop = document.getElementById(pfx+'-lot-drop');
@@ -1328,22 +1340,21 @@ function cliLotSearch(pfx) {
     t.proj === proj &&
     t.est === 'disponible' &&
     !sel.includes(t.id) &&
-    (!q || (t.sec+'/'+t.lot).toLowerCase().includes(q) || t.sec.toLowerCase().includes(q) || t.lot.toLowerCase().includes(q))
+    (!secQ || t.sec.toUpperCase().includes(secQ)) &&
+    (!numQ || t.lot.includes(numQ))
   );
-  const extra = '';
   drop.innerHTML = matches.length
     ? matches.map(t => `<div class="ac-item" onmousedown="cliLotAdd('${pfx}',${t.id})">
         <div style="font-size:.83rem;font-weight:600">Sec ${t.sec} / Lote ${t.lot}</div>
         <div style="font-size:.72rem;color:#9ca3af">${fmt(t.pre)}</div>
-      </div>`).join('') + extra
-    : '<div class="ac-empty">Sin lotes disponibles</div>';
+      </div>`).join('')
+    : '<div class="ac-empty">Sin lotes disponibles para ese filtro</div>';
   drop.style.display = 'block';
 }
 
 function cliLotAdd(pfx, terId) {
   if (!_cliLots[pfx].includes(terId)) _cliLots[pfx].push(terId);
-  const q = document.getElementById(pfx+'-lot-q');
-  if (q) q.value = '';
+  ['lot-sec','lot-num'].forEach(k=>{const el=document.getElementById(pfx+'-'+k);if(el)el.value='';});
   const d = document.getElementById(pfx+'-lot-drop');
   if (d) d.style.display = 'none';
   renderCliLotSel(pfx);
