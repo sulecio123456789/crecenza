@@ -2183,7 +2183,7 @@ function renderRecibos() {
   const fCli=document.getElementById('f-cli-id')?.value||'';
   const fPago=document.getElementById('f-pago')?.value||'';
   const fVend=document.getElementById('f-vend')?.value||'';
-  let f=[...recibos].sort((a,b)=>b.fec.localeCompare(a.fec));
+  let f=[...recibos].sort((a,b)=>{const na=Number(a.num)||0,nb=Number(b.num)||0;return na-nb;});
 
   // filtro rango de fechas
   if(desde||hasta) f=f.filter(r=>{
@@ -2228,7 +2228,7 @@ function renderRecibos() {
     if(r.distrib&&r.distrib.length){
       lotesStr=r.distrib.map(d=>{const t=gt(d.terId);return t?`${t.sec}/${t.lot} (${fmt(d.monto)})`:'?';}).join(', ');
     } else if(r.terId){const t=gt(r.terId);if(t)lotesStr=t.sec+'/'+t.lot;}
-    return`<tr><td>${r.fec}</td><td>${r.fec2||'-'}</td><td>${r.num||'-'}</td><td>${c?c.nom:'-'}</td><td style="font-size:.78rem">${lotesStr||'-'}</td><td><strong>${fmt(r.mon)}</strong></td><td>${r.bol}</td><td>${r.vend||'-'}</td><td>${r.not||'-'}</td><td nowrap><button class="btn-edit" onclick="editRecibo(${r.id})">Editar</button><button class="btn-del" onclick="delRecibo(${r.id})">Eliminar</button></td></tr>`;
+    return`<tr style="font-size:.78rem"><td nowrap>${r.fec}</td><td nowrap>${r.fec2||'-'}</td><td>${r.num||'-'}</td><td>${c?c.nom:'-'}</td><td style="font-size:.73rem">${lotesStr||'-'}</td><td nowrap><strong>${fmt(r.mon)}</strong></td><td>${r.bol}</td><td>${r.vend||'-'}</td><td>${r.not||'-'}</td><td nowrap><button class="btn-edit" onclick="editRecibo(${r.id})">Editar</button><button class="btn-del" onclick="delRecibo(${r.id})">Eliminar</button></td></tr>`;
   }).join('')
     :'<tr><td colspan="10" class="empty">Sin recibos en el rango seleccionado</td></tr>';
 }
