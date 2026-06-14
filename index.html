@@ -360,11 +360,6 @@
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="10" y="3" width="5" height="5" rx="1"/><rect x="17" y="3" width="4" height="5" rx="1"/><rect x="3" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/><rect x="17" y="10" width="4" height="5" rx="1"/><rect x="3" y="17" width="5" height="4" rx="1"/><rect x="10" y="17" width="5" height="4" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/></svg>
       Mapa de lotes
     </div>
-    <div class="nav-label" style="margin-top:12px">Sistema</div>
-    <div class="nav-item" onclick="go('importar',this)">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Importar
-    </div>
   </nav>
 
   <div class="sidebar-footer">Admin Â· Crecensa</div>
@@ -720,62 +715,6 @@
       </div>
     </div>
 
-    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• IMPORTAR â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-    <div class="page" id="page-importar">
-      <div class="sec-hdr">
-        <div><div class="sec-title">Importar datos</div><div class="sec-sub">Carga los datos migrados desde los archivos Excel</div></div>
-      </div>
-
-      <!-- Paso 1 -->
-      <div class="panel" style="margin-bottom:16px">
-        <div style="display:flex;gap:16px;align-items:flex-start">
-          <div style="width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;display:grid;place-items:center;flex-shrink:0;font-size:.9rem">1</div>
-          <div style="flex:1">
-            <div class="panel-title" style="margin-bottom:4px">Ejecuta el script de migración</div>
-            <div class="panel-sub" style="margin-bottom:12px">Abre PowerShell en la carpeta CRECENZA y ejecuta este comando:</div>
-            <div style="background:#0d1117;color:#86efac;font-family:monospace;font-size:.85rem;padding:14px 18px;border-radius:10px;user-select:all">
-              .\migrar.ps1
-            </div>
-            <div class="panel-sub" style="margin-top:8px">Esto genera el archivo <strong>datos-migrados.json</strong> en la misma carpeta.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Paso 2 -->
-      <div class="panel" style="margin-bottom:16px">
-        <div style="display:flex;gap:16px;align-items:flex-start">
-          <div style="width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;font-weight:700;display:grid;place-items:center;flex-shrink:0;font-size:.9rem">2</div>
-          <div style="flex:1">
-            <div class="panel-title" style="margin-bottom:4px">Sube el archivo generado</div>
-            <div class="panel-sub" style="margin-bottom:14px">Selecciona el archivo <strong>datos-migrados.json</strong> que se creó en el paso anterior.</div>
-            <label style="display:inline-flex;align-items:center;gap:10px;cursor:pointer;background:#f3f4f6;border:2px dashed #d1d5db;border-radius:12px;padding:18px 24px;transition:all .15s" id="drop-zone">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <span style="font-size:.88rem;color:#6b7280">Haz clic para seleccionar <strong>datos-migrados.json</strong></span>
-              <input type="file" id="json-file" accept=".json" style="display:none" onchange="previewImport(this)" />
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Preview -->
-      <div class="panel" id="import-preview" style="display:none">
-        <div class="panel-title" style="margin-bottom:14px">Vista previa de los datos a importar</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">
-          <div class="stat-card"><div class="stat-label">Clientes</div><div class="stat-value c-blue" id="imp-cli">â€”</div></div>
-          <div class="stat-card"><div class="stat-label">Terrenos</div><div class="stat-value c-green" id="imp-ter">â€”</div><div class="stat-note" id="imp-ter-det"></div></div>
-          <div class="stat-card"><div class="stat-label">Recibos</div><div class="stat-value" id="imp-rec">â€”</div></div>
-        </div>
-
-        <div id="import-warn" style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;font-size:.83rem;color:#92400e;margin-bottom:16px;display:none">
-          âš  Ya existen datos en el sistema. La importación <strong>reemplazará</strong> todos los datos actuales.
-        </div>
-
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-primary" id="btn-confirmar" onclick="confirmarImport()">Importar datos</button>
-          <button class="btn btn-secondary" onclick="cancelarImport()">Cancelar</button>
-        </div>
-      </div>
-    </div>
 
     <!-- ══ MAPA DE LOTES ══ -->
     <div class="page" id="page-mapa">
@@ -990,7 +929,6 @@ const pages = {
   clientes:  ['Clientes','Registro y gestión de clientes'],
   terrenos:  ['Terrenos','Todos los lotes: disponibles, reservados y vendidos'],
   recibos:   ['Recibos','Registro de pagos y recibos de caja'],
-  importar:  ['Importar datos','Carga los datos migrados desde los archivos Excel'],
   mapa:      ['Mapa de lotes','Vista visual interactiva por sector y estado'],
   mora:      ['Cartera / Mora','Clientes con saldo pendiente y sin pagos recientes'],
 };
@@ -2082,63 +2020,6 @@ function renderRecibos() {
     :'<tr><td colspan="10" class="empty">Sin recibos en el rango seleccionado</td></tr>';
 }
 
-// â•â•â• IMPORTAR â•â•â•
-let importData = null;
-
-function previewImport(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      importData = JSON.parse(e.target.result);
-      // validar estructura mínima
-      if (!importData.clientes || !importData.terrenos || !importData.recibos)
-        throw new Error('Formato inválido');
-
-      document.getElementById('imp-cli').textContent = importData.clientes.length;
-      document.getElementById('imp-ter').textContent = importData.terrenos.length;
-      const ll = importData.terrenos.filter(t=>t.proj==='llanos').length;
-      const ni = importData.terrenos.filter(t=>t.proj==='nichos').length;
-      document.getElementById('imp-ter-det').textContent =
-        `Llanos: ${ll}  Â·  Nichos: ${ni}`;
-      document.getElementById('imp-rec').textContent = importData.recibos.length;
-
-      const hayDatos = localStorage.getItem('cr_cli') !== null || localStorage.getItem('cr_ter') !== null || localStorage.getItem('cr_rec') !== null;
-      document.getElementById('import-warn').style.display = hayDatos ? 'block' : 'none';
-      document.getElementById('import-preview').style.display = 'block';
-    } catch(err) {
-      toast('Error al leer el archivo: ' + err.message, 'err');
-    }
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-function confirmarImport() {
-  if (!importData) return;
-  clientes = importData.clientes;
-  terrenos = importData.terrenos;
-  recibos  = importData.recibos;
-  SS('cli', clientes);
-  SS('ter', terrenos);
-  SS('rec', recibos);
-  importData = null;
-  document.getElementById('import-preview').style.display = 'none';
-  document.getElementById('json-file').value = '';
-  toast(`âœ" Importados: ${clientes.length} clientes, ${terrenos.length} terrenos, ${recibos.length} recibos`);
-  setTimeout(() => go('dashboard', null), 1200);
-}
-
-function cancelarImport() {
-  importData = null;
-  document.getElementById('import-preview').style.display = 'none';
-  document.getElementById('json-file').value = '';
-}
-
-// click en zona de drop
-document.getElementById('drop-zone')?.addEventListener('click', () =>
-  document.getElementById('json-file').click()
-);
 
 // â•â•â• INIT â•â•â•
 
