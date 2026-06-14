@@ -236,7 +236,7 @@
     .dash-tab.active{background:#fff;color:#111827;box-shadow:0 1px 4px rgba(0,0,0,.12);}
     body[data-theme="dark"] .dash-tab{color:#9ca3af;}
     body[data-theme="dark"] .dash-tab:hover{color:#d1d5db;background:rgba(255,255,255,.06);}
-    body[data-theme="dark"] .dash-tab.active{background:#1f2937;color:#f9fafb;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+    body[data-theme="dark"] .dash-tab.active{background:#2563eb;color:#fff;box-shadow:0 1px 4px rgba(37,99,235,.4);}
     body[data-theme="dark"] .client-n{color:#f9fafb;}
     body[data-theme="dark"] .client-s{color:#6b7280;}
     body[data-theme="dark"] .client-init{background:#1e3a5f;color:#60a5fa;}
@@ -820,6 +820,19 @@
           <table><thead><tr><th>Mes</th><th>Cantidad</th><th>Monto</th></tr></thead>
           <tbody id="rs-mes"></tbody></table>
         </div>
+
+        <div class="panel" style="margin-top:16px" id="rs-meta-panel">
+          <div class="panel-hdr">
+            <div><div class="panel-title">Desglose de importación</div><div class="panel-sub" id="rs-meta-fecha">Última migración —</div></div>
+          </div>
+          <table>
+            <thead><tr><th>Categoría</th><th>Hoja 1-1000</th><th>Hoja 1001-2000</th><th>Total</th></tr></thead>
+            <tbody id="rs-meta-body">
+              <tr><td colspan="4" class="empty">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
     </div>
@@ -1865,6 +1878,31 @@ function renderRecibosResumen() {
     const [y,m] = k.split('-');
     return `<tr><td><strong>${mNom[parseInt(m)-1]} ${y}</strong></td><td>${v.c}</td><td><strong class="c-green">${fmt(v.t)}</strong></td></tr>`;
   }).join('') || '<tr><td colspan="3" class="empty">Sin datos</td></tr>';
+
+  loadMigrationMeta();
+}
+
+async function loadMigrationMeta() {
+  const panel = document.getElementById('rs-meta-panel');
+  if (!panel) return;
+  try {
+    const { data: rows, error } = await _sb.from('meta').select('key,val');
+    if (error || !rows || !rows.length) { panel.style.display = 'none'; return; }
+    const m = {};
+    rows.forEach(r => m[r.key] = r.val);
+    const fecha = m['mig_fecha'] || '—';
+    document.getElementById('rs-meta-fecha').textContent = 'Última migración: ' + fecha;
+    const h1v=Number(m['mig_h1_validos']||0), h1a=Number(m['mig_h1_anulado']||0), h1m=Number(m['mig_h1_monto0']||0), h1e=Number(m['mig_h1_vacios']||0);
+    const h2v=Number(m['mig_h2_validos']||0), h2a=Number(m['mig_h2_anulado']||0), h2m=Number(m['mig_h2_monto0']||0), h2e=Number(m['mig_h2_vacios']||0);
+    const row = (label, a, b, cls='') => `<tr><td>${label}</td><td>${a}</td><td>${b}</td><td><strong class="${cls}">${a+b}</strong></td></tr>`;
+    document.getElementById('rs-meta-body').innerHTML =
+      row('Recibos válidos (migrados)', h1v, h2v, 'c-green') +
+      row('Marcados ANULADO', h1a, h2a, 'c-amber') +
+      row('Con cliente pero monto Q 0', h1m, h2m) +
+      row('Sin cliente (filas vacías)', h1e, h2e, '') +
+      `<tr style="border-top:2px solid #e5e7eb"><td><strong>Total filas con cliente</strong></td><td><strong>${h1v+h1a+h1m}</strong></td><td><strong>${h2v+h2a+h2m}</strong></td><td><strong>${h1v+h1a+h1m+h2v+h2a+h2m}</strong></td></tr>`;
+    panel.style.display = '';
+  } catch(e) { panel.style.display = 'none'; }
 }
 
 function setDashTab(tab) {
@@ -2384,17 +2422,17 @@ function toggleTheme() {
 function applyTheme(theme) {
   const moon = document.getElementById('ico-moon');
   const sun  = document.getElementById('ico-sun');
-  const seg  = document.querySelector('.seg-ctrl');
+  const segs = document.querySelectorAll('.seg-ctrl');
   if (theme === 'dark') {
     document.body.setAttribute('data-theme', 'dark');
     if (moon) moon.style.display = 'none';
     if (sun)  sun.style.display  = 'block';
-    if (seg)  { seg.style.background = '#1f2937'; seg.style.borderColor = '#374151'; }
+    segs.forEach(s => { s.style.background = '#1f2937'; s.style.borderColor = '#374151'; });
   } else {
     document.body.removeAttribute('data-theme');
     if (moon) moon.style.display = 'block';
     if (sun)  sun.style.display  = 'none';
-    if (seg)  { seg.style.background = '#f1f5f9'; seg.style.borderColor = '#e2e8f0'; }
+    segs.forEach(s => { s.style.background = '#f1f5f9'; s.style.borderColor = '#e2e8f0'; });
   }
   localStorage.setItem('cr_theme', theme);
 }
