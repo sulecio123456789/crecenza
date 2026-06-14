@@ -405,12 +405,12 @@
       <!-- Sub-tabs del dashboard -->
       <div style="display:flex;align-items:center;margin-bottom:20px">
         <div class="seg-ctrl" style="padding:4px;gap:3px;">
-          <button class="dash-tab active" id="dtab-btn-resumen" onclick="setDashTab('resumen')">Resumen</button>
-          <button class="dash-tab" id="dtab-btn-actividad" onclick="setDashTab('actividad')">Actividad</button>
+          <button class="dash-tab active" id="dtab-btn-actividad" onclick="setDashTab('actividad')">Actividad</button>
+          <button class="dash-tab" id="dtab-btn-resumen" onclick="setDashTab('resumen')">Resumen</button>
         </div>
       </div>
 
-      <div id="dtab-resumen">
+      <div id="dtab-resumen" style="display:none">
 
       <!-- Filtro proyecto -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
@@ -494,7 +494,7 @@
 
       </div><!-- /dtab-resumen -->
 
-      <div id="dtab-actividad" style="display:none">
+      <div id="dtab-actividad">
 
         <div class="two-col" style="margin-bottom:18px">
           <div class="panel">
@@ -1756,7 +1756,7 @@ function setDashProj(proj) {
 }
 
 function renderDashboard() {
-  const savedTab = localStorage.getItem('cr_dashtab') || 'resumen';
+  const savedTab = localStorage.getItem('cr_dashtab') || 'actividad';
   setDashTab(savedTab);
   const ter = dashProj === 'todos' ? terrenos : terrenos.filter(t => t.proj === dashProj);
 
