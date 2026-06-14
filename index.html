@@ -533,10 +533,11 @@
             <button class="filter-btn" id="cf-p-l" onclick="cliProjSel('cf','llanos')">Proyecto Llanos</button>
           </div>
           <div id="cf-lot-area" style="display:none">
-            <div style="position:relative;margin-bottom:8px">
+            <div style="position:relative;margin-bottom:8px;width:100%">
               <input class="form-input" id="cf-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
                 oninput="cliLotSearch('cf')" onfocus="cliLotSearch('cf')"
-                onblur="setTimeout(()=>{const d=document.getElementById('cf-lot-drop');if(d)d.style.display='none';},180)" />
+                onblur="setTimeout(()=>{const d=document.getElementById('cf-lot-drop');if(d)d.style.display='none';},180)"
+                style="width:100%" />
               <div class="ac-drop" id="cf-lot-drop" style="max-height:300px"></div>
             </div>
             <div id="cf-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
@@ -914,10 +915,11 @@
         <button class="filter-btn" id="qc-p-l" onclick="cliProjSel('qc','llanos')">Proyecto Llanos</button>
       </div>
       <div id="qc-lot-area" style="display:none">
-        <div style="position:relative;margin-bottom:8px">
+        <div style="position:relative;margin-bottom:8px;width:100%">
           <input class="form-input" id="qc-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
             oninput="cliLotSearch('qc')" onfocus="cliLotSearch('qc')"
-            onblur="setTimeout(()=>{const d=document.getElementById('qc-lot-drop');if(d)d.style.display='none';},180)" />
+            onblur="setTimeout(()=>{const d=document.getElementById('qc-lot-drop');if(d)d.style.display='none';},180)"
+            style="width:100%" />
           <div class="ac-drop" id="qc-lot-drop" style="max-height:300px"></div>
         </div>
         <div id="qc-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
