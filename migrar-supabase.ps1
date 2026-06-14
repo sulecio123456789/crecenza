@@ -15,13 +15,15 @@ $HDR_READ = @{
     'Authorization' = "Bearer $SB_KEY"
 }
 
-$baseDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
-$lotesXls = Join-Path $baseDir "Referencias\LOTES CRECENSA ACTUALIZADO.xlsx"
-$recXls   = Join-Path $baseDir "Referencias\RECIBOS CRECENSA.xlsx"
+$baseDir    = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lotesXls   = Join-Path $baseDir "Referencias\LOTES CRECENSA ACTUALIZADO.xlsx"
+$llanosXls  = Join-Path $baseDir "Referencias\LOTES LLANOS ACTUALIZADO.xlsx"
+$recXls     = Join-Path $baseDir "Referencias\RECIBOS CRECENSA.xlsx"
 
 foreach ($f in @($lotesXls, $recXls)) {
     if (-not (Test-Path $f)) { Write-Host "ERROR: No se encontro $f"; exit 1 }
 }
+if (-not (Test-Path $llanosXls)) { Write-Host "AVISO: No se encontro LOTES LLANOS, se omitira." }
 
 # ---- Helpers ----
 
@@ -143,11 +145,13 @@ $meta = @{ h1_validos=0; h1_anulado=0; h1_monto0=0; h1_vacios=0
 $skipNames = @('','ANULADO','N/A','SIN NOMBRE','PENDIENTE NOMBRE','PLANTA DE TRATAMIENTO',
                'RESERVADO PROYECTOS','PROPIETARIO','PENDIENTE DATOS')
 
-function Get-CliId($nombre, $tel) {
+function Get-CliId($nombre, $tel, $raw=$false) {
     $n = Norm $nombre
     if (-not $n) { return 'null' }
-    foreach ($sk in $skipNames) { if ($n -eq $sk) { return 'null' } }
-    if ($n -match '^PENDIENTE|^RESERVADO|^SIN NOMBRE|^PROPIETARIO|^ANULADO') { return 'null' }
+    if (-not $raw) {
+        foreach ($sk in $skipNames) { if ($n -eq $sk) { return 'null' } }
+        if ($n -match '^PENDIENTE|^RESERVADO|^SIN NOMBRE|^PROPIETARIO|^ANULADO') { return 'null' }
+    }
 
     if (-not $cliMap.ContainsKey($n)) {
         $id = $script:cliId++
@@ -222,7 +226,61 @@ try {
         $script:terId++
     }
     $wb.Close($false)
-    Write-Host ("  Lotes: " + $terrenos.Count)
+    Write-Host ("  Lotes Nichos: " + $terrenos.Count)
+
+    # ============================================================
+    # LOTES LLANOS ACTUALIZADO.xlsx
+    # Estructura: fila 1=titulo, fila 2=headers, datos desde fila 3
+    # Col: 1=Fecha 2=NoLote 3=Cliente 4=Valor 5=Abonado 6=Saldo
+    #      7=Plazo 9=FechaPago 10=Estado 11=Vendedor 13=Tel 14=Coment
+    # ============================================================
+    if (Test-Path $llanosXls) {
+        Write-Host "Leyendo LOTES LLANOS ACTUALIZADO.xlsx..."
+        $wbL = $excel.Workbooks.Open($llanosXls)
+        $shL = $wbL.Sheets(1)
+        $totL = $shL.UsedRange.Rows.Count
+
+        for ($r = 3; $r -le $totL; $r++) {
+            $lot = (Cell $shL $r 2).Trim()
+            if (-not $lot) { continue }
+
+            $estadoCol = (Cell $shL $r 10).Trim()
+            $cId       = Get-CliId (Cell $shL $r 3) (Cell $shL $r 13) $true
+            $fecha     = Fix-Date (Cell $shL $r 1)
+            $fechaJ    = if ($fecha) { '"' + $fecha + '"' } else { 'null' }
+            $plStr     = (Cell $shL $r 7).Trim()
+            $plazo     = 0
+            if ($plStr -match '^(\d+)') { try { $plazo = [int]$Matches[1] } catch {} }
+            $nota      = (Cell $shL $r 14).Trim()
+
+            # Para Llanos no hay sector — usamos "L" como sector fijo
+            $sec = 'L'
+            $terLookup[$sec + '/' + $lot] = $script:terId
+            $terrenos.Add((
+                '{"id":'           + $script:terId +
+                ',"sec":'          + (EscJson $sec) +
+                ',"lot":'          + (EscJson $lot) +
+                ',"pre":'          + (Parse-Precio (Cell $shL $r 4)) +
+                ',"sal":'          + (Parse-Precio (Cell $shL $r 6)) +
+                ',"est":"'         + (Map-Estado $estadoCol) + '"' +
+                ',"cli_id":'       + $cId +
+                ',"vend":'         + (EscJson (Norm (Cell $shL $r 11))) +
+                ',"are":""' +
+                ',"proj":"llanos"' +
+                ',"nota":'         + (EscJson $nota) +
+                ',"fecha_contrato":' + $fechaJ +
+                ',"reserva":'      + (Parse-Precio (Cell $shL $r 5)) +
+                ',"plazo":'        + $plazo +
+                ',"dia_pago":0' +
+                ',"comision":""' +
+                ',"estado_escrit":' + (EscJson $estadoCol) +
+                '}'
+            ))
+            $script:terId++
+        }
+        $wbL.Close($false)
+        Write-Host ("  Lotes Llanos: " + ($terrenos.Count - 0))
+    }
 
     # ============================================================
     # RECIBOS - Sheet 1-1000
@@ -235,28 +293,49 @@ try {
     for ($r = 2; $r -le $tot1; $r++) {
         $nom = Norm (Cell $s1 $r 3)
         if (-not $nom) { $meta.h1_vacios++; continue }
-        if ($nom -eq 'ANULADO') { $meta.h1_anulado++; continue }
-        $mon = Parse-Precio (Cell $s1 $r 4)
-        if ($mon -eq 0) { $meta.h1_monto0++; continue }
-        $cId = Get-CliId $nom ''
-        if ($cId -eq 'null') { $meta.h1_vacios++; continue }
-        $meta.h1_validos++
-
+        $fec  = Fix-Date (Cell $s1 $r 1)
+        $fec2 = Fix-Date (Cell $s1 $r 10)
+        $fecJ  = if ($fec)  { '"' + $fec  + '"' } else { 'null' }
+        $fec2J = if ($fec2) { '"' + $fec2 + '"' } else { 'null' }
         $num = (Cell $s1 $r 2).Trim(); if ($num -imatch '^n/a$') { $num = '' }
         $bol = (Cell $s1 $r 5).Trim()
         $forma = 'Efectivo'
         if     ($bol -match '^\d')       { $forma = 'Deposito'      }
         elseif ($bol -imatch 'cheque')   { $forma = 'Cheque'        }
         elseif ($bol -imatch 'transfer') { $forma = 'Transferencia' }
+
+        if ($nom -eq 'ANULADO') {
+            $meta.h1_anulado++
+            $recibos.Add((
+                '{"id":' + $script:recId +
+                ',"fec":' + $fecJ + ',"fec2":null,"num":' + (EscJson $num) +
+                ',"cli_id":null,"ter_id":null,"mon":0,"bol":' + (EscJson $forma) +
+                ',"vend":"","nota":"ANULADO","distrib":null,"tipo":"anulado"}'
+            ))
+            $script:recId++; continue
+        }
+
+        $mon = Parse-Precio (Cell $s1 $r 4)
         $lts  = (Cell $s1 $r 6).Trim()
         $com  = (Cell $s1 $r 7).Trim()
         $nota = ($lts + $(if ($com) { " - $com" } else { '' })).Trim(' -')
-        $fec  = Fix-Date (Cell $s1 $r 1)
-        $fec2 = Fix-Date (Cell $s1 $r 10)
-        $fecJ  = if ($fec)  { '"' + $fec  + '"' } else { 'null' }
-        $fec2J = if ($fec2) { '"' + $fec2 + '"' } else { 'null' }
-        $distribJ = Build-Distrib $lts $mon
+        $vend = EscJson (Norm (Cell $s1 $r 8))
+        $cId  = Get-CliId $nom ''
 
+        if ($mon -eq 0) {
+            $meta.h1_monto0++
+            $recibos.Add((
+                '{"id":' + $script:recId +
+                ',"fec":' + $fecJ + ',"fec2":' + $fec2J + ',"num":' + (EscJson $num) +
+                ',"cli_id":' + $cId + ',"ter_id":null,"mon":0,"bol":' + (EscJson $forma) +
+                ',"vend":' + $vend + ',"nota":' + (EscJson $nota) + ',"distrib":null,"tipo":"monto0"}'
+            ))
+            $script:recId++; continue
+        }
+
+        if ($cId -eq 'null') { $meta.h1_vacios++; continue }
+        $meta.h1_validos++
+        $distribJ = Build-Distrib $lts $mon
         $recibos.Add((
             '{"id":'       + $script:recId +
             ',"fec":'      + $fecJ +
@@ -266,10 +345,10 @@ try {
             ',"ter_id":null' +
             ',"mon":'      + $mon +
             ',"bol":'      + (EscJson $forma) +
-            ',"vend":'     + (EscJson (Norm (Cell $s1 $r 8))) +
+            ',"vend":'     + $vend +
             ',"nota":'     + (EscJson $nota) +
             ',"distrib":'  + $distribJ +
-            '}'
+            ',"tipo":"valido"}'
         ))
         $script:recId++
     }
@@ -286,28 +365,49 @@ try {
     for ($r = 2; $r -le $tot2; $r++) {
         $nom = Norm (Cell $s2 $r 3)
         if (-not $nom) { $meta.h2_vacios++; continue }
-        if ($nom -eq 'ANULADO') { $meta.h2_anulado++; continue }
-        $mon = Parse-Precio (Cell $s2 $r 4)
-        if ($mon -eq 0) { $meta.h2_monto0++; continue }
-        $cId = Get-CliId $nom ''
-        if ($cId -eq 'null') { $meta.h2_vacios++; continue }
-        $meta.h2_validos++
-
+        $fec  = Fix-Date (Cell $s2 $r 1)
+        $fec2 = Fix-Date (Cell $s2 $r 11)
+        $fecJ  = if ($fec)  { '"' + $fec  + '"' } else { 'null' }
+        $fec2J = if ($fec2) { '"' + $fec2 + '"' } else { 'null' }
         $num = (Cell $s2 $r 2).Trim(); if ($num -imatch '^n/a$') { $num = '' }
         $bol = (Cell $s2 $r 6).Trim()
         $forma = 'Efectivo'
         if     ($bol -match '^\d')       { $forma = 'Deposito'      }
         elseif ($bol -imatch 'cheque')   { $forma = 'Cheque'        }
         elseif ($bol -imatch 'transfer') { $forma = 'Transferencia' }
+
+        if ($nom -eq 'ANULADO') {
+            $meta.h2_anulado++
+            $recibos.Add((
+                '{"id":' + $script:recId +
+                ',"fec":' + $fecJ + ',"fec2":null,"num":' + (EscJson $num) +
+                ',"cli_id":null,"ter_id":null,"mon":0,"bol":' + (EscJson $forma) +
+                ',"vend":"","nota":"ANULADO","distrib":null,"tipo":"anulado"}'
+            ))
+            $script:recId++; continue
+        }
+
+        $mon = Parse-Precio (Cell $s2 $r 4)
         $lts  = (Cell $s2 $r 7).Trim()
         $com  = (Cell $s2 $r 8).Trim()
         $nota = ($lts + $(if ($com) { " - $com" } else { '' })).Trim(' -')
-        $fec  = Fix-Date (Cell $s2 $r 1)
-        $fec2 = Fix-Date (Cell $s2 $r 11)
-        $fecJ  = if ($fec)  { '"' + $fec  + '"' } else { 'null' }
-        $fec2J = if ($fec2) { '"' + $fec2 + '"' } else { 'null' }
-        $distribJ = Build-Distrib $lts $mon
+        $vend = EscJson (Norm (Cell $s2 $r 9))
+        $cId  = Get-CliId $nom ''
 
+        if ($mon -eq 0) {
+            $meta.h2_monto0++
+            $recibos.Add((
+                '{"id":' + $script:recId +
+                ',"fec":' + $fecJ + ',"fec2":' + $fec2J + ',"num":' + (EscJson $num) +
+                ',"cli_id":' + $cId + ',"ter_id":null,"mon":0,"bol":' + (EscJson $forma) +
+                ',"vend":' + $vend + ',"nota":' + (EscJson $nota) + ',"distrib":null,"tipo":"monto0"}'
+            ))
+            $script:recId++; continue
+        }
+
+        if ($cId -eq 'null') { $meta.h2_vacios++; continue }
+        $meta.h2_validos++
+        $distribJ = Build-Distrib $lts $mon
         $recibos.Add((
             '{"id":'       + $script:recId +
             ',"fec":'      + $fecJ +
@@ -317,10 +417,10 @@ try {
             ',"ter_id":null' +
             ',"mon":'      + $mon +
             ',"bol":'      + (EscJson $forma) +
-            ',"vend":'     + (EscJson (Norm (Cell $s2 $r 9))) +
+            ',"vend":'     + $vend +
             ',"nota":'     + (EscJson $nota) +
             ',"distrib":'  + $distribJ +
-            '}'
+            ',"tipo":"valido"}'
         ))
         $script:recId++
     }
