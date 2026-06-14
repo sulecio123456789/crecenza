@@ -1126,7 +1126,7 @@ function go(name, el) {
   if(name==='dashboard') renderDashboard();
   if(name==='clientes') renderClientes('');
   if(name==='terrenos'){renderTerrenos();}
-  if(name==='recibos'){renderRecibos();fillReciboSelects();fillFiltroClientes();}
+  if(name==='recibos'){renderRecibos();fillReciboSelects();fillFiltroClientes();setRecibosTab(localStorage.getItem('cr_rectab')||'listado');}
   if(name==='mapa') renderMapa();
   if(name==='mora') renderMora();
 }
@@ -1822,6 +1822,7 @@ function setRecibosTab(tab) {
   document.getElementById('rtab-resumen').style.display = tab === 'resumen' ? '' : 'none';
   document.querySelectorAll('.dash-tab[id^="rtab-btn-"]').forEach(b => b.classList.remove('active'));
   document.getElementById('rtab-btn-' + tab).classList.add('active');
+  localStorage.setItem('cr_rectab', tab);
   if (tab === 'resumen') renderRecibosResumen();
 }
 
