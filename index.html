@@ -231,6 +231,12 @@
     body[data-theme="dark"] .filter-btn.active-f{background:#2563eb;border-color:#2563eb;color:#fff;}
     body[data-theme="dark"] .date-tab{color:#9ca3af;}
     body[data-theme="dark"] .date-tab.active-tab{background:#2563eb;color:#fff;}
+    .dash-tab{background:none;border:none;padding:8px 22px;font-size:.88rem;font-weight:600;color:#6b7280;cursor:pointer;font-family:inherit;transition:all .18s;border-radius:8px;white-space:nowrap;}
+    .dash-tab:hover{color:#374151;background:rgba(0,0,0,.04);}
+    .dash-tab.active{background:#fff;color:#111827;box-shadow:0 1px 4px rgba(0,0,0,.12);}
+    body[data-theme="dark"] .dash-tab{color:#9ca3af;}
+    body[data-theme="dark"] .dash-tab:hover{color:#d1d5db;background:rgba(255,255,255,.06);}
+    body[data-theme="dark"] .dash-tab.active{background:#1f2937;color:#f9fafb;box-shadow:0 1px 4px rgba(0,0,0,.4);}
     body[data-theme="dark"] .client-n{color:#f9fafb;}
     body[data-theme="dark"] .client-s{color:#6b7280;}
     body[data-theme="dark"] .client-init{background:#1e3a5f;color:#60a5fa;}
@@ -396,6 +402,16 @@
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• DASHBOARD â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="page active" id="page-dashboard">
 
+      <!-- Sub-tabs del dashboard -->
+      <div style="display:flex;align-items:center;margin-bottom:20px">
+        <div class="seg-ctrl" style="padding:4px;gap:3px;">
+          <button class="dash-tab active" id="dtab-btn-resumen" onclick="setDashTab('resumen')">Resumen</button>
+          <button class="dash-tab" id="dtab-btn-actividad" onclick="setDashTab('actividad')">Actividad</button>
+        </div>
+      </div>
+
+      <div id="dtab-resumen">
+
       <!-- Filtro proyecto -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div>
@@ -468,22 +484,7 @@
         </div>
       </div>
 
-      <div class="two-col">
-        <div class="panel">
-          <div class="panel-hdr">
-            <div><div class="panel-title">Clientes con saldo pendiente</div><div class="panel-sub">Con cuotas activas</div></div>
-            <button class="btn btn-ghost btn-sm" onclick="go('clientes',null)">Ver clientes</button>
-          </div>
-          <table><thead><tr><th>Cliente</th><th>Lotes</th><th>Saldo total</th></tr></thead>
-          <tbody id="d-clientes-saldo"></tbody></table>
-        </div>
-        <div class="panel">
-          <div class="panel-hdr"><div><div class="panel-title">Alertas de pago</div><div class="panel-sub">Mayores saldos por cobrar</div></div></div>
-          <div id="d-alertas"></div>
-        </div>
-      </div>
-
-      <div class="panel" style="margin-bottom:18px">
+      <div class="panel">
         <div class="panel-hdr">
           <div><div class="panel-title">Top vendedores</div><div class="panel-sub">Recaudación por vendedor</div></div>
         </div>
@@ -491,14 +492,35 @@
         <tbody id="d-vendedores"></tbody></table>
       </div>
 
-      <div class="panel">
-        <div class="panel-hdr">
-          <div><div class="panel-title">Recibos recientes</div><div class="panel-sub">Ultimos pagos registrados</div></div>
-          <button class="btn btn-ghost btn-sm" onclick="go('recibos',null)">Ver todos</button>
+      </div><!-- /dtab-resumen -->
+
+      <div id="dtab-actividad" style="display:none">
+
+        <div class="two-col" style="margin-bottom:18px">
+          <div class="panel">
+            <div class="panel-hdr">
+              <div><div class="panel-title">Clientes con saldo pendiente</div><div class="panel-sub">Con cuotas activas</div></div>
+              <button class="btn btn-ghost btn-sm" onclick="go('clientes',null)">Ver clientes</button>
+            </div>
+            <table><thead><tr><th>Cliente</th><th>Lotes</th><th>Saldo total</th></tr></thead>
+            <tbody id="d-clientes-saldo"></tbody></table>
+          </div>
+          <div class="panel">
+            <div class="panel-hdr"><div><div class="panel-title">Alertas de pago</div><div class="panel-sub">Mayores saldos por cobrar</div></div></div>
+            <div id="d-alertas"></div>
+          </div>
         </div>
-        <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Terreno</th><th>Monto</th><th>Forma pago</th><th>Vendedor</th></tr></thead>
-        <tbody id="d-recibos"></tbody></table>
-      </div>
+
+        <div class="panel">
+          <div class="panel-hdr">
+            <div><div class="panel-title">Recibos recientes</div><div class="panel-sub">Ultimos pagos registrados</div></div>
+            <button class="btn btn-ghost btn-sm" onclick="go('recibos',null)">Ver todos</button>
+          </div>
+          <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Terreno</th><th>Monto</th><th>Forma pago</th><th>Vendedor</th></tr></thead>
+          <tbody id="d-recibos"></tbody></table>
+        </div>
+
+      </div><!-- /dtab-actividad -->
     </div>
 
 
@@ -1713,6 +1735,14 @@ document.addEventListener('mousemove', e=>{
   if(document.getElementById('mapa-tt').style.display!=='none') posMapaTT(e);
 });
 
+function setDashTab(tab) {
+  document.getElementById('dtab-resumen').style.display   = tab === 'resumen'   ? '' : 'none';
+  document.getElementById('dtab-actividad').style.display = tab === 'actividad' ? '' : 'none';
+  document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('dtab-btn-' + tab).classList.add('active');
+  localStorage.setItem('cr_dashtab', tab);
+}
+
 function setDashProj(proj) {
   dashProj = proj;
   ['todos','llanos','nichos'].forEach(p => {
@@ -1726,6 +1756,8 @@ function setDashProj(proj) {
 }
 
 function renderDashboard() {
+  const savedTab = localStorage.getItem('cr_dashtab') || 'resumen';
+  setDashTab(savedTab);
   const ter = dashProj === 'todos' ? terrenos : terrenos.filter(t => t.proj === dashProj);
 
   // contadores de terrenos
