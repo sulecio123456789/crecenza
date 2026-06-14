@@ -660,7 +660,12 @@
     <div class="page" id="page-recibos">
       <div class="sec-hdr">
         <div><div class="sec-title">Recibos</div><div class="sec-sub">Registro de pagos y recibos de caja</div></div>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="seg-ctrl">
+            <button class="date-tab active-tab" id="rp-todos"   onclick="setRecProj('todos')">Todos</button>
+            <button class="date-tab"            id="rp-nichos"  onclick="setRecProj('nichos')">Proyecto Nichos</button>
+            <button class="date-tab"            id="rp-llanos"  onclick="setRecProj('llanos')">Proyecto Llanos</button>
+          </div>
           <button class="btn btn-secondary" onclick="exportExcel('recibos')">&#8595; Excel</button>
           <button class="btn btn-primary" onclick="toggleForm('rf')">+ Nuevo recibo</button>
         </div>
@@ -1073,6 +1078,7 @@ let recibos  = LS('rec') || [];
 let terFilter = 'todos';
 let terProj = 'todos';
 let dashProj = 'todos';
+let recProj  = 'todos';
 let dateTab = 'fec';
 let editingCli = null;
 let editingTer = null;
@@ -1803,6 +1809,14 @@ document.addEventListener('mousemove', e=>{
   if(document.getElementById('mapa-tt').style.display!=='none') posMapaTT(e);
 });
 
+function setRecProj(proj) {
+  recProj = proj;
+  ['todos','nichos','llanos'].forEach(p => {
+    document.getElementById('rp-' + p).classList.toggle('active-tab', p === proj);
+  });
+  renderRecibos();
+}
+
 function setRecibosTab(tab) {
   document.getElementById('rtab-listado').style.display = tab === 'listado' ? '' : 'none';
   document.getElementById('rtab-resumen').style.display = tab === 'resumen' ? '' : 'none';
@@ -1819,6 +1833,10 @@ function _filteredRecibos() {
   const fPago= document.getElementById('f-pago')?.value || '';
   const fVend= document.getElementById('f-vend')?.value || '';
   let f = [...recibos];
+  if (recProj !== 'todos') f = f.filter(r => {
+    const ids = r.distrib?.length ? r.distrib.map(d => d.terId) : (r.terId ? [r.terId] : []);
+    return ids.some(id => { const t = gt(id); return t && t.proj === recProj; });
+  });
   if (desde || hasta) f = f.filter(r => {
     const val = dateTab === 'fec2' ? (r.fec2 || '') : r.fec;
     if (!val) return false;
