@@ -526,6 +526,22 @@
           </div>
           <div class="form-group form-full"><label class="form-label">Dirección / Nota</label><input class="form-input" id="c-not" placeholder="Dirección u observaciones" /></div>
         </div>
+        <div id="cf-lp-wrap" style="border-top:1px solid #e5e7eb;margin-top:16px;padding-top:16px">
+          <div style="margin-bottom:10px;font-size:.82rem;font-weight:600;color:#6b7280;letter-spacing:.04em;text-transform:uppercase">Asignar lotes (opcional)</div>
+          <div class="filter-row" style="margin-bottom:10px">
+            <button class="filter-btn" id="cf-p-n" onclick="cliProjSel('cf','nichos')">Proyecto Nichos</button>
+            <button class="filter-btn" id="cf-p-l" onclick="cliProjSel('cf','llanos')">Proyecto Llanos</button>
+          </div>
+          <div id="cf-lot-area" style="display:none">
+            <div style="position:relative;margin-bottom:8px">
+              <input class="form-input" id="cf-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
+                oninput="cliLotSearch('cf')" onfocus="cliLotSearch('cf')"
+                onblur="setTimeout(()=>{const d=document.getElementById('cf-lot-drop');if(d)d.style.display='none';},180)" />
+              <div class="ac-drop" id="cf-lot-drop" style="max-height:180px"></div>
+            </div>
+            <div id="cf-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
+          </div>
+        </div>
         <div class="form-actions">
           <button class="btn btn-primary" onclick="saveCliente()">Guardar cliente</button>
           <button class="btn btn-secondary" onclick="toggleForm('cf')">Cancelar</button>
@@ -891,6 +907,22 @@
       </div>
       <div class="form-group form-full"><label class="form-label">Direccion / Nota</label><input class="form-input" id="qc-not" placeholder="Direccion u observaciones" /></div>
     </div>
+    <div style="border-top:1px solid #e5e7eb;margin-top:16px;padding-top:16px">
+      <div style="margin-bottom:10px;font-size:.82rem;font-weight:600;color:#6b7280;letter-spacing:.04em;text-transform:uppercase">Asignar lotes (opcional)</div>
+      <div class="filter-row" style="margin-bottom:10px">
+        <button class="filter-btn" id="qc-p-n" onclick="cliProjSel('qc','nichos')">Proyecto Nichos</button>
+        <button class="filter-btn" id="qc-p-l" onclick="cliProjSel('qc','llanos')">Proyecto Llanos</button>
+      </div>
+      <div id="qc-lot-area" style="display:none">
+        <div style="position:relative;margin-bottom:8px">
+          <input class="form-input" id="qc-lot-q" placeholder="Buscar sector o lote disponible..." autocomplete="off"
+            oninput="cliLotSearch('qc')" onfocus="cliLotSearch('qc')"
+            onblur="setTimeout(()=>{const d=document.getElementById('qc-lot-drop');if(d)d.style.display='none';},180)" />
+          <div class="ac-drop" id="qc-lot-drop" style="max-height:180px"></div>
+        </div>
+        <div id="qc-lot-sel" style="display:flex;flex-wrap:wrap;gap:6px;min-height:22px"></div>
+      </div>
+    </div>
     <div class="form-actions">
       <button class="btn btn-primary" onclick="guardarQCli()">Guardar cliente</button>
       <button class="btn btn-secondary" onclick="cerrarQCli()">Cancelar</button>
@@ -1026,7 +1058,7 @@ function toggleForm(id) {
   el.style.display=show?'block':'none';
   if(!show) {
     // reset al cerrar
-    if(id==='cf'){el.querySelector('.panel-title').textContent='Registrar cliente';editingCli=null;}
+    if(id==='cf'){el.querySelector('.panel-title').textContent='Registrar cliente';editingCli=null;cliProjSel('cf','');}
     if(id==='tf'){el.querySelector('.panel-title').textContent='Registrar terreno';editingTer=null;}
     if(id==='rf'){el.querySelector('.panel-title').textContent='Registrar recibo';editingRec=null;}
   }
@@ -1264,6 +1296,90 @@ function cerrarReciboModal() {
   document.getElementById('recibo-modal').style.display = 'none';
   document.body.style.overflow = '';
 }
+// ═══ LOT PICKER — asignar lotes al crear/editar cliente ═══
+const _cliProj = {cf: '', qc: ''};
+const _cliLots = {cf: [], qc: []};
+
+function cliProjSel(pfx, proj) {
+  _cliProj[pfx] = proj;
+  ['n','l'].forEach(k => {
+    const btn = document.getElementById(pfx+'-p-'+k);
+    if (!btn) return;
+    const mp = k === 'n' ? 'nichos' : 'llanos';
+    btn.className = 'filter-btn' + (proj === mp ? ' active-f' : '');
+  });
+  const area = document.getElementById(pfx+'-lot-area');
+  if (area) area.style.display = proj ? 'block' : 'none';
+  _cliLots[pfx] = [];
+  const q = document.getElementById(pfx+'-lot-q');
+  if (q) q.value = '';
+  renderCliLotSel(pfx);
+}
+
+function cliLotSearch(pfx) {
+  const q = (document.getElementById(pfx+'-lot-q').value || '').toLowerCase().trim();
+  const proj = _cliProj[pfx];
+  if (!proj) return;
+  const drop = document.getElementById(pfx+'-lot-drop');
+  const sel = _cliLots[pfx];
+  const matches = terrenos.filter(t =>
+    t.proj === proj &&
+    t.est === 'disponible' &&
+    !sel.includes(t.id) &&
+    (!q || (t.sec+'/'+t.lot).toLowerCase().includes(q) || t.sec.toLowerCase().includes(q) || t.lot.toLowerCase().includes(q))
+  ).slice(0, 14);
+  drop.innerHTML = matches.length
+    ? matches.map(t => `<div class="ac-item" onmousedown="cliLotAdd('${pfx}',${t.id})">
+        <div style="font-size:.83rem;font-weight:600">Sec ${t.sec} / Lote ${t.lot}</div>
+        <div style="font-size:.72rem;color:#9ca3af">${fmt(t.pre)}</div>
+      </div>`).join('')
+    : '<div class="ac-empty">Sin lotes disponibles</div>';
+  drop.style.display = 'block';
+}
+
+function cliLotAdd(pfx, terId) {
+  if (!_cliLots[pfx].includes(terId)) _cliLots[pfx].push(terId);
+  const q = document.getElementById(pfx+'-lot-q');
+  if (q) q.value = '';
+  const d = document.getElementById(pfx+'-lot-drop');
+  if (d) d.style.display = 'none';
+  renderCliLotSel(pfx);
+}
+
+function cliLotRem(pfx, terId) {
+  _cliLots[pfx] = _cliLots[pfx].filter(id => id !== terId);
+  renderCliLotSel(pfx);
+}
+
+function renderCliLotSel(pfx) {
+  const container = document.getElementById(pfx+'-lot-sel');
+  if (!container) return;
+  const sel = _cliLots[pfx];
+  if (!sel.length) {
+    container.innerHTML = '<span style="font-size:.78rem;color:#9ca3af">Ningún lote seleccionado</span>';
+    return;
+  }
+  container.innerHTML = sel.map(id => {
+    const t = terrenos.find(x => x.id === id);
+    if (!t) return '';
+    return `<div style="display:inline-flex;align-items:center;gap:4px;background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:4px 10px;font-size:.78rem;font-weight:600">
+      Sec ${t.sec} / Lot ${t.lot} <span style="font-weight:400;color:#3b82f6">${fmt(t.pre)}</span>
+      <button type="button" onmousedown="cliLotRem('${pfx}',${id})" style="background:none;border:none;cursor:pointer;color:#2563eb;font-size:1.1rem;padding:0 0 0 4px;line-height:1">&times;</button>
+    </div>`;
+  }).join('');
+}
+
+function _assignLots(pfx, cliId) {
+  const lots = (_cliLots[pfx] || []).slice();
+  if (!lots.length) return;
+  lots.forEach(terId => {
+    const idx = terrenos.findIndex(t => t.id === terId);
+    if (idx >= 0) { terrenos[idx].cliId = cliId; terrenos[idx].est = 'reservado'; }
+  });
+  SS('ter', terrenos);
+  _cliLots[pfx] = [];
+}
+
 function abrirQCli(nombre) {
   document.getElementById('qc-nom').value = nombre || '';
   document.getElementById('qc-tel').value = '';
@@ -1271,6 +1387,7 @@ function abrirQCli(nombre) {
   document.getElementById('qc-vend').value = '';
   document.getElementById('qc-est').value = 'activo';
   document.getElementById('qc-not').value = '';
+  cliProjSel('qc', '');
   const dark = document.body.getAttribute('data-theme') === 'dark';
   const box = document.getElementById('qcli-box');
   box.style.background = dark ? '#111827' : '#fff';
@@ -1280,14 +1397,16 @@ function abrirQCli(nombre) {
   setTimeout(() => document.getElementById('qc-nom').focus(), 80);
 }
 function cerrarQCli() {
+  cliProjSel('qc', '');
   document.getElementById('qcli-modal').style.display = 'none';
   document.body.style.overflow = '';
 }
 function guardarQCli() {
   const nom = document.getElementById('qc-nom').value.trim();
   if (!nom) { toast('El nombre es requerido', 'err'); return; }
+  const newId = Date.now();
   const nuevo = {
-    id: Date.now(),
+    id: newId,
     nom: nom.toUpperCase(),
     tel: document.getElementById('qc-tel').value.trim(),
     dpi: document.getElementById('qc-dpi').value.trim(),
@@ -1297,7 +1416,9 @@ function guardarQCli() {
   };
   clientes.push(nuevo);
   SS('cli', clientes);
-  toast('Cliente registrado');
+  const lotsCount = (_cliLots['qc'] || []).length;
+  _assignLots('qc', newId);
+  toast(lotsCount ? `Cliente registrado con ${lotsCount} lote${lotsCount>1?'s':''}` : 'Cliente registrado');
   cerrarQCli();
 }
 function rmUpdateSummary() {
@@ -1666,10 +1787,14 @@ function saveCliente() {
   if(editingCli){
     const idx=clientes.findIndex(c=>c.id===editingCli);
     if(idx>=0) clientes[idx]={...clientes[idx],...data};
+    _assignLots('cf', editingCli);
     toast('Cliente actualizado');
   } else {
-    clientes.push({id:Date.now(),...data});
-    toast('Cliente registrado');
+    const newId=Date.now();
+    clientes.push({id:newId,...data});
+    const lotsCount=(_cliLots['cf']||[]).length;
+    _assignLots('cf', newId);
+    toast(lotsCount?`Cliente registrado con ${lotsCount} lote${lotsCount>1?'s':''}`:'Cliente registrado');
   }
   SS('cli',clientes);
   toggleForm('cf');
@@ -1699,6 +1824,7 @@ function editCliente(id){
   document.getElementById('c-vend').value=c.vend||'';
   document.getElementById('c-est').value=c.est||'activo';
   document.getElementById('c-not').value=c.not||'';
+  cliProjSel('cf','');
   const panel=document.getElementById('cf');
   panel.querySelector('.panel-title').textContent='Editar cliente';
   panel.style.display='block';
