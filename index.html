@@ -943,12 +943,12 @@ const _TBL = { cli: 'clientes', ter: 'terrenos', rec: 'recibos' };
 function _toRow(tbl, o) {
   if (tbl==='clientes') return {id:o.id, nom:o.nom||'', tel:o.tel||'', dpi:o.dpi||'', vend:o.vend||'', est:o.est||'activo', nota:o.not||''};
   if (tbl==='terrenos') return {id:o.id, sec:o.sec||'', lot:o.lot||'', pre:o.pre||0, reserva:o.reserva||0, sal:o.sal||0, est:o.est||'disponible', cli_id:o.cliId||null, vend:o.vend||'', are:o.are||'', proj:o.proj||'', nota:o.not||''};
-  if (tbl==='recibos')  return {id:o.id, fec:o.fec||'', fec2:o.fec2||'', num:o.num||'', cli_id:o.cliId||null, ter_id:o.terId||null, mon:o.mon||0, bol:o.bol||'', vend:o.vend||'', nota:o.not||''};
+  if (tbl==='recibos')  return {id:o.id, fec:o.fec||'', fec2:o.fec2||'', num:o.num||'', cli_id:o.cliId||null, ter_id:o.terId||null, mon:o.mon||0, bol:o.bol||'', vend:o.vend||'', nota:o.not||'', distrib:(o.distrib&&o.distrib.length)?o.distrib:null};
 }
 function _fromRow(tbl, r) {
   if (tbl==='clientes') return {id:Number(r.id), nom:r.nom||'', tel:r.tel||'', dpi:r.dpi||'', vend:r.vend||'', est:r.est||'activo', not:r.nota||''};
   if (tbl==='terrenos') return {id:Number(r.id), sec:r.sec||'', lot:r.lot||'', pre:Number(r.pre)||0, reserva:Number(r.reserva)||0, sal:Number(r.sal)||0, est:r.est||'disponible', cliId:r.cli_id?Number(r.cli_id):null, vend:r.vend||'', are:r.are||'', proj:r.proj||'', not:r.nota||''};
-  if (tbl==='recibos')  return {id:Number(r.id), fec:r.fec||'', fec2:r.fec2||'', num:r.num||'', cliId:r.cli_id?Number(r.cli_id):null, terId:r.ter_id?Number(r.ter_id):null, mon:Number(r.mon)||0, bol:r.bol||'', vend:r.vend||'', not:r.nota||''};
+  if (tbl==='recibos')  return {id:Number(r.id), fec:r.fec||'', fec2:r.fec2||'', num:r.num||'', cliId:r.cli_id?Number(r.cli_id):null, terId:r.ter_id?Number(r.ter_id):null, mon:Number(r.mon)||0, bol:r.bol||'', vend:r.vend||'', not:r.nota||'', distrib:Array.isArray(r.distrib)?r.distrib:[]};
 }
 async function _syncTbl(key, arr) {
   const tbl = _TBL[key]; if (!tbl) return;
