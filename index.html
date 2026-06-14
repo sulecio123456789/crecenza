@@ -305,6 +305,44 @@
     body[data-theme="dark"] #distrib-hdr-title{color:#d1d5db!important;}
     body[data-theme="dark"] #distrib-footer{background:#1f2937!important;border-color:#374151!important;}
     body[data-theme="dark"] #distrib-footer strong{color:#f9fafb!important;}
+    /* ── PILLS DARK MODE ── */
+    body[data-theme="dark"] .p-dis{background:#14532d;color:#86efac;}
+    body[data-theme="dark"] .p-dis .pdot{background:#22c55e;}
+    body[data-theme="dark"] .p-res{background:#451a03;color:#fcd34d;}
+    body[data-theme="dark"] .p-res .pdot{background:#d97706;}
+    body[data-theme="dark"] .p-ven{background:#450a0a;color:#fca5a5;}
+    body[data-theme="dark"] .p-ven .pdot{background:#ef4444;}
+    /* ── AUTOCOMPLETE DARK MODE ── */
+    body[data-theme="dark"] .ac-item.ac-active{background:#253044;}
+    body[data-theme="dark"] .ac-item .ac-init{background:#1e3a5f;color:#60a5fa;}
+    body[data-theme="dark"] .ac-selected{background:#1e3a5f!important;border-color:#3b82f6!important;}
+    /* ── LOT CHIPS ── */
+    .lot-chip{display:inline-flex;align-items:center;gap:4px;background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:4px 10px;font-size:.78rem;font-weight:600;}
+    .lot-chip-price{font-weight:400;color:#3b82f6;}
+    .lot-chip-remove{background:none;border:none;cursor:pointer;color:#2563eb;font-size:1.1rem;padding:0 0 0 4px;line-height:1;}
+    body[data-theme="dark"] .lot-chip{background:#1e3a5f!important;color:#93c5fd!important;}
+    body[data-theme="dark"] .lot-chip-price{color:#60a5fa!important;}
+    body[data-theme="dark"] .lot-chip-remove{color:#93c5fd!important;}
+    /* ── ALERT ROW DARK ── */
+    body[data-theme="dark"] .alert-row{border-color:#253044;}
+    /* ── BTN-DANGER DARK ── */
+    body[data-theme="dark"] .btn-danger{background:#450a0a;color:#fca5a5;}
+    body[data-theme="dark"] .btn-danger:hover{background:#7f1d1d;}
+    /* ── MODALES INLINE OVERRIDE ── */
+    body[data-theme="dark"] #recibo-modal-box [style*="color:#111827"]{color:#f9fafb!important;}
+    body[data-theme="dark"] #qcli-box [style*="color:#111827"]{color:#f9fafb!important;}
+    body[data-theme="dark"] #recibo-modal-box [style*="background:#f8fafc"] span[style*="color:#374151"]{color:#d1d5db!important;}
+    /* ── FORM SECTIONS BORDER ── */
+    body[data-theme="dark"] #cf-lp-wrap{border-color:#374151!important;}
+    body[data-theme="dark"] #qc-lp-wrap{border-color:#374151!important;}
+    /* ── RECIBO MODAL DISTRIB ── */
+    body[data-theme="dark"] #rm-distrib-box{border-color:#374151!important;}
+    body[data-theme="dark"] #rm-distrib-box>div:first-child{background:#1f2937!important;border-color:#374151!important;}
+    body[data-theme="dark"] #rm-distrib-box>div:first-child span[style*="color:#374151"]{color:#d1d5db!important;}
+    body[data-theme="dark"] #rm-distrib-footer{background:#1f2937!important;border-color:#374151!important;}
+    /* ── CHART / DASHBOARD ── */
+    body[data-theme="dark"] #chart-sep{border-color:#374151!important;}
+    body[data-theme="dark"] #d-resumen-title{color:#f9fafb!important;}
     /* ── PRINT ── */
     #print-area{display:none;}
     @page{margin:0;}
@@ -423,7 +461,7 @@
       <!-- Filtro proyecto -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div>
-          <div style="font-size:1.1rem;font-weight:700;color:#111827">Resumen general</div>
+          <div id="d-resumen-title" style="font-size:1.1rem;font-weight:700;color:#111827">Resumen general</div>
           <div style="font-size:.8rem;color:#6b7280;margin-top:2px" id="d-proj-sub">Todos los proyectos</div>
         </div>
         <div class="seg-ctrl">
@@ -486,7 +524,7 @@
           <div><div class="panel-title">Ingresos mensuales</div><div class="panel-sub">Recibos cobrados · últimos 12 meses</div></div>
         </div>
         <div id="chart-bars" style="display:flex;gap:3px;padding:0 2px"></div>
-        <div style="display:flex;gap:32px;margin-top:14px;padding-top:12px;border-top:1px solid #e5e7eb">
+        <div id="chart-sep" style="display:flex;gap:32px;margin-top:14px;padding-top:12px;border-top:1px solid #e5e7eb">
           <div><div style="font-size:.72rem;color:#9ca3af;margin-bottom:2px">Este mes</div><div style="font-size:1.05rem;font-weight:700;color:#3b82f6" id="chart-mes">—</div></div>
           <div><div style="font-size:.72rem;color:#9ca3af;margin-bottom:2px">Últimos 12 meses</div><div style="font-size:1.05rem;font-weight:700;color:#3b82f6" id="chart-total">—</div></div>
         </div>
@@ -973,7 +1011,7 @@
     </div>
 
     <!-- Distribución por lote -->
-    <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:18px">
+    <div id="rm-distrib-box" style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:18px">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb">
         <div>
           <span style="font-size:.82rem;font-weight:700;color:#374151">Distribución por lote</span>
@@ -1017,7 +1055,7 @@
       </div>
       <div class="form-group form-full"><label class="form-label">Direccion / Nota</label><input class="form-input" id="qc-not" placeholder="Direccion u observaciones" /></div>
     </div>
-    <div style="border-top:1px solid #e5e7eb;margin-top:16px;padding-top:16px">
+    <div id="qc-lp-wrap" style="border-top:1px solid #e5e7eb;margin-top:16px;padding-top:16px">
       <div style="margin-bottom:10px;font-size:.82rem;font-weight:600;color:#6b7280;letter-spacing:.04em;text-transform:uppercase">Asignar lotes (opcional)</div>
       <div class="filter-row" style="margin-bottom:10px">
         <button class="filter-btn" id="qc-p-n" onclick="cliProjSel('qc','nichos')">Proyecto Nichos</button>
@@ -1480,10 +1518,7 @@ function renderCliLotSel(pfx) {
   container.innerHTML = sel.map(id => {
     const t = terrenos.find(x => x.id === id);
     if (!t) return '';
-    return `<div style="display:inline-flex;align-items:center;gap:4px;background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:4px 10px;font-size:.78rem;font-weight:600">
-      Sec ${t.sec} / Lot ${t.lot} <span style="font-weight:400;color:#3b82f6">${fmt(t.pre)}</span>
-      <button type="button" onmousedown="cliLotRem('${pfx}',${id})" style="background:none;border:none;cursor:pointer;color:#2563eb;font-size:1.1rem;padding:0 0 0 4px;line-height:1">&times;</button>
-    </div>`;
+    return `<div class="lot-chip">Sec ${t.sec} / Lot ${t.lot} <span class="lot-chip-price">${fmt(t.pre)}</span><button type="button" class="lot-chip-remove" onmousedown="cliLotRem('${pfx}',${id})">&times;</button></div>`;
   }).join('');
 }
 
@@ -2472,6 +2507,13 @@ function applyTheme(theme) {
   const hdrTitle = document.getElementById('distrib-hdr-title');
   if (hdrTitle) hdrTitle.style.color = isDark ? '#d1d5db' : '#374151';
   ['df-dist','df-total'].forEach(id => { const el = document.getElementById(id); if (el) el.style.color = isDark ? '#f9fafb' : '#111827'; });
+  _ds('chart-sep',    null, isDark ? '#374151' : '#e5e7eb');
+  _ds('rm-distrib-box', null, isDark ? '#374151' : '#e5e7eb');
+  _ds('rm-distrib-footer', isDark ? '#1f2937' : '#f8fafc', isDark ? '#374151' : '#e5e7eb');
+  _ds('cf-lp-wrap',   null, isDark ? '#374151' : '#e5e7eb');
+  _ds('qc-lp-wrap',   null, isDark ? '#374151' : '#e5e7eb');
+  const rTitle = document.getElementById('d-resumen-title');
+  if (rTitle) rTitle.style.color = isDark ? '#f9fafb' : '#111827';
   localStorage.setItem('cr_theme', theme);
 }
 
