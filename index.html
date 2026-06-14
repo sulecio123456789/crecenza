@@ -297,6 +297,14 @@
     body[data-theme="dark"] .g-item:hover{background:#374151;}
     body[data-theme="dark"] .g-sec{color:#4b5563;}
     body[data-theme="dark"] .g-div{background:#374151;}
+    /* ── RECIBOS DARK MODE ── */
+    body[data-theme="dark"] #fec-tab-wrap{border-color:#374151!important;background:#111827;}
+    body[data-theme="dark"] #r-filter-sep{background:#374151!important;}
+    body[data-theme="dark"] #distrib-box{border-color:#374151!important;}
+    body[data-theme="dark"] #distrib-hdr{background:#1f2937!important;border-color:#374151!important;}
+    body[data-theme="dark"] #distrib-hdr-title{color:#d1d5db!important;}
+    body[data-theme="dark"] #distrib-footer{background:#1f2937!important;border-color:#374151!important;}
+    body[data-theme="dark"] #distrib-footer strong{color:#f9fafb!important;}
     /* ── PRINT ── */
     #print-area{display:none;}
     @page{margin:0;}
@@ -705,10 +713,10 @@
         </div>
 
         <!-- Distribución por lotes -->
-        <div style="margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:visible">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;border-radius:10px 10px 0 0">
+        <div id="distrib-box" style="margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:visible">
+          <div id="distrib-hdr" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e5e7eb;border-radius:10px 10px 0 0">
             <div>
-              <span style="font-size:.82rem;font-weight:700;color:#374151">Distribucion por lote</span>
+              <span id="distrib-hdr-title" style="font-size:.82rem;font-weight:700;color:#374151">Distribucion por lote</span>
               <span style="font-size:.76rem;color:#9ca3af;margin-left:8px">Opcional: asigna cuanto va a cada lote</span>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
@@ -734,14 +742,14 @@
       <!-- Filtros recibos (una sola linea) -->
       <div class="panel" style="padding:11px 16px">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow:visible">
-          <div style="display:flex;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;flex-shrink:0">
+          <div id="fec-tab-wrap" style="display:flex;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;flex-shrink:0">
             <button class="date-tab active-tab" id="tab-fec" onclick="setDateTab('fec')">Fecha recibo</button>
             <button class="date-tab" id="tab-fec2" onclick="setDateTab('fec2')">Fecha reportada</button>
           </div>
           <input type="date" class="form-input" id="f-desde" style="width:140px;padding:6px 10px" onchange="renderRecibos()" />
           <span style="font-size:.78rem;color:#9ca3af;flex-shrink:0">hasta</span>
           <input type="date" class="form-input" id="f-hasta" style="width:140px;padding:6px 10px" onchange="renderRecibos()" />
-          <div style="width:1px;height:22px;background:#e5e7eb;flex-shrink:0;margin:0 2px"></div>
+          <div id="r-filter-sep" style="width:1px;height:22px;background:#e5e7eb;flex-shrink:0;margin:0 2px"></div>
           <!-- Autocomplete cliente filtro -->
           <div class="ac-wrap" style="width:200px;flex-shrink:0">
             <input class="form-input" id="f-cli-input" placeholder="Buscar cliente..." autocomplete="off"
@@ -757,7 +765,7 @@
             <option>Industrial</option>
             <option>Banrural</option>
           </select>
-          <select class="form-input" id="f-vend" style="min-width:130px;padding:6px 10px;background:#f8fafc;border-color:#e5e7eb;border-radius:8px;font-size:.83rem;font-weight:600;color:#374151;cursor:pointer" onchange="renderRecibos()">
+          <select class="form-input" id="f-vend" style="min-width:130px;padding:6px 10px;font-size:.83rem;font-weight:600;cursor:pointer" onchange="renderRecibos()">
             <option value="">Vendedor</option>
             <option>CRECENSA</option>
             <option>PROYECTOS</option>
@@ -2443,7 +2451,8 @@ function applyTheme(theme) {
   const moon = document.getElementById('ico-moon');
   const sun  = document.getElementById('ico-sun');
   const segs = document.querySelectorAll('.seg-ctrl');
-  if (theme === 'dark') {
+  const isDark = theme === 'dark';
+  if (isDark) {
     document.body.setAttribute('data-theme', 'dark');
     if (moon) moon.style.display = 'none';
     if (sun)  sun.style.display  = 'block';
@@ -2454,6 +2463,15 @@ function applyTheme(theme) {
     if (sun)  sun.style.display  = 'none';
     segs.forEach(s => { s.style.background = '#f1f5f9'; s.style.borderColor = '#e2e8f0'; });
   }
+  const _ds = (id, bg, bc) => { const el = document.getElementById(id); if (el) { if (bg) el.style.background = bg; if (bc) el.style.borderColor = bc; } };
+  _ds('fec-tab-wrap',   isDark ? '#111827' : '', isDark ? '#374151' : '#e5e7eb');
+  _ds('r-filter-sep',   isDark ? '#374151' : '#e5e7eb', null);
+  _ds('distrib-box',    null, isDark ? '#374151' : '#e5e7eb');
+  _ds('distrib-hdr',    isDark ? '#1f2937' : '#f8fafc', isDark ? '#374151' : '#e5e7eb');
+  _ds('distrib-footer', isDark ? '#1f2937' : '#f8fafc', isDark ? '#374151' : '#e5e7eb');
+  const hdrTitle = document.getElementById('distrib-hdr-title');
+  if (hdrTitle) hdrTitle.style.color = isDark ? '#d1d5db' : '#374151';
+  ['df-dist','df-total'].forEach(id => { const el = document.getElementById(id); if (el) el.style.color = isDark ? '#f9fafb' : '#111827'; });
   localStorage.setItem('cr_theme', theme);
 }
 
