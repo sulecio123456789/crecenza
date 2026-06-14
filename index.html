@@ -1324,14 +1324,13 @@ function cliLotSearch(pfx) {
   if (!proj) return;
   const drop = document.getElementById(pfx+'-lot-drop');
   const sel = _cliLots[pfx];
-  const all = terrenos.filter(t =>
+  const matches = terrenos.filter(t =>
     t.proj === proj &&
     t.est === 'disponible' &&
     !sel.includes(t.id) &&
     (!q || (t.sec+'/'+t.lot).toLowerCase().includes(q) || t.sec.toLowerCase().includes(q) || t.lot.toLowerCase().includes(q))
   );
-  const matches = q ? all : all.slice(0, 80);
-  const extra = !q && all.length > 80 ? `<div class="ac-empty" style="font-size:.72rem">Mostrando 80 de ${all.length} — escribe para filtrar</div>` : '';
+  const extra = '';
   drop.innerHTML = matches.length
     ? matches.map(t => `<div class="ac-item" onmousedown="cliLotAdd('${pfx}',${t.id})">
         <div style="font-size:.83rem;font-weight:600">Sec ${t.sec} / Lote ${t.lot}</div>
