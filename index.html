@@ -59,6 +59,10 @@
     td{padding:11px 10px;border-bottom:1px solid #f9fafb;font-size:.85rem;color:#374151;}
     tr:last-child td{border-bottom:none;}
     tr:hover td{background:#fafafa;}
+    tr.tot-row td{background:#eef2f7;border-top:2px solid #d1d5db;font-weight:700;pointer-events:none;}
+    tr.tot-row:hover td{background:#eef2f7!important;}
+    body[data-theme="dark"] tr.tot-row td{background:#1a2332!important;border-top-color:#374151;}
+    body[data-theme="dark"] tr.tot-row:hover td{background:#1a2332!important;}
 
     /* â”€â”€ PILLS â”€â”€ */
     .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:.73rem;font-weight:700;}
@@ -1698,7 +1702,7 @@ function renderTerrenos() {
   const totRes = f.reduce((s,t)=>s+Number(t.reserva||0),0);
   const totSal = f.reduce((s,t)=>s+Number(t.sal||0),0);
   tb.innerHTML = f.map(t=>{const c=gc(t.cliId);const pl=PROJ_LABELS[t.proj]||'-';return`<tr><td><strong>${t.sec}</strong></td><td>${t.lot}</td><td>${c?c.nom:'-'}</td><td>${fmt(t.pre)}</td><td>${fmt(t.reserva||0)}</td><td>${fmt(t.sal)}</td><td>${pill(t.est)}</td><td>${t.vend||'-'}</td><td>${pl}</td><td nowrap><button class="btn-edit" onclick="editTerreno(${t.id})">Editar</button><button class="btn-del" onclick="delTerreno(${t.id})">Eliminar</button></td></tr>`;}).join('')
-    + `<tr id="ter-totales" style="border-top:2px solid #e5e7eb;font-weight:700;background:#f8fafc"><td colspan="3" style="font-size:.78rem;color:#6b7280;padding-top:10px">${f.length} lotes</td><td style="color:#111827">${fmt(totPre)}</td><td style="color:#16a34a">${fmt(totRes)}</td><td style="color:#dc2626">${fmt(totSal)}</td><td colspan="4"></td></tr>`;
+    + `<tr id="ter-totales" class="tot-row"><td colspan="3" style="font-size:.78rem;color:#6b7280">${f.length} lotes</td><td>${fmt(totPre)}</td><td style="color:#16a34a">${fmt(totRes)}</td><td style="color:#dc2626">${fmt(totSal)}</td><td colspan="4"></td></tr>`;
 }
 
 // â•â•â• FILTRO FECHAS RECIBOS â•â•â•
