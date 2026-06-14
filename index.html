@@ -762,11 +762,66 @@
         </div>
       </div>
 
-      <div class="panel">
-        <div class="search-bar"><input class="search-input" id="r-search" placeholder="Buscar por cliente, terreno o forma de pago..." oninput="renderRecibos()" /></div>
-        <table><thead><tr><th>Fecha recibo</th><th>Fecha reportada</th><th>No.</th><th>Cliente</th><th>Terreno</th><th>Monto</th><th>Forma pago</th><th>Vendedor</th><th>Nota</th><th>Acciones</th></tr></thead>
-        <tbody id="t-recibos"></tbody></table>
+      <!-- Sub-tabs Recibos -->
+      <div style="display:flex;align-items:center;margin:12px 0 14px">
+        <div class="seg-ctrl" style="padding:4px;gap:3px;">
+          <button class="dash-tab active" id="rtab-btn-listado" onclick="setRecibosTab('listado')">Listado</button>
+          <button class="dash-tab" id="rtab-btn-resumen" onclick="setRecibosTab('resumen')">Resumen</button>
+        </div>
       </div>
+
+      <!-- TAB LISTADO -->
+      <div id="rtab-listado">
+        <div class="panel">
+          <div class="search-bar"><input class="search-input" id="r-search" placeholder="Buscar por cliente, terreno o forma de pago..." oninput="renderRecibos()" /></div>
+          <table><thead><tr><th>Fecha recibo</th><th>Fecha reportada</th><th>No.</th><th>Cliente</th><th>Terreno</th><th>Monto</th><th>Forma pago</th><th>Vendedor</th><th>Nota</th><th>Acciones</th></tr></thead>
+          <tbody id="t-recibos"></tbody></table>
+        </div>
+      </div>
+
+      <!-- TAB RESUMEN -->
+      <div id="rtab-resumen" style="display:none">
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+          <div class="stat-card">
+            <div class="stat-label">Total recibos</div>
+            <div class="stat-value" id="rs-count">—</div>
+            <div class="stat-note">En el filtro actual</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Monto total</div>
+            <div class="stat-value c-green" id="rs-total">—</div>
+            <div class="stat-note">Suma de recibos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Promedio</div>
+            <div class="stat-value c-blue" id="rs-avg">—</div>
+            <div class="stat-note">Por recibo</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Mayor recibo</div>
+            <div class="stat-value c-amber" id="rs-max">—</div>
+            <div class="stat-note">Monto más alto</div>
+          </div>
+        </div>
+        <div class="two-col" style="margin-bottom:16px">
+          <div class="panel">
+            <div class="panel-hdr"><div><div class="panel-title">Por forma de pago</div><div class="panel-sub">Cantidad y monto por método</div></div></div>
+            <table><thead><tr><th>Forma</th><th>Cantidad</th><th>Monto</th><th>%</th></tr></thead>
+            <tbody id="rs-pago"></tbody></table>
+          </div>
+          <div class="panel">
+            <div class="panel-hdr"><div><div class="panel-title">Por vendedor</div><div class="panel-sub">Recaudación por vendedor</div></div></div>
+            <table><thead><tr><th>Vendedor</th><th>Cantidad</th><th>Monto</th><th>%</th></tr></thead>
+            <tbody id="rs-vend"></tbody></table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr"><div><div class="panel-title">Por mes</div><div class="panel-sub">Agrupado por fecha de recibo</div></div></div>
+          <table><thead><tr><th>Mes</th><th>Cantidad</th><th>Monto</th></tr></thead>
+          <tbody id="rs-mes"></tbody></table>
+        </div>
+      </div>
+
     </div>
 
 
@@ -1735,6 +1790,83 @@ document.addEventListener('mousemove', e=>{
   if(document.getElementById('mapa-tt').style.display!=='none') posMapaTT(e);
 });
 
+function setRecibosTab(tab) {
+  document.getElementById('rtab-listado').style.display = tab === 'listado' ? '' : 'none';
+  document.getElementById('rtab-resumen').style.display = tab === 'resumen' ? '' : 'none';
+  document.querySelectorAll('.dash-tab[id^="rtab-btn-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('rtab-btn-' + tab).classList.add('active');
+  if (tab === 'resumen') renderRecibosResumen();
+}
+
+function _filteredRecibos() {
+  const s    = (document.getElementById('r-search')?.value || '').toLowerCase();
+  const desde= document.getElementById('f-desde')?.value || '';
+  const hasta= document.getElementById('f-hasta')?.value || '';
+  const fCli = document.getElementById('f-cli-id')?.value || '';
+  const fPago= document.getElementById('f-pago')?.value || '';
+  const fVend= document.getElementById('f-vend')?.value || '';
+  let f = [...recibos];
+  if (desde || hasta) f = f.filter(r => {
+    const val = dateTab === 'fec2' ? (r.fec2 || '') : r.fec;
+    if (!val) return false;
+    if (desde && val < desde) return false;
+    if (hasta && val > hasta) return false;
+    return true;
+  });
+  if (fCli)  f = f.filter(r => r.cliId == fCli);
+  if (fPago) f = f.filter(r => r.bol === fPago);
+  if (fVend) f = f.filter(r => r.vend === fVend);
+  if (s) f = f.filter(r => {
+    const c = gc(r.cliId);
+    const lotes = (r.distrib||[]).map(d=>gt(d.terId)).filter(Boolean).map(t=>t.sec+' '+t.lot).join(' ');
+    const legTer = r.terId ? gt(r.terId) : null;
+    const terStr = lotes || (legTer ? legTer.sec+' '+legTer.lot : '');
+    return (c && c.nom.toLowerCase().includes(s)) || (r.bol||'').toLowerCase().includes(s) || terStr.toLowerCase().includes(s) || (r.not||'').toLowerCase().includes(s);
+  });
+  return f;
+}
+
+function renderRecibosResumen() {
+  const el = document.getElementById('rtab-resumen');
+  if (!el || el.style.display === 'none') return;
+  const f = _filteredRecibos();
+  const total = f.reduce((s, r) => s + Number(r.mon || 0), 0);
+  const avg   = f.length ? total / f.length : 0;
+  const max   = f.length ? Math.max(...f.map(r => Number(r.mon || 0))) : 0;
+  document.getElementById('rs-count').textContent = f.length;
+  document.getElementById('rs-total').textContent = fmt(total);
+  document.getElementById('rs-avg').textContent   = fmt(avg);
+  document.getElementById('rs-max').textContent   = fmt(max);
+
+  const byPago = {}, byVend = {}, byMes = {};
+  const mNom = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  f.forEach(r => {
+    const pk = r.bol || 'Sin forma';
+    if (!byPago[pk]) byPago[pk] = {c:0,t:0};
+    byPago[pk].c++; byPago[pk].t += Number(r.mon||0);
+    const vk = r.vend || 'Sin vendedor';
+    if (!byVend[vk]) byVend[vk] = {c:0,t:0};
+    byVend[vk].c++; byVend[vk].t += Number(r.mon||0);
+    const fec = (dateTab === 'fec2' ? (r.fec2||r.fec) : r.fec) || '';
+    const mk = fec.slice(0,7);
+    if (mk) { if (!byMes[mk]) byMes[mk]={c:0,t:0}; byMes[mk].c++; byMes[mk].t += Number(r.mon||0); }
+  });
+
+  const pct = (v) => total ? Math.round(v/total*100)+'%' : '0%';
+  document.getElementById('rs-pago').innerHTML = Object.entries(byPago).sort((a,b)=>b[1].t-a[1].t).map(([k,v])=>
+    `<tr><td><strong>${k}</strong></td><td>${v.c}</td><td><strong class="c-green">${fmt(v.t)}</strong></td><td style="color:#9ca3af">${pct(v.t)}</td></tr>`
+  ).join('') || '<tr><td colspan="4" class="empty">Sin datos</td></tr>';
+
+  document.getElementById('rs-vend').innerHTML = Object.entries(byVend).sort((a,b)=>b[1].t-a[1].t).map(([k,v])=>
+    `<tr><td><strong>${k}</strong></td><td>${v.c}</td><td><strong class="c-green">${fmt(v.t)}</strong></td><td style="color:#9ca3af">${pct(v.t)}</td></tr>`
+  ).join('') || '<tr><td colspan="4" class="empty">Sin datos</td></tr>';
+
+  document.getElementById('rs-mes').innerHTML = Object.entries(byMes).sort((a,b)=>b[0].localeCompare(a[0])).map(([k,v])=>{
+    const [y,m] = k.split('-');
+    return `<tr><td><strong>${mNom[parseInt(m)-1]} ${y}</strong></td><td>${v.c}</td><td><strong class="c-green">${fmt(v.t)}</strong></td></tr>`;
+  }).join('') || '<tr><td colspan="3" class="empty">Sin datos</td></tr>';
+}
+
 function setDashTab(tab) {
   document.getElementById('dtab-resumen').style.display   = tab === 'resumen'   ? '' : 'none';
   document.getElementById('dtab-actividad').style.display = tab === 'actividad' ? '' : 'none';
@@ -2218,42 +2350,8 @@ function saveRecibo() {
   SS('rec',recibos); toggleForm('rf'); renderRecibos();
 }
 function renderRecibos() {
-  const s=(document.getElementById('r-search')?.value||'').toLowerCase();
-  const desde=document.getElementById('f-desde')?.value||'';
-  const hasta=document.getElementById('f-hasta')?.value||'';
-  const fCli=document.getElementById('f-cli-id')?.value||'';
-  const fPago=document.getElementById('f-pago')?.value||'';
-  const fVend=document.getElementById('f-vend')?.value||'';
-  let f=[...recibos].sort((a,b)=>{const na=Number(a.num)||0,nb=Number(b.num)||0;return na-nb;});
+  const f = _filteredRecibos().sort((a,b)=>{const na=Number(a.num)||0,nb=Number(b.num)||0;return na-nb;});
 
-  // filtro rango de fechas
-  if(desde||hasta) f=f.filter(r=>{
-    const val=dateTab==='fec2'?(r.fec2||''):r.fec;
-    if(!val) return false;
-    if(desde&&val<desde) return false;
-    if(hasta&&val>hasta) return false;
-    return true;
-  });
-
-  // filtro cliente
-  if(fCli) f=f.filter(r=>r.cliId==fCli);
-
-  // filtro forma de pago
-  if(fPago) f=f.filter(r=>r.bol===fPago);
-
-  // filtro vendedor
-  if(fVend) f=f.filter(r=>r.vend===fVend);
-
-  // filtro texto libre
-  if(s) f=f.filter(r=>{
-    const c=gc(r.cliId);
-    const lotes=(r.distrib||[]).map(d=>gt(d.terId)).filter(Boolean).map(t=>t.sec+' '+t.lot).join(' ');
-    const legTer=r.terId?gt(r.terId):null;
-    const terStr=lotes||(legTer?legTer.sec+' '+legTer.lot:'');
-    return(c&&c.nom.toLowerCase().includes(s))||(r.bol||'').toLowerCase().includes(s)||terStr.toLowerCase().includes(s)||(r.not||'').toLowerCase().includes(s);
-  });
-
-  // badge con total filtrado
   const badge=document.getElementById('r-total-badge');
   if(badge){
     if(f.length){
@@ -2263,7 +2361,7 @@ function renderRecibos() {
   }
 
   const tb=document.getElementById('t-recibos');
-  tb.innerHTML=f.length?f.map(r=>{
+  if(tb) tb.innerHTML=f.length?f.map(r=>{
     const c=gc(r.cliId);
     let lotesStr='';
     if(r.distrib&&r.distrib.length){
@@ -2272,6 +2370,8 @@ function renderRecibos() {
     return`<tr style="font-size:.78rem"><td nowrap>${r.fec}</td><td nowrap>${r.fec2||'-'}</td><td>${r.num||'-'}</td><td>${c?c.nom:'-'}</td><td style="font-size:.73rem">${lotesStr||'-'}</td><td nowrap><strong>${fmt(r.mon)}</strong></td><td>${r.bol}</td><td>${r.vend||'-'}</td><td>${r.not||'-'}</td><td nowrap><button class="btn-edit" onclick="editRecibo(${r.id})">Editar</button><button class="btn-del" onclick="delRecibo(${r.id})">Eliminar</button></td></tr>`;
   }).join('')
     :'<tr><td colspan="10" class="empty">Sin recibos en el rango seleccionado</td></tr>';
+
+  renderRecibosResumen();
 }
 
 
