@@ -1366,6 +1366,10 @@ function guardarReciboModal() {
 document.addEventListener('keydown', e => { if(e.key==='Escape'){ cerrarReciboModal(); cerrarFicha(); cerrarQCli(); document.getElementById('g-drop').style.display='none'; }});
 document.addEventListener('click', e => { if(!e.target.closest('#g-search')&&!e.target.closest('#g-drop')) document.getElementById('g-drop').style.display='none'; });
 function cerrarGSearch(){ document.getElementById('g-drop').style.display='none'; document.getElementById('g-search').value=''; }
+document.getElementById('g-drop').addEventListener('click', function(e){
+  const btn = e.target.closest('.g-crear-cli');
+  if(btn){ e.stopPropagation(); abrirQCli(btn.dataset.nom); }
+});
 function gSearch(q){
   const drop=document.getElementById('g-drop');
   q=(q||'').trim();
@@ -1377,8 +1381,7 @@ function gSearch(q){
   if(clis.length){
     parts.push(clis.map(c=>`<div class="g-item" onclick="verFicha(${c.id});cerrarGSearch()"><div style="font-weight:600">${c.nom}</div><div style="font-size:.75rem;color:#6b7280">${c.tel||'Sin teléfono'}${c.vend?' · '+c.vend:''}</div></div>`).join(''));
   }
-  const _qEsc = q.replace(/'/g,"\\'");
-  parts.push(`<div class="g-item" onclick="abrirQCli('${_qEsc}')"><div style="display:flex;align-items:center;gap:9px"><div style="width:28px;height:28px;border-radius:6px;background:#dbeafe;display:grid;place-items:center;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div style="color:#2563eb;font-weight:600;font-size:.84rem">Crear cliente</div></div></div>`);
+  parts.push('<div class="g-item g-crear-cli" data-nom="'+q.replace(/"/g,'&quot;')+'"><div style="display:flex;align-items:center;gap:9px"><div style="width:28px;height:28px;border-radius:6px;background:#dbeafe;display:grid;place-items:center;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div style="color:#2563eb;font-weight:600;font-size:.84rem">Crear cliente</div></div></div>');
   const ters=terrenos.filter(t=>{const c=gc(t.cliId);return(t.sec+'').toLowerCase().includes(s)||(t.lot+'').toLowerCase().includes(s)||(t.sec+'/'+t.lot).toLowerCase().includes(s)||('sector '+t.sec).toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
   if(ters.length){
     if(parts.length) parts.push('<div class="g-div"></div>');
