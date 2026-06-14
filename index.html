@@ -1172,7 +1172,7 @@ function go(name, el) {
   if(name==='dashboard') { setDashTab(el ? 'actividad' : (sessionStorage.getItem('cr_dashtab') || 'actividad')); renderDashboard(); }
   if(name==='clientes') renderClientes('');
   if(name==='terrenos'){renderTerrenos();}
-  if(name==='recibos'){renderRecibos();fillReciboSelects();fillFiltroClientes();setRecibosTab(localStorage.getItem('cr_rectab')||'listado');}
+  if(name==='recibos'){setRecProj(localStorage.getItem('cr_recproj')||'todos');fillReciboSelects();fillFiltroClientes();setRecibosTab(localStorage.getItem('cr_rectab')||'listado');}
   if(name==='mapa') renderMapa();
   if(name==='mora') renderMora();
 }
@@ -1858,6 +1858,7 @@ document.addEventListener('mousemove', e=>{
 
 function setRecProj(proj) {
   recProj = proj;
+  localStorage.setItem('cr_recproj', proj);
   ['todos','nichos','llanos'].forEach(p => {
     document.getElementById('rp-' + p).classList.toggle('active-tab', p === proj);
   });
