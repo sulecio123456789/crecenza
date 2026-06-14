@@ -245,6 +245,7 @@
     body[data-theme="dark"] .ac-item:hover{background:#374151;}
     body[data-theme="dark"] .form-panel{border-color:#374151;}
     body[data-theme="dark"] #recibo-modal-box{background:#111827 !important;border:1px solid #374151;color:#f9fafb;}
+    body[data-theme="dark"] #qcli-box{background:#111827;border:1px solid #374151;color:#f9fafb;}
     body[data-theme="dark"] #rm-cli-card{background:#1e3a5f !important;border-color:#1d4ed8 !important;}
     body[data-theme="dark"] #rm-cli-card .rm-cli-label{color:#93c5fd;}
     body[data-theme="dark"] #recibo-modal-box .distrib-row{background:#1f2937;border-color:#374151;}
@@ -871,6 +872,32 @@
   </div>
 </div>
 
+<!-- ══════ MODAL CREAR CLIENTE RÁPIDO ══════ -->
+<div id="qcli-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1100;overflow-y:auto;padding:32px 16px;" onclick="if(event.target===this)cerrarQCli()">
+  <div id="qcli-box" style="max-width:580px;margin:0 auto;background:#fff;border-radius:18px;padding:28px;box-shadow:0 24px 60px rgba(0,0,0,.25);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:1.1rem;font-weight:700;color:#111827">Registrar cliente</div>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarQCli()">&times; Cerrar</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group form-full"><label class="form-label">Nombre completo *</label><input class="form-input" id="qc-nom" placeholder="Juan Carlos Perez Lopez" /></div>
+      <div class="form-group"><label class="form-label">Telefono</label><input class="form-input" id="qc-tel" placeholder="5555-1234" /></div>
+      <div class="form-group"><label class="form-label">DPI</label><input class="form-input" id="qc-dpi" placeholder="Numero de DPI" /></div>
+      <div class="form-group"><label class="form-label">Vendedor</label>
+        <select class="form-input" id="qc-vend"><option value="">Seleccionar...</option><option>CRECENSA</option><option>PROYECTOS</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Estado</label>
+        <select class="form-input" id="qc-est"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select>
+      </div>
+      <div class="form-group form-full"><label class="form-label">Direccion / Nota</label><input class="form-input" id="qc-not" placeholder="Direccion u observaciones" /></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="guardarQCli()">Guardar cliente</button>
+      <button class="btn btn-secondary" onclick="cerrarQCli()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // â•â•â• DATA â•â•â•
 // ═══ SUPABASE ═══
@@ -1237,6 +1264,42 @@ function cerrarReciboModal() {
   document.getElementById('recibo-modal').style.display = 'none';
   document.body.style.overflow = '';
 }
+function abrirQCli(nombre) {
+  document.getElementById('qc-nom').value = nombre || '';
+  document.getElementById('qc-tel').value = '';
+  document.getElementById('qc-dpi').value = '';
+  document.getElementById('qc-vend').value = '';
+  document.getElementById('qc-est').value = 'activo';
+  document.getElementById('qc-not').value = '';
+  const dark = document.body.getAttribute('data-theme') === 'dark';
+  const box = document.getElementById('qcli-box');
+  box.style.background = dark ? '#111827' : '#fff';
+  box.style.color = dark ? '#f9fafb' : '#111827';
+  document.getElementById('qcli-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('qc-nom').focus(), 80);
+}
+function cerrarQCli() {
+  document.getElementById('qcli-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function guardarQCli() {
+  const nom = document.getElementById('qc-nom').value.trim();
+  if (!nom) { toast('El nombre es requerido', 'err'); return; }
+  const nuevo = {
+    id: Date.now(),
+    nom: nom.toUpperCase(),
+    tel: document.getElementById('qc-tel').value.trim(),
+    dpi: document.getElementById('qc-dpi').value.trim(),
+    vend: document.getElementById('qc-vend').value,
+    est: document.getElementById('qc-est').value,
+    not: document.getElementById('qc-not').value.trim()
+  };
+  clientes.push(nuevo);
+  SS('cli', clientes);
+  toast('Cliente registrado');
+  cerrarQCli();
+}
 function rmUpdateSummary() {
   const total = Number(document.getElementById('rm-mon').value) || 0;
   let dist = 0;
@@ -1300,7 +1363,7 @@ function guardarReciboModal() {
   document.getElementById('fc-sal').textContent = fmt(totalSal);
   toast('Recibo registrado');
 }
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ cerrarReciboModal(); cerrarFicha(); document.getElementById('g-drop').style.display='none'; }});
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ cerrarReciboModal(); cerrarFicha(); cerrarQCli(); document.getElementById('g-drop').style.display='none'; }});
 document.addEventListener('click', e => { if(!e.target.closest('#g-search')&&!e.target.closest('#g-drop')) document.getElementById('g-drop').style.display='none'; });
 function cerrarGSearch(){ document.getElementById('g-drop').style.display='none'; document.getElementById('g-search').value=''; }
 function gSearch(q){
@@ -1310,10 +1373,11 @@ function gSearch(q){
   const s=q.toLowerCase();
   const parts=[];
   const clis=clientes.filter(c=>!isPlaceholder(c.nom)&&(c.nom.toLowerCase().includes(s)||(c.tel||'').includes(s)||(c.dpi||'').includes(s))).slice(0,5);
+  parts.push('<div class="g-sec">Clientes</div>');
   if(clis.length){
-    parts.push('<div class="g-sec">Clientes</div>');
     parts.push(clis.map(c=>`<div class="g-item" onclick="verFicha(${c.id});cerrarGSearch()"><div style="font-weight:600">${c.nom}</div><div style="font-size:.75rem;color:#6b7280">${c.tel||'Sin teléfono'}${c.vend?' · '+c.vend:''}</div></div>`).join(''));
   }
+  parts.push(`<div class="g-item" onclick="abrirQCli(${JSON.stringify(q)})"><div style="display:flex;align-items:center;gap:9px"><div style="width:28px;height:28px;border-radius:6px;background:#dbeafe;display:grid;place-items:center;flex-shrink:0"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div style="color:#2563eb;font-weight:600;font-size:.84rem">Crear cliente</div></div></div>`);
   const ters=terrenos.filter(t=>{const c=gc(t.cliId);return(t.sec+'').toLowerCase().includes(s)||(t.lot+'').toLowerCase().includes(s)||(t.sec+'/'+t.lot).toLowerCase().includes(s)||('sector '+t.sec).toLowerCase().includes(s)||(c&&c.nom.toLowerCase().includes(s));}).slice(0,4);
   if(ters.length){
     if(parts.length) parts.push('<div class="g-div"></div>');
@@ -1331,7 +1395,8 @@ function gSearch(q){
     parts.push('<div class="g-sec">Recibos</div>');
     parts.push(recs.map(r=>{const c=gc(r.cliId);return`<div class="g-item" onclick="verFicha(${r.cliId});cerrarGSearch()"><div style="font-weight:600">Recibo ${r.num||'s/n'} · ${fmt(r.mon)}</div><div style="font-size:.75rem;color:#6b7280">${c?c.nom:'—'} · ${r.fec}</div></div>`;}).join(''));
   }
-  if(!parts.length) parts.push('<div style="padding:14px;text-align:center;font-size:.83rem;color:#9ca3af">Sin resultados para "'+q+'"</div>');
+  if(parts.filter(p=>!p.includes('g-sec')&&!p.includes('Crear cliente')).length===0 && !clis.length && !ters.length && !recs.length)
+    parts.push('<div style="padding:4px 14px 10px;font-size:.78rem;color:#9ca3af">Sin resultados para "'+q+'"</div>');
   drop.innerHTML='<div style="padding:4px 0">'+parts.join('')+'</div>';
   drop.style.display='block';
 }
