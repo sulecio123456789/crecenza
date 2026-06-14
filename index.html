@@ -596,6 +596,10 @@
               style="width:100%" />
             <div class="ac-drop" id="t-search-cli-drop" style="top:100%;left:0;right:0"></div>
           </div>
+          <button class="btn btn-secondary btn-sm" title="Ver totales" onclick="document.getElementById('ter-totales').scrollIntoView({behavior:'smooth',block:'center'})" style="flex-shrink:0;display:flex;align-items:center;gap:5px;padding:7px 12px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            Totales
+          </button>
         </div>
         <table><thead><tr><th>Sector</th><th>Lote</th><th>Cliente</th><th>Precio</th><th>Abonado</th><th>Saldo</th><th>Estado</th><th>Vendedor</th><th>Proyecto</th><th>Acciones</th></tr></thead>
         <tbody id="t-terrenos"></tbody></table>
@@ -1694,7 +1698,7 @@ function renderTerrenos() {
   const totRes = f.reduce((s,t)=>s+Number(t.reserva||0),0);
   const totSal = f.reduce((s,t)=>s+Number(t.sal||0),0);
   tb.innerHTML = f.map(t=>{const c=gc(t.cliId);const pl=PROJ_LABELS[t.proj]||'-';return`<tr><td><strong>${t.sec}</strong></td><td>${t.lot}</td><td>${c?c.nom:'-'}</td><td>${fmt(t.pre)}</td><td>${fmt(t.reserva||0)}</td><td>${fmt(t.sal)}</td><td>${pill(t.est)}</td><td>${t.vend||'-'}</td><td>${pl}</td><td nowrap><button class="btn-edit" onclick="editTerreno(${t.id})">Editar</button><button class="btn-del" onclick="delTerreno(${t.id})">Eliminar</button></td></tr>`;}).join('')
-    + `<tr style="border-top:2px solid #e5e7eb;font-weight:700;background:#f8fafc"><td colspan="3" style="font-size:.78rem;color:#6b7280;padding-top:10px">${f.length} lotes</td><td style="color:#111827">${fmt(totPre)}</td><td style="color:#16a34a">${fmt(totRes)}</td><td style="color:#dc2626">${fmt(totSal)}</td><td colspan="4"></td></tr>`;
+    + `<tr id="ter-totales" style="border-top:2px solid #e5e7eb;font-weight:700;background:#f8fafc"><td colspan="3" style="font-size:.78rem;color:#6b7280;padding-top:10px">${f.length} lotes</td><td style="color:#111827">${fmt(totPre)}</td><td style="color:#16a34a">${fmt(totRes)}</td><td style="color:#dc2626">${fmt(totSal)}</td><td colspan="4"></td></tr>`;
 }
 
 // â•â•â• FILTRO FECHAS RECIBOS â•â•â•
