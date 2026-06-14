@@ -1740,7 +1740,6 @@ function setDashTab(tab) {
   document.getElementById('dtab-actividad').style.display = tab === 'actividad' ? '' : 'none';
   document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('dtab-btn-' + tab).classList.add('active');
-  localStorage.setItem('cr_dashtab', tab);
 }
 
 function setDashProj(proj) {
@@ -1756,7 +1755,7 @@ function setDashProj(proj) {
 }
 
 function renderDashboard() {
-  const savedTab = localStorage.getItem('cr_dashtab') || 'actividad';
+  const savedTab = 'actividad';
   setDashTab(savedTab);
   const ter = dashProj === 'todos' ? terrenos : terrenos.filter(t => t.proj === dashProj);
 
