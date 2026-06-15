@@ -272,13 +272,19 @@
     .mapa-lote .lot-num{font-size:.8rem;font-weight:700;}
     .mapa-lote.dis{background:#dcfce7;border-color:#86efac;color:#166534;}
     .mapa-lote.res{background:#fef3c7;border-color:#fcd34d;color:#92400e;}
-    .mapa-lote.ven{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
+    .mapa-lote.pro{background:#dbeafe;border-color:#93c5fd;color:#1e40af;}
+    .mapa-lote.esc{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
+    .mapa-lote.can{background:#f3f4f6;border-color:#d1d5db;color:#374151;}
+    .mapa-lote.don{background:#f3e8ff;border-color:#d8b4fe;color:#6b21a8;}
     .mapa-tt{position:fixed;background:#111827;color:#f9fafb;font-size:.78rem;padding:10px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:none;z-index:9999;display:none;max-width:220px;line-height:1.6;}
     body[data-theme="dark"] .mapa-sector-hdr{color:#f9fafb;border-color:#374151;}
     body[data-theme="dark"] .mapa-leyenda-item{color:#d1d5db;}
     body[data-theme="dark"] .mapa-lote.dis{background:#14532d;border-color:#16a34a;color:#86efac;}
     body[data-theme="dark"] .mapa-lote.res{background:#451a03;border-color:#d97706;color:#fcd34d;}
-    body[data-theme="dark"] .mapa-lote.ven{background:#450a0a;border-color:#dc2626;color:#fca5a5;}
+    body[data-theme="dark"] .mapa-lote.pro{background:#1e3a5f;border-color:#3b82f6;color:#93c5fd;}
+    body[data-theme="dark"] .mapa-lote.esc{background:#450a0a;border-color:#dc2626;color:#fca5a5;}
+    body[data-theme="dark"] .mapa-lote.can{background:#1f2937;border-color:#4b5563;color:#9ca3af;}
+    body[data-theme="dark"] .mapa-lote.don{background:#2e1065;border-color:#9333ea;color:#d8b4fe;}
     /* ── CHART ── */
     .chart-bar{border-radius:4px 4px 0 0;transition:opacity .15s;background:#bfdbfe;cursor:default;}
     .chart-bar:hover{opacity:.7;}
@@ -900,7 +906,10 @@
         <div class="mapa-leyenda">
           <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#16a34a"></div>Disponible</div>
           <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#d97706"></div>Reservado</div>
-          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#dc2626"></div>Vendido</div>
+          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#3b82f6"></div>En proceso</div>
+          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#dc2626"></div>Escriturado</div>
+          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#6b7280"></div>Cancelado</div>
+          <div class="mapa-leyenda-item"><div class="mapa-dot" style="background:#9333ea"></div>Donación</div>
         </div>
         <div id="mapa-content"></div>
       </div>
@@ -1095,12 +1104,12 @@ const _sb = window.supabase.createClient(
 const _TBL = { cli: 'clientes', ter: 'terrenos', rec: 'recibos' };
 function _toRow(tbl, o) {
   if (tbl==='clientes') return {id:o.id, nom:o.nom||'', tel:o.tel||'', dpi:o.dpi||'', vend:o.vend||'', est:o.est||'activo', nota:o.not||''};
-  if (tbl==='terrenos') return {id:o.id, sec:o.sec||'', lot:o.lot||'', pre:o.pre||0, reserva:o.reserva||0, sal:o.sal||0, est:o.est||'disponible', cli_id:o.cliId||null, vend:o.vend||'', are:o.are||'', proj:o.proj||'', nota:o.not||''};
+  if (tbl==='terrenos') return {id:o.id, sec:o.sec||'', lot:o.lot||'', pre:o.pre||0, reserva:o.reserva||0, sal:o.sal||0, est:o.est||'disponible', estado_escrit:o.estExcel||'', cli_id:o.cliId||null, vend:o.vend||'', are:o.are||'', proj:o.proj||'', nota:o.not||''};
   if (tbl==='recibos')  return {id:o.id, fec:o.fec||'', fec2:o.fec2||'', num:o.num||'', cli_id:o.cliId||null, ter_id:o.terId||null, mon:o.mon||0, bol:o.bol||'', vend:o.vend||'', nota:o.not||'', distrib:(o.distrib&&o.distrib.length)?o.distrib:null, tipo:o.tipo||'valido'};
 }
 function _fromRow(tbl, r) {
   if (tbl==='clientes') return {id:Number(r.id), nom:r.nom||'', tel:r.tel||'', dpi:r.dpi||'', vend:r.vend||'', est:r.est||'activo', not:r.nota||''};
-  if (tbl==='terrenos') return {id:Number(r.id), sec:r.sec||'', lot:r.lot||'', pre:Number(r.pre)||0, reserva:Number(r.reserva)||0, sal:Number(r.sal)||0, est:r.est||'disponible', cliId:r.cli_id?Number(r.cli_id):null, vend:r.vend||'', are:r.are||'', proj:r.proj||'', not:r.nota||''};
+  if (tbl==='terrenos') return {id:Number(r.id), sec:r.sec||'', lot:r.lot||'', pre:Number(r.pre)||0, reserva:Number(r.reserva)||0, sal:Number(r.sal)||0, est:r.est||'disponible', estExcel:r.estado_escrit||'', cliId:r.cli_id?Number(r.cli_id):null, vend:r.vend||'', are:r.are||'', proj:r.proj||'', not:r.nota||''};
   if (tbl==='recibos')  return {id:Number(r.id), fec:r.fec||'', fec2:r.fec2||'', num:r.num||'', cliId:r.cli_id?Number(r.cli_id):null, terId:r.ter_id?Number(r.ter_id):null, mon:Number(r.mon)||0, bol:r.bol||'', vend:r.vend||'', not:r.nota||'', distrib:Array.isArray(r.distrib)?r.distrib:[], tipo:r.tipo||'valido'};
 }
 async function _syncTbl(key, arr) {
@@ -1118,7 +1127,10 @@ const LS = k => { try { return JSON.parse(localStorage.getItem('cr_'+k)) } catch
 const SS = (k, v) => { localStorage.setItem('cr_'+k, JSON.stringify(v)); _syncTbl(k, v); };
 
 let clientes = LS('cli') || [];
-let terrenos = LS('ter') || [];
+let _terRaw  = LS('ter') || [];
+// Invalida cache si los lotes no tienen estExcel (campo agregado en actualización)
+if (_terRaw.length && !('estExcel' in _terRaw[0])) { localStorage.removeItem('cr_ter'); _terRaw = []; }
+let terrenos = _terRaw;
 let recibos  = LS('rec') || [];
 
 let terFilter = 'todos';
@@ -1799,10 +1811,20 @@ function imprimirEstadoCuenta(){
 }
 let _mapaFiltro='todos';
 function setMapaFiltro(sec){_mapaFiltro=sec;renderMapa();}
+function _mapaClass(t) {
+  const e = (t.estExcel||'').toLowerCase();
+  if (e.includes('escriturado')) return 'esc';
+  if (e.includes('cancelado'))   return 'can';
+  if (e.includes('donaci'))      return 'don';
+  if (e.includes('proceso'))     return 'pro';
+  if (e.includes('reservado'))   return 'res';
+  return 'dis';
+}
+const _MAPA_LABELS = {dis:'Disponible',res:'Reservado',pro:'En proceso',esc:'Escriturado',can:'Cancelado',don:'Donación'};
 function renderMapa() {
-  const dis=terrenos.filter(t=>t.est==='disponible').length;
-  const res=terrenos.filter(t=>t.est==='reservado').length;
-  const ven=terrenos.filter(t=>t.est==='vendida').length;
+  const dis=terrenos.filter(t=>_mapaClass(t)==='dis').length;
+  const res=terrenos.filter(t=>['res','pro'].includes(_mapaClass(t))).length;
+  const ven=terrenos.filter(t=>['esc','can','don'].includes(_mapaClass(t))).length;
   document.getElementById('mapa-resumen').innerHTML=
     [['Disponibles',dis,'#16a34a'],['Reservados',res,'#d97706'],['Vendidos',ven,'#dc2626']].map(([lbl,n,col])=>
       `<div class="stat-card"><div class="stat-label">${lbl}</div><div class="stat-value" style="color:${col};font-size:2rem">${n}</div></div>`
@@ -1818,19 +1840,25 @@ function renderMapa() {
       const na=Number(a.lot)||0,nb=Number(b.lot)||0;
       return na!==nb?na-nb:(a.lot||'').localeCompare(b.lot||'');
     });
-    const nd=lotes.filter(t=>t.est==='disponible').length;
-    const nr=lotes.filter(t=>t.est==='reservado').length;
-    const nv=lotes.filter(t=>t.est==='vendida').length;
-    const sub=[nd?nd+' disp.':'',nr?nr+' res.':'',nv?nv+' vend.':''].filter(Boolean).join(' · ');
+    const cnt={};
+    lotes.forEach(t=>{const c=_mapaClass(t);cnt[c]=(cnt[c]||0)+1;});
+    const sub=[
+      cnt.dis?cnt.dis+' disp.':'',
+      cnt.res?cnt.res+' res.':'',
+      cnt.pro?cnt.pro+' en proc.':'',
+      cnt.esc?cnt.esc+' escrit.':'',
+      cnt.can?cnt.can+' cancel.':'',
+      cnt.don?cnt.don+' don.':''
+    ].filter(Boolean).join(' · ');
     return `<div class="mapa-sector">
       <div class="mapa-sector-hdr">Sector <strong>${sec}</strong>&nbsp;&nbsp;<span class="mapa-sector-sub">${lotes.length} lotes · ${sub}</span></div>
       <div class="mapa-grid">${lotes.map(t=>{
         const c=gc(t.cliId);
-        const cls=t.est==='disponible'?'dis':t.est==='reservado'?'res':'ven';
+        const cls=_mapaClass(t);
         const nom=(c?c.nom:'Sin propietario').replace(/"/g,'&quot;');
         return `<div class="mapa-lote ${cls}${t.cliId?' clickable':''}"
           ${t.cliId?'onclick="verFicha('+t.cliId+')"':''}
-          data-lote="${sec}/${t.lot}" data-est="${t.est}" data-nom="${nom}" data-pre="${t.pre}" data-sal="${t.sal}"
+          data-lote="${sec}/${t.lot}" data-cls="${cls}" data-excel="${(t.estExcel||'').replace(/"/g,'&quot;')}" data-nom="${nom}" data-pre="${t.pre}" data-sal="${t.sal}"
           onmouseenter="showMapaTT(event,this)" onmouseleave="hideMapaTT()">
           <div class="lot-num">${t.lot}</div></div>`;
       }).join('')}</div></div>`;
@@ -1838,9 +1866,10 @@ function renderMapa() {
 }
 function showMapaTT(e, el) {
   const tt=document.getElementById('mapa-tt');
-  const est=el.dataset.est;
-  const lbl=est==='disponible'?'Disponible':est==='reservado'?'Reservado':'Vendido';
-  tt.innerHTML='<strong>'+el.dataset.lote+'</strong><br>'+lbl+'<br>'+el.dataset.nom+'<br>Precio: '+fmt(el.dataset.pre)+'<br>Saldo: '+fmt(el.dataset.sal);
+  const lbl=_MAPA_LABELS[el.dataset.cls]||'Disponible';
+  const excel=el.dataset.excel;
+  const estLine=excel&&excel!==lbl?`${lbl} <span style="opacity:.7;font-size:.9em">(${excel})</span>`:lbl;
+  tt.innerHTML='<strong>'+el.dataset.lote+'</strong><br>'+estLine+'<br>'+el.dataset.nom+'<br>Precio: '+fmt(el.dataset.pre)+'<br>Saldo: '+fmt(el.dataset.sal);
   tt.style.display='block';
   posMapaTT(e);
 }
