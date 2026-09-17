@@ -388,6 +388,12 @@
   </div>
 
   <nav class="sidebar-nav">
+    <div class="nav-label">Captación</div>
+    <div class="nav-item" onclick="go('prospectos',this)">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      Registro de Contactos
+    </div>
+
     <div class="nav-label">Principal</div>
     <div class="nav-item active" onclick="go('dashboard',this)">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -577,6 +583,42 @@
 
 
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â• CLIENTES â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="page" id="page-prospectos">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Registro de Contactos</div><div class="sec-sub">Base de datos de posibles clientes (leads)</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary" onclick="exportExcel('prospectos')">&#8595; Excel</button>
+          <button class="btn btn-primary" onclick="toggleForm('pf')">+ Nuevo contacto</button>
+        </div>
+      </div>
+
+      <div class="panel form-panel" id="pf" style="display:none">
+        <div class="panel-hdr"><div class="panel-title">Registrar contacto</div><button class="btn btn-ghost btn-sm" onclick="toggleForm('pf')">Cancelar</button></div>
+        <div class="form-grid">
+          <div class="form-group form-full"><label class="form-label">Nombre completo *</label><input class="form-input" id="p-nom" placeholder="Juan Carlos Pérez López" /></div>
+          <div class="form-group"><label class="form-label">Correo</label><input class="form-input" id="p-correo" placeholder="correo@ejemplo.com" /></div>
+          <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" id="p-tel" placeholder="5555-1234" /></div>
+          <div class="form-group"><label class="form-label">Proyecto de interés</label>
+            <select class="form-input" id="p-proyecto"><option value="">Sin definir</option><option value="nichos">Proyecto Nichos</option><option value="llanos">Proyecto Llanos</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Vendedor</label>
+            <select class="form-input" id="p-vend"><option value="">Seleccionar...</option><option>CRECENSA</option><option>PROYECTOS</option></select>
+          </div>
+          <div class="form-group form-full"><label class="form-label">Nota</label><input class="form-input" id="p-nota" placeholder="Observaciones del contacto" /></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveProspecto()">Guardar contacto</button>
+          <button class="btn btn-secondary" onclick="toggleForm('pf')">Cancelar</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="search-bar"><input class="search-input" placeholder="Buscar por nombre, correo o teléfono..." oninput="renderProspectos(this.value)" /></div>
+        <table><thead><tr><th>Contacto</th><th>Correo</th><th>Teléfono</th><th>Proyecto</th><th>Vendedor</th><th>Acciones</th></tr></thead>
+        <tbody id="t-prospectos"></tbody></table>
+      </div>
+    </div>
+
     <div class="page" id="page-clientes">
       <div class="sec-hdr">
         <div><div class="sec-title">Clientes</div><div class="sec-sub">Registro y gestión de clientes</div></div>
@@ -1101,16 +1143,18 @@ const _sb = window.supabase.createClient(
   'https://ppmqvelqaqqamuypbogu.supabase.co',
   'sb_publishable_zufUHTqPkGHQ2JP-DvzfpA_w7sli1lk'
 );
-const _TBL = { cli: 'clientes', ter: 'terrenos', rec: 'recibos' };
+const _TBL = { cli: 'clientes', ter: 'terrenos', rec: 'recibos', pro: 'prospectos' };
 function _toRow(tbl, o) {
   if (tbl==='clientes') return {id:o.id, nom:o.nom||'', tel:o.tel||'', dpi:o.dpi||'', vend:o.vend||'', est:o.est||'activo', nota:o.not||''};
   if (tbl==='terrenos') return {id:o.id, sec:o.sec||'', lot:o.lot||'', pre:o.pre||0, reserva:o.reserva||0, sal:o.sal||0, est:o.est||'disponible', estado_escrit:o.estExcel||'', cli_id:o.cliId||null, vend:o.vend||'', are:o.are||'', proj:o.proj||'', nota:o.not||''};
   if (tbl==='recibos')  return {id:o.id, fec:o.fec||'', fec2:o.fec2||'', num:o.num||'', cli_id:o.cliId||null, ter_id:o.terId||null, mon:o.mon||0, bol:o.bol||'', vend:o.vend||'', nota:o.not||'', distrib:(o.distrib&&o.distrib.length)?o.distrib:null, tipo:o.tipo||'valido'};
+  if (tbl==='prospectos') return {id:o.id, nom:o.nom||'', correo:o.correo||'', tel:o.tel||'', proyecto:o.proyecto||'', vend:o.vend||'', nota:o.not||''};
 }
 function _fromRow(tbl, r) {
   if (tbl==='clientes') return {id:Number(r.id), nom:r.nom||'', tel:r.tel||'', dpi:r.dpi||'', vend:r.vend||'', est:r.est||'activo', not:r.nota||''};
   if (tbl==='terrenos') return {id:Number(r.id), sec:r.sec||'', lot:r.lot||'', pre:Number(r.pre)||0, reserva:Number(r.reserva)||0, sal:Number(r.sal)||0, est:r.est||'disponible', estExcel:r.estado_escrit||'', cliId:r.cli_id?Number(r.cli_id):null, vend:r.vend||'', are:r.are||'', proj:r.proj||'', not:r.nota||''};
   if (tbl==='recibos')  return {id:Number(r.id), fec:r.fec||'', fec2:r.fec2||'', num:r.num||'', cliId:r.cli_id?Number(r.cli_id):null, terId:r.ter_id?Number(r.ter_id):null, mon:Number(r.mon)||0, bol:r.bol||'', vend:r.vend||'', not:r.nota||'', distrib:Array.isArray(r.distrib)?r.distrib:[], tipo:r.tipo||'valido'};
+  if (tbl==='prospectos') return {id:Number(r.id), nom:r.nom||'', correo:r.correo||'', tel:r.tel||'', proyecto:r.proyecto||'', vend:r.vend||'', not:r.nota||''};
 }
 async function _syncTbl(key, arr) {
   const tbl = _TBL[key]; if (!tbl) return;
@@ -1126,6 +1170,7 @@ async function _syncTbl(key, arr) {
 const LS = k => { try { return JSON.parse(localStorage.getItem('cr_'+k)) } catch { return null } };
 const SS = (k, v) => { localStorage.setItem('cr_'+k, JSON.stringify(v)); _syncTbl(k, v); };
 
+let prospectos = LS('pro') || [];
 let clientes = LS('cli') || [];
 let _terRaw  = LS('ter') || [];
 // Invalida cache si los lotes no tienen estExcel (campo agregado en actualización)
@@ -1139,6 +1184,7 @@ let dashProj = 'todos';
 let recProj  = 'todos';
 let dateTab = 'fec';
 let editingCli = null;
+let editingPro = null;
 let editingTer = null;
 let editingRec = null;
 
@@ -1160,8 +1206,9 @@ function toast(msg,type='ok'){
 
 // â•â•â• NAVIGATION â•â•â•
 const pages = {
-  dashboard: ['Dashboard','Vista general de terrenos, cuotas y ventas'],
-  clientes:  ['Clientes','Registro y gestión de clientes'],
+  dashboard:  ['Dashboard','Vista general de terrenos, cuotas y ventas'],
+  prospectos: ['Registro de Contactos','Base de datos de posibles clientes (leads)'],
+  clientes:   ['Clientes','Registro y gestión de clientes'],
   terrenos:  ['Terrenos','Todos los lotes: disponibles, reservados y vendidos'],
   recibos:   ['Recibos','Registro de pagos y recibos de caja'],
   mapa:      ['Mapa de lotes','Vista visual interactiva por sector y estado'],
@@ -1182,6 +1229,7 @@ function go(name, el) {
   // abrir submenú si vamos a terrenos
   if(name==='terrenos') openSubMenu();
   if(name==='dashboard') { setDashTab(el ? 'actividad' : (sessionStorage.getItem('cr_dashtab') || 'actividad')); renderDashboard(); }
+  if(name==='prospectos') renderProspectos('');
   if(name==='clientes') renderClientes('');
   if(name==='terrenos'){renderTerrenos();}
   if(name==='recibos'){setRecProj(localStorage.getItem('cr_recproj')||'todos');fillReciboSelects();fillFiltroClientes();setRecibosTab(localStorage.getItem('cr_rectab')||'listado');}
@@ -1226,6 +1274,7 @@ function toggleForm(id) {
   el.style.display=show?'block':'none';
   if(!show) {
     // reset al cerrar
+    if(id==='pf'){el.querySelector('.panel-title').textContent='Registrar contacto';editingPro=null;}
     if(id==='cf'){el.querySelector('.panel-title').textContent='Registrar cliente';editingCli=null;cliProjSel('cf','');}
     if(id==='tf'){el.querySelector('.panel-title').textContent='Registrar terreno';editingTer=null;}
     if(id==='rf'){el.querySelector('.panel-title').textContent='Registrar recibo';editingRec=null;}
@@ -1358,7 +1407,11 @@ function isPlaceholder(nom) { return !nom || PLACEHOLDER.test(nom.trim()); }
 
 function exportExcel(tipo) {
   let headers, rows, filename;
-  if (tipo === 'clientes') {
+  if (tipo === 'prospectos') {
+    headers = ['ID','Nombre','Correo','Teléfono','Proyecto','Vendedor','Nota'];
+    rows = prospectos.map(p => [p.id, p.nom, p.correo||'', p.tel||'', PROJ_PILL[p.proyecto]||'', p.vend||'', p.not||'']);
+    filename = 'Contactos_Crecensa.xlsx';
+  } else if (tipo === 'clientes') {
     headers = ['ID','Nombre','Teléfono','DPI','Vendedor','Estado','Nota'];
     rows = clientes.map(c => [c.id, c.nom, c.tel||'', c.dpi||'', c.vend||'', c.est||'', c.not||'']);
     filename = 'Clientes_Crecensa.xlsx';
@@ -2091,6 +2144,56 @@ function renderDashboard() {
 }
 
 // â•â•â• CLIENTES â•â•â•
+const PROJ_PILL = {nichos:'Proyecto Nichos', llanos:'Proyecto Llanos'};
+function saveProspecto() {
+  const nom=document.getElementById('p-nom').value.trim();
+  if(!nom){toast('El nombre es requerido','err');return;}
+  const data={nom:nom.toUpperCase(),correo:document.getElementById('p-correo').value.trim(),tel:document.getElementById('p-tel').value.trim(),proyecto:document.getElementById('p-proyecto').value,vend:document.getElementById('p-vend').value,not:document.getElementById('p-nota').value.trim()};
+  if(editingPro){
+    const idx=prospectos.findIndex(p=>p.id===editingPro);
+    if(idx>=0) prospectos[idx]={...prospectos[idx],...data};
+    toast('Contacto actualizado');
+  } else {
+    prospectos.push({id:Date.now(),...data});
+    toast('Contacto registrado');
+  }
+  SS('pro',prospectos);
+  toggleForm('pf');
+  ['p-nom','p-correo','p-tel','p-nota'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('p-proyecto').value='';
+  document.getElementById('p-vend').value='';
+  renderProspectos('');
+}
+function renderProspectos(q) {
+  if(q===undefined) q='';
+  const s=q.toLowerCase();
+  const f=s?prospectos.filter(p=>p.nom.toLowerCase().includes(s)||(p.correo||'').toLowerCase().includes(s)||(p.tel||'').includes(s)):prospectos;
+  const tb=document.getElementById('t-prospectos');
+  tb.innerHTML=f.length?f.map(p=>`<tr>
+      <td><div class="client-cell"><div class="client-init">${inits(p.nom)}</div><div><div class="client-n">${p.nom}</div><div class="client-s">${p.not||''}</div></div></div></td>
+      <td>${p.correo||'—'}</td><td>${p.tel||'—'}</td><td>${PROJ_PILL[p.proyecto]||'—'}</td><td>${p.vend||'—'}</td>
+      <td nowrap><button class="btn-edit" onclick="editProspecto(${p.id})">Editar</button><button class="btn-del" onclick="delProspecto(${p.id})" style="margin-left:10px">Eliminar</button></td>
+    </tr>`).join(''):'<tr><td colspan="6" class="empty">Sin contactos registrados</td></tr>';
+}
+function editProspecto(id){
+  const p=prospectos.find(x=>x.id===id);if(!p)return;
+  editingPro=id;
+  document.getElementById('p-nom').value=p.nom||'';
+  document.getElementById('p-correo').value=p.correo||'';
+  document.getElementById('p-tel').value=p.tel||'';
+  document.getElementById('p-proyecto').value=p.proyecto||'';
+  document.getElementById('p-vend').value=p.vend||'';
+  document.getElementById('p-nota').value=p.not||'';
+  const panel=document.getElementById('pf');
+  panel.querySelector('.panel-title').textContent='Editar contacto';
+  panel.style.display='block';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function delProspecto(id){
+  if(!confirm('Eliminar este contacto?'))return;
+  prospectos=prospectos.filter(p=>p.id!==id); SS('pro',prospectos); renderProspectos(''); toast('Contacto eliminado');
+}
+
 function saveCliente() {
   const nom=document.getElementById('c-nom').value.trim();
   if(!nom){toast('El nombre es requerido','err');return;}
@@ -2579,18 +2682,21 @@ async function _sbAll(tbl) {
 // Supabase carga en segundo plano y actualiza silenciosamente
 (async () => {
   try {
-    const [cli, ter, rec] = await Promise.all([
+    const [cli, ter, rec, pro] = await Promise.all([
       _sbAll('clientes'),
       _sbAll('terrenos'),
       _sbAll('recibos'),
+      _sbAll('prospectos'),
     ]);
     let updated = false;
     if (cli?.length) { clientes = cli.map(r=>_fromRow('clientes',r)); localStorage.setItem('cr_cli', JSON.stringify(clientes)); updated = true; }
     if (ter?.length) { terrenos = ter.map(r=>_fromRow('terrenos',r)); localStorage.setItem('cr_ter', JSON.stringify(terrenos)); updated = true; }
     if (rec?.length) { recibos  = rec.map(r=>_fromRow('recibos', r)); localStorage.setItem('cr_rec', JSON.stringify(recibos)); updated = true; }
+    if (pro?.length) { prospectos = pro.map(r=>_fromRow('prospectos', r)); localStorage.setItem('cr_pro', JSON.stringify(prospectos)); updated = true; }
     if (updated) {
       const cur = localStorage.getItem('cr_page') || 'dashboard';
       if (cur === 'dashboard') renderDashboard();
+      else if (cur === 'prospectos') renderProspectos('');
       else if (cur === 'clientes') renderClientes('');
       else if (cur === 'terrenos') renderTerrenos();
       else if (cur === 'recibos') renderRecibos();
