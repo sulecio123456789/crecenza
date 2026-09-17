@@ -253,9 +253,8 @@ try {
             if ($plStr -match '^(\d+)') { try { $plazo = [int]$Matches[1] } catch {} }
             $nota      = (Cell $shL $r 14).Trim()
 
-            # Para Llanos no hay sector — usamos "L" como sector fijo
-            $sec = 'L'
-            $terLookup[$sec + '/' + $lot] = $script:terId
+            # Para Llanos usamos clave "LLANOS/X" para evitar colisión con sector "L" de Nichos
+            $terLookup['LLANOS/' + $lot] = $script:terId
             $terrenos.Add((
                 '{"id":'           + $script:terId +
                 ',"sec":'          + (EscJson $sec) +

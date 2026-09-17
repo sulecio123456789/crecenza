@@ -3,7 +3,7 @@
 $baseDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $lotesXls = Join-Path $baseDir "Referencias\LOTES.xlsx"
 $recXls   = Join-Path $baseDir "Referencias\RECIBOS CRECENSA.xlsx"
-$outFile  = Join-Path $baseDir "datos-migrados.json"
+$outFile  = Join-Path $baseDir "Referencias\datos-migrados.json"
 
 foreach ($f in @($lotesXls, $recXls)) {
     if (-not (Test-Path $f)) { Write-Host "ERROR: No se encontro $f"; exit 1 }
